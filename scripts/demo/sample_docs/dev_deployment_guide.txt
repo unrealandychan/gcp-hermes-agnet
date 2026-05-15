@@ -1,0 +1,147 @@
+ACME CORPORATION — DEVELOPER GUIDE: DEPLOYMENT PROCESS
+Document ID: DEV-GUIDE-003 | Last Updated: April 2026 | Owner: Carol Davis (VP Eng)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. ENVIRONMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  dev        Local developer machines or preview deployments.
+             No shared infrastructure. Use docker-compose for local services.
+
+  staging    https://staging.acmecorp.com
+             GCP project: acme-staging | Deployed on every merge to `main`.
+             Uses a separate BigQuery dataset (acme_staging) and Firestore DB.
+             Receives 0% of real user traffic. Use for QA, demos, load tests.
+
+  production https://api.acmecorp.com  /  https://chat.acmecorp.com
+             GCP project: hermes-agent-prod
+             Deployments require a GitHub release tag + manual approval.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. CI/CD PIPELINE (GitHub Actions)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Every push to a feature branch triggers:
+  ✓ Lint (ruff, mypy)
+  ✓ Unit tests (pytest)
+  ✓ Security scan (bandit, pip-audit)
+  ✓ Docker build (verifies image builds successfully)
+
+Merge to `main` additionally triggers:
+  ✓ Integration tests
+  ✓ Auto-deploy to staging
+  ✓ Slack notification to #deployments
+
+Release to production:
+  1. Create a GitHub release with a semantic version tag: v2.x.y
+  2. The "Deploy to Prod" workflow triggers automatically
+  3. Requires approval from: Engineering Manager + one senior engineer
+  4. Cloud Build builds and pushes the image to Artifact Registry
+  5. Cloud Run deploys the new revision with 0% traffic
+  6. Automated smoke tests run against the new revision
+  7. If tests pass, traffic is shifted 10% → 50% → 100% over 15 minutes
+  8. If any smoke test fails, traffic shifts back to previous revision
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. DEPLOYING MANUALLY (EMERGENCY / HOTFIX)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Build and push the image
+PROJECT=hermes-agent-prod
+REGION=us-central1
+IMAGE=gcr.io/$PROJECT/hermes-gateway:hotfix-$(date +%Y%m%d%H%M)
+
+docker build -f Dockerfile.gateway -t $IMAGE .
+docker push $IMAGE
+
+# Deploy to Cloud Run (creates new revision with 0% traffic first)
+gcloud run deploy hermes-gateway \
+  --image=$IMAGE \
+  --region=$REGION \
+  --project=$PROJECT \
+  --no-traffic
+
+# Verify the new revision
+NEW_REV=$(gcloud run revisions list --service=hermes-gateway \
+  --region=$REGION --project=$PROJECT \
+  --sort-by="~creationTimestamp" --limit=1 --format="value(name)")
+curl https://$NEW_REV---hermes-gateway-uc.a.run.app/health
+
+# Shift traffic (if healthy)
+gcloud run services update-traffic hermes-gateway \
+  --region=$REGION --project=$PROJECT \
+  --to-revisions=$NEW_REV=100
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. ROLLBACK PROCEDURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# List recent revisions
+gcloud run revisions list --service=hermes-gateway \
+  --region=us-central1 --project=hermes-agent-prod
+
+# Roll back to a specific revision
+gcloud run services update-traffic hermes-gateway \
+  --region=us-central1 --project=hermes-agent-prod \
+  --to-revisions=hermes-gateway-00042-abc=100
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. FEATURE FLAGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Feature flags are managed via GCP Feature Flags (Cloud Deploy) and read
+from Secret Manager at startup. To toggle a flag:
+  1. Update the flag value in Secret Manager: sm://hermes-agent-prod/feature-flags
+  2. Restart Cloud Run to pick up the new value (or use the /admin/reload endpoint)
+
+Current feature flags (as of April 2026):
+  ENABLE_WORKSPACE_TOOLS=true    # Gmail/Calendar/Drive agent tools
+  ENABLE_SCHEDULER_TOOL=true     # Agent self-scheduling via Cloud Scheduler
+  ENABLE_MULTI_PROVIDER_LLM=true # LiteLLM provider selection
+  ENABLE_LOOP_AGENT=true         # Long-running ReAct LoopAgent for tasks
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. LOCAL DEVELOPMENT SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Prerequisites: Python 3.11+, Docker, gcloud CLI, Node.js 20+
+
+  # Clone and set up
+  git clone git@github.com:acmecorp/hermes-gcp.git
+  cd hermes-gcp
+  python -m venv .venv && source .venv/bin/activate
+  pip install -r requirements.txt
+  cp .env.example .env  # Fill in your GCP values
+
+  # Authenticate
+  gcloud auth application-default login
+  gcloud config set project hermes-agent-prod
+
+  # Run the gateway locally
+  uvicorn gateway.main:app --reload --port 8080
+
+  # Run the Next.js UI
+  cd ui && npm install && npm run dev
+
+  # Run tests
+  pytest tests/ -v
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. API STANDARDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  - All endpoints return JSON.
+  - HTTP status codes: 200 OK, 202 Accepted (async), 400 Bad Request,
+    401 Unauthorized, 403 Forbidden, 404 Not Found, 429 Too Many Requests,
+    500 Internal Server Error.
+  - Pagination: use cursor-based pagination for list endpoints (next_token).
+  - Rate limits: 20 req/min for chat, 5 req/min for tasks (per IP).
+  - Auth: all endpoints require Authorization: Bearer <Google ID token>
+    except /health (public) and /scheduler/trigger (OIDC token).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONTACTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VP Engineering:    Carol Davis <carol.davis@acmecorp.com>
+  Eng Manager:       Bob Kim <bob.kim@acmecorp.com>
+  Staff Engineer:    Frank Garcia <frank.garcia@acmecorp.com>
+  DevOps:            Henry Brown <henry.brown@acmecorp.com>
+  On-call rotation:  #on-call Slack channel / PagerDuty

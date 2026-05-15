@@ -1,0 +1,33 @@
+infra/clouddeploy.yaml
+# Cloud Run deploy config — tuned for 10 000 concurrent users
+#
+# Capacity model:
+#   SSE connections are long-lived (1 stream per active chat turn).
+#   Keeping concurrency at 40 per instance avoids memory pressure from
+#   many open streams. 100 instances × 40 = 4 000 simultaneous streams.
+#   For 10 K users, peak simultaneous active streams ≈ 2 000-4 000
+#   (most users read/think between turns), so this provides ample headroom.
+#
+# Actual deploy:
+#   gcloud run deploy hermes-gateway \
+#     --image gcr.io/PROJECT/hermes-gateway \
+#     --region us-central1 \
+#     --cpu 4 --memory 4Gi \
+#     --min-instances 3 --max-instances 100 \
+#     --concurrency 40 --timeout 3600 \
+#     --service-account hermes-agent-sa@PROJECT_ID.iam.gserviceaccount.com
+
+service: hermes-gateway
+region: us-central1
+cpu: "4"
+memory: "4Gi"
+min-instances: 3
+max-instances: 100
+concurrency: 40
+timeout: 3600  # 1 hour — required for long-running LoopAgent tasks
+service-account: hermes-agent-sa@PROJECT_ID.iam.gserviceaccount.com
+env-vars:
+  - GCP_PROJECT_ID=hermes-agent-prod
+  - GCP_LOCATION=us-central1
+secrets:
+  - GOOGLE_CLIENT_ID=hermes-google-client-id:latest

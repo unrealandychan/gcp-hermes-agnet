@@ -1,0 +1,111 @@
+ACME CORPORATION — IT RUNBOOK: VPN ACCESS SETUP AND TROUBLESHOOTING
+Document ID: IT-RB-001 | Last Updated: March 2026 | Owner: Yara Adams (IT Manager)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Acme uses Cisco AnyConnect Secure Mobility Client for all VPN access.
+VPN is required to access:
+  - Internal engineering tools (Jenkins, Grafana, internal dashboards)
+  - Production read-only environments
+  - Database admin consoles
+  - On-premise file servers (SF office)
+
+VPN is NOT required for:
+  - GSuite / Google Workspace
+  - Salesforce, Slack, Zoom, GitHub
+  - The public-facing Hermes chat interface
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 — INITIAL SETUP (NEW EMPLOYEES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1: Install Cisco AnyConnect
+  Mac:
+    1. Go to https://vpn.acmecorp.com (use your Acme Google account to log in)
+    2. Click "Download AnyConnect"
+    3. Run the .pkg installer; grant all requested permissions
+    4. Launch "Cisco AnyConnect Secure Mobility Client" from Applications
+
+  Windows:
+    1. Go to https://vpn.acmecorp.com
+    2. Click "Download AnyConnect for Windows"
+    3. Run the .exe installer as Administrator
+    4. Restart your computer when prompted
+
+  Linux (Ubuntu 20.04+):
+    1. Download via: wget https://vpn.acmecorp.com/dl/anyconnect-linux.tar.gz
+    2. Extract and run: sudo ./vpn_install.sh
+    3. Start with: /opt/cisco/anyconnect/bin/vpn connect vpn.acmecorp.com
+
+Step 2: Configure the VPN Server
+  - Server address:  vpn.acmecorp.com
+  - Auth method:     SSO (your Acme Google account + Okta MFA)
+  - No username/password needed — click "Connect" and your browser will open
+    the Okta authentication page
+
+Step 3: Test Connectivity
+  After connecting, verify access:
+    curl -s https://internal-tools.acmecorp.com/health
+  Expected response: {"status": "ok"}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 — TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: "Authentication failed" or browser does not open
+  Cause:    Okta session expired or MFA device not enrolled
+  Fix:
+    1. Go to okta.acmecorp.com and log in manually
+    2. Complete MFA setup if prompted (use Google Authenticator or Okta Verify)
+    3. Retry VPN connection
+    4. If still failing, contact IT: xavier.green@acmecorp.com
+
+ISSUE: Connected but cannot reach internal tools
+  Cause:    Split-tunnel routing issue or DNS not resolving internal hostnames
+  Fix:
+    1. Disconnect and reconnect the VPN
+    2. Check DNS: nslookup internal-tools.acmecorp.com
+       Expected: resolves to 10.0.1.x range
+    3. If DNS fails, flush DNS cache:
+       Mac:   sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+       Win:   ipconfig /flushdns
+    4. Try ping 10.0.1.100 (VPN gateway) — if no response, firewall issue
+    5. Escalate to IT if unresolved
+
+ISSUE: VPN disconnects every few minutes
+  Cause:    Known issue with AnyConnect 4.x on macOS 14+
+  Fix:
+    1. Upgrade to AnyConnect 5.1.x (download from https://vpn.acmecorp.com/dl)
+    2. If issue persists: Preferences → VPN → Uncheck "Enable local LAN access"
+    3. If on WiFi: try switching to a different network or use a wired connection
+
+ISSUE: "Certificate error" or "Untrusted server"
+  Cause:    Corporate CA certificate not installed
+  Fix:
+    1. Download the Acme CA certificate:
+       https://vpn.acmecorp.com/ca/acme-corp-root-ca.crt
+    2. Mac: Double-click the cert → Keychain → set "Always Trust"
+    3. Win: Double-click → Install Certificate → Local Machine → Trusted Root CAs
+    4. Restart AnyConnect
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 — REQUESTING NEW VPN ACCESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+New employees are provisioned automatically within 24 hours of start date.
+If you have not received VPN access after 24 hours:
+  1. Submit a ticket at helpdesk.acmecorp.com with subject "VPN provisioning"
+  2. Include your employee ID and manager name
+  3. IT SLA: resolved within 4 business hours (P2)
+
+Contractors require manager-sponsored access:
+  - Manager submits: https://helpdesk.acmecorp.com/vpn-contractor-request
+  - Access duration: max 6 months; renewable
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESCALATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  IT Helpdesk:       helpdesk.acmecorp.com  |  it-support@acmecorp.com
+  IT Systems Admin:  Xavier Green <xavier.green@acmecorp.com>
+  IT Manager:        Yara Adams <yara.adams@acmecorp.com>
+  On-call (P0/P1):   +1-415-555-0100 (24/7 on-call line)

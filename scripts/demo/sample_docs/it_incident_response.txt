@@ -1,0 +1,117 @@
+ACME CORPORATION — IT INCIDENT RESPONSE PLAYBOOK
+Document ID: IT-RB-002 | Last Updated: April 2026 | Owner: Yara Adams (IT Manager)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. SEVERITY LEVELS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+P0 — CRITICAL
+  Definition:  Full production outage OR security breach affecting customer data.
+  Examples:    API gateway down, database unreachable, confirmed data exfiltration
+  Response SLA: Acknowledge within 15 minutes, mitigate within 1 hour
+  Notification: Page on-call engineer immediately. Notify VP Eng + CEO within 30 min.
+
+P1 — HIGH
+  Definition:  Major functionality degraded; significant business impact.
+  Examples:    CI/CD pipeline broken, VPN down for >10 users, phishing campaign
+  Response SLA: Acknowledge within 30 minutes, resolve within 4 hours
+  Notification: Alert on-call + IT Manager. Notify affected teams via Slack #incidents.
+
+P2 — MEDIUM
+  Definition:  Non-critical service impaired; moderate business impact.
+  Examples:    SSO errors for a subset of users, hardware failure for one employee,
+               analytics dashboard delayed
+  Response SLA: Acknowledge within 2 hours, resolve within 1 business day
+  Notification: Create a ticket in helpdesk.acmecorp.com. Notify affected users.
+
+P3 — LOW
+  Definition:  Minor issue; minimal business impact.
+  Examples:    Printer offline, individual laptop issue, permissions tweak needed
+  Response SLA: Acknowledge within 8 business hours, resolve within 3 business days
+  Notification: Create a ticket. No immediate page required.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. INCIDENT RESPONSE PROCEDURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1 — DETECT & REPORT
+  Anyone can open an incident:
+  - IT Helpdesk portal: helpdesk.acmecorp.com → "New Incident"
+  - Slack command:      /incident create <title> in #incidents channel
+  - Email:              incidents@acmecorp.com (auto-creates P2 ticket)
+  - Phone (P0/P1 only): +1-415-555-0100 (24/7 on-call line)
+
+Step 2 — TRIAGE & ASSIGN
+  On-call engineer reviews the report within the SLA window:
+  1. Confirm severity (P0–P3)
+  2. Assign to the most appropriate team member
+  3. Set incident status to "In Progress" in the ticketing system
+  4. Post initial update to #incidents Slack channel
+
+Step 3 — COMMUNICATE
+  For P0/P1, post updates to #incidents every 30 minutes until resolved.
+  Template:
+    [INC-XXX] Status Update — <time>
+    Current status: <what is happening now>
+    Impact: <who/what is affected>
+    Next action: <what we are doing in the next 30 min>
+    ETA to resolution: <estimate or "TBD">
+
+Step 4 — MITIGATE & RESOLVE
+  Priority is to restore service, not find root cause. Common mitigations:
+  - Rollback: Deploy the previous stable version
+  - Feature flag: Disable the affected feature
+  - Traffic shift: Route traffic away from affected region/service
+  - Restart: Restart the affected service/pod/container
+
+Step 5 — POST-INCIDENT REVIEW (PIR)
+  Required for all P0 incidents. Recommended for P1.
+  - PIR document due within 5 business days of resolution
+  - Template: drive.acmecorp.com/it/pir-template
+  - Review meeting required for P0 within 48 hours
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. COMMUNICATION TEMPLATES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[P0 — INITIAL BLAST EMAIL]
+Subject: [INCIDENT P0] <Brief description> — Investigating
+
+Team,
+We are currently investigating a P0 incident affecting <system/service>.
+Impact: <description of what is affected and for how long>
+We are working on a fix and will provide an update in 30 minutes.
+On-call: <name> | Incident channel: #incidents
+ETA for next update: <time>
+
+[RESOLUTION EMAIL]
+Subject: [RESOLVED] [INCIDENT P0] <Brief description>
+
+Team,
+The incident affecting <system/service> has been resolved at <time>.
+Duration: <X hours Y minutes>
+Root cause: <one-sentence summary>
+Actions taken: <brief description>
+A full Post-Incident Review will be shared by <date>.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. ESCALATION PATH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Level 1:  On-call engineer (Xavier Green / Henry Brown — rotating)
+  Level 2:  IT Manager — Yara Adams  |  yara.adams@acmecorp.com
+  Level 3:  VP Engineering — Carol Davis  |  carol.davis@acmecorp.com
+  Level 4:  CEO — Direct notification for customer-impacting P0s
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. USEFUL COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Check service health:    curl https://status.acmecorp.com/api/v1/health
+  View recent deployments: gcloud run revisions list --service hermes-gateway
+  Rollback Cloud Run:      gcloud run services update-traffic hermes-gateway \
+                             --to-revisions=<PREV_REVISION>=100
+  Check Firestore tasks:   gcloud firestore documents list --collection hermes_tasks
+  View logs (last 1h):     gcloud logging read "resource.type=cloud_run_revision" \
+                             --freshness=1h --limit=200
+  Alert channels:
+    Slack: #incidents, #on-call, #engineering
+    PagerDuty: app.pagerduty.com (login via SSO)

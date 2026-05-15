@@ -1,0 +1,147 @@
+ACME CORPORATION — HUMAN RESOURCES POLICY HANDBOOK
+Version 4.2 | Effective January 1, 2026 | Maintained by: People Operations
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. PAID TIME OFF (PTO)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.1 Annual Entitlement
+Employees accrue PTO based on tenure:
+  - 0–2 years:      20 days / year (1.67 days per month)
+  - 2–5 years:      25 days / year (2.08 days per month)
+  - 5+ years:       30 days / year (2.50 days per month)
+
+Accrual begins on the first day of employment. New hires may use accrued PTO
+after completing 60 days of continuous employment.
+
+1.2 PTO Requests
+Requests must be submitted in Workday at least:
+  - 2 business days advance notice for 1–2 day absences
+  - 5 business days for 3–5 day absences
+  - 3 weeks for absences longer than 5 days
+Manager approval is required. During peak business periods (Q4 October–December),
+PTO requests may be limited at manager discretion.
+
+1.3 Rollover Policy
+Up to 5 PTO days may be carried over to the following calendar year.
+Days in excess of 5 are forfeited on December 31 each year.
+
+1.4 PTO Payout on Termination
+Accrued, unused PTO is paid out upon voluntary resignation or termination,
+up to a maximum of 15 days. PTO is not paid out for employees terminated
+for cause.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. SICK LEAVE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Employees receive 10 sick days per year, separate from PTO. Sick days do not
+accrue — the full 10 days are available on January 1 each year (or on the
+hire date for new employees, pro-rated). Unused sick days do not carry over
+and are not paid out on termination.
+
+Sick leave may be used for:
+  - Personal illness or injury
+  - Medical appointments
+  - Care of an immediate family member (spouse, child, parent)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. REMOTE WORK POLICY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3.1 Standard Remote Work
+All employees may work remotely up to 2 days per week unless designated
+"Remote" in their employment agreement. Employees at Level 6 (Staff / Senior
+Manager) and above may work remotely up to 4 days per week.
+
+3.2 Fully Remote Employees
+Employees whose employment contract designates "Remote" as their primary
+location are not required to come to an office. They are expected to travel
+to headquarters for:
+  - Quarterly all-hands meetings
+  - Annual performance calibration
+  - Team offsites (as directed by their manager)
+
+3.3 Core Hours
+Regardless of location, all employees are expected to be available during
+core hours: 10:00 AM – 3:00 PM in their local timezone. Meetings outside
+this window require advance agreement from all participants.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. BENEFITS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4.1 Health Insurance
+Acme offers three medical plan tiers through Aetna:
+  - HMO Bronze:   Employee pays $0/month. $3,000 individual deductible.
+  - PPO Silver:   Employee pays $150/month. $1,500 individual deductible.
+  - PPO Gold:     Employee pays $350/month. $500 individual deductible.
+Dental (MetLife) and Vision (VSP) are provided at no cost to the employee.
+Dependents may be added to all plans; employee contributions vary by tier and
+number of dependents (see benefits.acmecorp.com for rates).
+
+4.2 401(k) Retirement Plan
+Acme matches 100% of employee contributions up to 4% of base salary.
+Vesting schedule: 25% per year, fully vested after 4 years.
+Employees may contribute up to IRS limits ($23,500 in 2026 for under-50).
+
+4.3 Equity
+All full-time employees receive RSU grants. Vesting is over 4 years with a
+1-year cliff (25% vest at 12 months, 1/48 per month thereafter). Grant sizes
+vary by level; see your offer letter or speak to your manager.
+
+4.4 Additional Benefits
+  - $150/month remote work stipend (fully remote employees)
+  - $1,500/year professional development budget
+  - $100/month wellness benefit (gym, meditation apps, etc.)
+  - 12 weeks fully paid parental leave (primary caregiver)
+  - 4 weeks fully paid parental leave (secondary caregiver)
+  - Employee Assistance Program (EAP): free confidential counselling
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. PERFORMANCE REVIEWS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.1 Annual Review Cycle
+  - Mid-year check-in:   June (informal; no rating or compensation change)
+  - Annual review:       November–December (formal; rating + compensation review)
+
+5.2 Rating Scale
+  1 — Does Not Meet Expectations
+  2 — Partially Meets Expectations
+  3 — Meets Expectations (target for most employees)
+  4 — Exceeds Expectations
+  5 — Outstanding
+
+5.3 Merit Increases
+Merit increases (effective February 1) are determined by rating:
+  Rating 3: 2–4%    Rating 4: 4–7%    Rating 5: 7–12%
+  Ratings 1 or 2: no merit increase; Performance Improvement Plan initiated.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. LEAVES OF ABSENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  - Parental Leave:     12 weeks paid (primary) / 4 weeks paid (secondary)
+  - Medical Leave:      Up to 12 weeks per FMLA; first 4 weeks fully paid,
+                        remaining 8 weeks at 60% via short-term disability
+  - Bereavement:        5 days for immediate family; 2 days for extended family
+  - Jury Duty:          Full pay for up to 10 business days
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. EXPENSE REIMBURSEMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Submit expenses via Expensify within 30 days of incurring them. Manager
+approval required for amounts over $500. Executive approval (VP+) required
+for amounts over $2,500. Home office equipment up to $500 one-time is
+pre-approved for remote employees.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONTACTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HR General:       hr@acmecorp.com
+Benefits:         benefits@acmecorp.com  |  benefits.acmecorp.com
+Head of HR:       Olivia Harris <olivia.harris@acmecorp.com>
+HR Business Partner: Noah Anderson <noah.anderson@acmecorp.com>
+Workday (HRIS):   workday.acmecorp.com

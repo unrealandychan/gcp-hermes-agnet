@@ -1,0 +1,94 @@
+ACME CORPORATION — NEW EMPLOYEE ONBOARDING CHECKLIST
+Document ID: HR-ON-001 | Last Updated: February 2026 | Owner: Noah Anderson (HR BP)
+
+Welcome to Acme! This checklist covers everything you need to do in your
+first 30 days. Your manager and HR Business Partner will guide you through each step.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BEFORE YOUR START DATE (HR / IT WILL SEND YOU)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  □ Welcome email with laptop shipping info (if remote) or office pickup location
+  □ Workday login link — complete I-9 and direct deposit before Day 1
+  □ Background check clearance confirmation
+  □ Employee ID and badge access request (IT will action this)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DAY 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  □ Receive laptop from IT (or confirm delivery) and power it on
+  □ Complete initial macOS/Windows setup wizard
+  □ Log in to your Acme Google Workspace account (@acmecorp.com)
+  □ Set up Google Authenticator for MFA (required for all Acme systems)
+  □ Install and configure Cisco AnyConnect VPN (see IT-RB-001)
+  □ Install required software from the Acme App Catalog (catalog.acmecorp.com):
+      - Slack (join workspace: acmecorp.slack.com)
+      - Zoom
+      - 1Password (your manager will share the vault invite)
+  □ Join mandatory Slack channels: #general, #announcements, #your-team
+  □ HR orientation call with Noah Anderson (30 min, calendar invite sent)
+  □ 1:1 with your manager (1 hour — agenda: team intro, role expectations, 30-60-90)
+  □ Complete "Security Awareness Training" in Workday (takes 45 min, due by Day 3)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WEEK 1 (DAYS 1–5)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  □ Submit benefits enrollment in Workday (deadline: Day 10)
+  □ Set up your 401(k) contribution at fidelity.com/acme
+  □ Complete I-9 employment eligibility (bring ID documents if in-office)
+  □ Attend weekly team standup (your manager will add you)
+  □ Meet with your onboarding buddy (assigned by HR — check Slack DM)
+  □ Read the HR Policy Handbook (hr.acmecorp.com)
+  □ Read the Security & Acceptable Use Policy (it.acmecorp.com/security-policy)
+  □ Request system access by submitting helpdesk.acmecorp.com/access-request:
+      - GitHub organization invite (Engineering only)
+      - Salesforce (Sales/Marketing only)
+      - BigQuery read-only (Analytics/Engineering)
+      - Any team-specific tools (ask your manager)
+  □ Shadow a teammate on a real task or project
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WEEK 2–4 (FIRST MONTH)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  □ Complete all required Workday training modules:
+      - "Preventing Workplace Harassment" (due by Day 14)
+      - "Data Privacy and GDPR Basics" (due by Day 14)
+      - Role-specific compliance training (varies by team)
+  □ Schedule 30-minute "coffee chats" with 5 colleagues outside your team
+  □ Attend the monthly All-Hands meeting (first Tuesday of each month)
+  □ Submit first expense report if applicable (via Expensify)
+  □ Set up your development environment (Engineering only — see DEV-GUIDE-003)
+  □ Complete your 30-day check-in with HR (Noah Anderson will reach out)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+30-DAY MILESTONE GOALS (DISCUSS WITH MANAGER)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  □ You understand your team's mission and OKRs
+  □ You have shipped or contributed to at least one project/task
+  □ You know who to ask for help in each major area
+  □ You have set initial performance goals for your first 90 days in Workday
+  □ You feel comfortable asking questions in Slack and raising blockers
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KEY CONTACTS FOR NEW HIRES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  HR Business Partner:  Noah Anderson <noah.anderson@acmecorp.com>
+  IT Helpdesk:          helpdesk.acmecorp.com  |  it-support@acmecorp.com
+  Benefits:             benefits@acmecorp.com
+  Payroll:              payroll@acmecorp.com
+  Legal / Compliance:   legal@acmecorp.com
+  Office Manager (SF):  office@acmecorp.com
+  Slack (IT support):   #it-helpdesk
+  Slack (HR questions): #people-ops
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IMPORTANT SYSTEMS & URLS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Workday (HR):       workday.acmecorp.com
+  IT Helpdesk:        helpdesk.acmecorp.com
+  VPN:                vpn.acmecorp.com
+  Okta (SSO):         okta.acmecorp.com
+  GitHub:             github.com/acmecorp
+  Internal Docs:      confluence.acmecorp.com
+  Drive (Policies):   drive.acmecorp.com/shared/policies
+  Status Page:        status.acmecorp.com
+  Hermes (AI Agent):  chat.acmecorp.com
