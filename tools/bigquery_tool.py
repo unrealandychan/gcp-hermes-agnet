@@ -99,3 +99,18 @@ def make_bigquery_tool(settings: Settings) -> FunctionTool:
         return _run_query(project_id, query, params)
 
     return FunctionTool(func=bigquery_query)
+
+
+def run_bigquery_query(query: str, params: dict | None = None) -> dict:
+    """
+    Module-level BigQuery query function for direct tool use (e.g. TaskAgent).
+
+    Args:
+        query: A GoogleSQL SELECT statement.
+        params: Optional dict mapping parameter names to values.
+
+    Returns:
+        A dict with 'rows', 'total_rows', 'schema', or 'error' on failure.
+    """
+    from config import get_settings
+    return _run_query(get_settings().gcp_project_id, query, params)

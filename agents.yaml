@@ -1,0 +1,38 @@
+agents:
+  # ── Built-in domain agents ─────────────────────────────────────────────────
+  # Each entry maps to a sub-agent loaded by the orchestrator.
+  # To add a new agent: append an entry here. No Python changes required
+  # unless you need custom tool logic (see AGENTS.md for instructions).
+
+  - name: AnalyticsAgent
+    description: "Data queries, BigQuery analysis, dashboards, and reporting"
+    model: ${AGENT_MODEL_ANALYTICS:-gemini-2.0-flash}
+    tools: [bigquery, search, storage]
+
+  - name: ITHelpdeskAgent
+    description: "IT issues, system access, incident tickets, VPN, and runbooks"
+    model: ${AGENT_MODEL_IT_HELPDESK:-gemini-2.0-flash}
+    tools: [search, storage, rag_knowledge]
+
+  - name: HRAgent
+    description: "HR policies, PTO, benefits, onboarding, and org questions"
+    model: ${AGENT_MODEL_HR:-gemini-2.0-flash}
+    tools: [search, storage, rag_knowledge]
+
+  - name: DeveloperAgent
+    description: "Code help, debugging, repo navigation, infra questions, and code execution sandbox"
+    model: ${AGENT_MODEL_DEVELOPER:-gemini-2.0-flash}
+    tools: [search, storage, code_sandbox, mcp_filesystem, mcp_sse]
+
+  - name: TaskAgent
+    description: "Multi-step task planning and execution across other agents"
+    model: ${AGENT_MODEL_TASK_PLANNER:-gemini-2.0-flash}
+    tools: [search]
+
+  # ── Add your custom agents below ──────────────────────────────────────────
+  # Example:
+  #
+  # - name: FinanceAgent
+  #   description: "Financial reporting, P&L queries, and budget forecasting"
+  #   model: ${AGENT_MODEL_FINANCE:-gemini-2.0-flash}
+  #   tools: [bigquery, search]

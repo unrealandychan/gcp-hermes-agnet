@@ -20,6 +20,46 @@ This PoC implements all key capabilities from the [Google Cloud Enterprise Agent
 
 ---
 
+## What's New
+
+See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for the full changelog.
+
+**Latest additions:**
+- 📋 `AGENTS.md` — onboarding guide for AI assistants and human contributors
+- 🧩 `agents.yaml` — add new agents without touching Python
+- 📚 `skills/` — write skills as Markdown files, no code required
+- 🧠 Memory split: user profile (who) vs. skills (what), with context budget guard
+- ✅ 90 tests, all passing
+
+---
+
+## Customising Agents
+
+### Add a new agent (no Python required)
+
+Edit `agents.yaml` and append your agent:
+
+```yaml
+agents:
+  - name: FinanceAgent
+    description: "Financial reporting, P&L queries, budget forecasting"
+    model: ${AGENT_MODEL_FINANCE:-gemini-2.0-flash}
+    tools: [bigquery, search]
+```
+
+Valid tool names: `bigquery`, `search`, `storage`, `rag_knowledge`, `code_sandbox`, `mcp_filesystem`, `mcp_sse`.
+
+### Add a custom skill (no Python required)
+
+Copy `skills/TEMPLATE.md` to `skills/your-skill-name.md`, fill in the YAML frontmatter and steps.
+Skills are loaded into the RAG corpus automatically on gateway startup.
+
+### For custom agent logic
+
+See `AGENTS.md` for step-by-step instructions on adding Python builders.
+
+---
+
 ## Architecture
 
 ```

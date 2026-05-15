@@ -114,3 +114,32 @@ def make_storage_tool(settings: Settings) -> FunctionTool:
         return {"error": f"Unknown operation: {operation}"}
 
     return FunctionTool(func=storage_operation)
+
+
+def read_gcs_file(bucket: str, path: str) -> dict:
+    """
+    Module-level GCS read for direct tool use (e.g. TaskAgent).
+
+    Args:
+        bucket: GCS bucket name.
+        path: Object path within the bucket.
+
+    Returns:
+        Dict with 'content' or 'error'.
+    """
+    return _read_object(bucket, path)
+
+
+def write_gcs_file(bucket: str, path: str, content: str) -> dict:
+    """
+    Module-level GCS write for direct tool use (e.g. TaskAgent).
+
+    Args:
+        bucket: GCS bucket name.
+        path: Object path within the bucket.
+        content: String content to write.
+
+    Returns:
+        Dict with 'uri' or 'error'.
+    """
+    return _write_object(bucket, path, content)
