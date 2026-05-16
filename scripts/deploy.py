@@ -59,6 +59,24 @@ def main() -> None:
         "tenacity>=8.3.0",
     ]
 
+    # All local packages that must be shipped to the Reasoning Engine container.
+    # Vertex AI cloudpickles the agent, so every imported local module must be
+    # present at runtime — include every top-level package directory.
+    extra_packages = [
+        "./agents",
+        "./memory",
+        "./tools",
+        "./governance",
+        "./registry",
+        "./eval",
+        "./connectors",
+        "./gateway",
+        "./models",
+        "./skills",
+        "./config.py",
+        "./agents.yaml",
+    ]
+
     deploy_config = {
         "display_name": "Hermes Enterprise Agent",
         "description": "Multi-domain enterprise agent with self-learning capabilities.",
@@ -70,6 +88,7 @@ def main() -> None:
             resource_name=args.update,
             agent_engine=wrapped_app,
             requirements=requirements,
+            extra_packages=extra_packages,
             **deploy_config,
         )
         resource_name = engine.resource_name
@@ -79,6 +98,7 @@ def main() -> None:
         engine = agent_engines.create(
             agent_engine=wrapped_app,
             requirements=requirements,
+            extra_packages=extra_packages,
             **deploy_config,
         )
         resource_name = engine.resource_name
