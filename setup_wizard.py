@@ -377,8 +377,22 @@ def deploy_agent(cfg: dict[str, str], env_path: Path) -> str:
 
     existing = read_env_value(env_path, "REASONING_ENGINE_RESOURCE_NAME")
     if existing:
-        ok(f"Agent already deployed: {existing}")
-        return existing
+        print(f"\n  ℹ️  Existing engine found: {existing}")
+        print("  [u] Update existing engine (redeploy ~5–10 min)")
+        print("  [s] Skip (keep current engine)")
+        choice = input("  Choice [u/S]: ").strip().lower()
+        if choice == "u":
+            step("Updating existing Reasoning Engine …")
+            result = run(
+                [sys.executable, "scripts/deploy.py", "--update", existing],
+                capture=True,
+                check=True,
+            )
+            ok(f"Agent updated: {existing}")
+            return existing
+        else:
+            ok(f"Agent already deployed: {existing}")
+            return existing
 
     step("Deploying agent (this takes ~5–10 min on first run) …")
     result = run(
