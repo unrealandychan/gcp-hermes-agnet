@@ -34,6 +34,13 @@ import sys
 from pathlib import Path
 from subprocess import CalledProcessError, run as _run
 
+try:
+    from google.cloud import storage as _gcs_storage
+    from google.api_core.exceptions import NotFound as _GcsNotFound
+except ImportError:
+    _gcs_storage = None  # type: ignore[assignment]
+    _GcsNotFound = Exception  # type: ignore[assignment, misc]
+
 # ── ANSI colours ───────────────────────────────────────────────────────────────
 RED, GREEN, YELLOW, CYAN, BOLD, RESET = (
     "\033[31m", "\033[32m", "\033[33m", "\033[36m", "\033[1m", "\033[0m"
@@ -209,14 +216,14 @@ def delete_gcs_bucket(bucket: str) -> None:
     try:
         from google.cloud import storage
         from google.api_core.exceptions import NotFound
-        client = storage.Client()
+        client = _gcs_storage.Client()
         b = client.bucket(bucket_name)
         blobs = list(client.list_blobs(bucket_name))
         if blobs:
             b.delete_blobs(blobs)
         b.delete()
         ok(f"Bucket deleted: {bucket_uri}")
-    except NotFound:
+    except _GcsNotFound:
         warn(f"Bucket may not exist or already deleted: {bucket_uri}")
     except Exception as exc:  # noqa: BLE001
         warn(f"Could not delete bucket {bucket_uri}: {exc}")
@@ -367,7 +374,7 @@ def main() -> None:
         err("Project ID is required. Aborting.")
         sys.exit(1)
 
-    region = env.get("GCP_LOCATION", "asia-southeast1").strip()
+    region = env.get("GCP_LOCATION", "us-central1").strip()
 
     # ── Resolve resource names ─────────────────────────────────────────────────
     reasoning_engine = env.get("REASONING_ENGINE_RESOURCE_NAME", "")

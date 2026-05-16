@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     # GCP Core
     gcp_project_id: str = "hermes-agent-prod"
-    gcp_location: str = "asia-southeast1"
+    gcp_location: str = "us-central1"
     gcp_staging_bucket: str = "gs://hermes-agent-artifacts"
 
     # Agent Runtime
@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     # RAG Corpora
     # IMPORTANT: corpus region MUST match gcp_location.
-    # e.g. if gcp_location=asia-southeast1, corpus must be in asia-southeast1.
+    # e.g. if gcp_location=us-central1, corpus must be in us-central1.
     # Cross-region RAG calls will fail with PermissionDenied.
     knowledge_corpus_name: str = ""
     skills_corpus_name: str = ""
@@ -85,7 +85,7 @@ class Settings(BaseSettings):
     # Example: https://hermes-gateway-abc123-uc.a.run.app
     gateway_url: str = ""
     # GCP location for Cloud Scheduler jobs — must match Cloud Run region.
-    scheduler_location: str = "asia-southeast1"
+    scheduler_location: str = "us-central1"
     # Service account email used for OIDC token on scheduler → gateway calls.
     # Must be the same SA running the Cloud Run service (or a dedicated one).
     scheduler_service_account: str = ""
@@ -168,7 +168,7 @@ class Settings(BaseSettings):
         region as gcp_location.  Returns a list of warning strings (empty = OK).
 
         Call at startup to catch cross-region mismatches before the first request.
-        Example bad config: gcp_location=asia-southeast1 but corpus in us-central1.
+        Example bad config: gcp_location=us-central1 but corpus in us-central1.
         """
         import re
         warnings: list[str] = []

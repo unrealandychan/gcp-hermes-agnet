@@ -9,7 +9,7 @@ One-time setup script: creates the RAG corpora needed by Hermes.
 
 Usage:
     python scripts/setup_rag.py                         # uses GCP_LOCATION from .env
-    python scripts/setup_rag.py --region asia-southeast1  # override region
+    python scripts/setup_rag.py --region us-central1  # override region
 
 Outputs the corpus resource names — add them to your .env file.
 
