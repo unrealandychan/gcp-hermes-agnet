@@ -5,6 +5,48 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Phase 1 + 2] — Gemini Enterprise Agent Platform Integration
+
+### Issue #5 — VertexAiMemoryBank (native long-term memory)
+- Replace RAG-upload memory hack with official `VertexAiMemoryBank` API
+- `memory/memory_bank.py`: `HermesMemoryBank` wrapper — generate, fetch, list revisions
+- `memory/skill_learning.py`: fire-and-forget `_persist_to_memory_bank()` on every turn
+- `setup_wizard.py`: auto-create MemoryBank resource, write resource name to `.env`
+- `config.py`: `MEMORY_BANK_RESOURCE_NAME` setting
+- 27 offline unit tests
+
+### Issue #6 — Agent Evaluation Service
+- `eval/metrics.py`: offline `EvalMetrics` scoring (groundedness, task_completion, safety)
+- `eval/run_eval.py`: CLI runner — `--dry-run`, exits 1 if avg overall score < 0.6
+- `eval/evalsets/`: 3 evalsets (Analytics, IT Helpdesk, HR) × 5 test cases each
+- `eval/online_monitor.py`: async BigQuery quality logging per agent turn
+- 15 offline unit tests
+
+### Issue #7 — Semantic Governance Policies
+- `governance/policies.yaml`: 5 declarative policies (purchase limits, legal escalation, PII, credential disclosure, medical)
+- `governance/policy_engine.py`: regex-based `check_response()` / `check_prompt()` with agent-scoped rules
+- 12 offline unit tests
+
+### Issue #8 — Agent Registry
+- `registry/agent_registry.py`: `HermesAgentRegistry` — register, list, get agents via Vertex AI Agent Registry
+- `scripts/register_agents.py`: CLI to sync `agents.yaml` → Agent Registry (`--dry-run` supported)
+- 8 offline unit tests
+
+### Issue #9 — Agent Gateway
+- `gateway/agent_gateway.py`: governed routing via Gemini Enterprise Agent Gateway
+- `AgentGatewayClient`: async send + stream, graceful fallback to direct Runner when gateway is disabled
+- `config.py`: `AGENT_GATEWAY_ENDPOINT`, `AGENT_GATEWAY_API_KEY`, `AGENT_GATEWAY_TIMEOUT_SECONDS`
+- 13 offline unit tests
+
+### Issue #10 — Cross Corpus RAG
+- `memory/cross_corpus.py`: query multiple RAG corpora, merge + re-rank by score, deduplicate, top-k
+- `build_cross_corpus_retriever()`: reads corpus list from settings
+- 9 offline unit tests
+
+**Total tests: 176 / 176 ✅**
+
+---
+
 ## [Unreleased]
 
 ### Added

@@ -1,0 +1,27 @@
+[
+  {
+    "query": "What were the top performing products last quarter?",
+    "expected_keywords": ["revenue", "product", "quarter", "growth"],
+    "agent": "analytics"
+  },
+  {
+    "query": "Show me the monthly active user trend for the past year.",
+    "expected_keywords": ["users", "monthly", "trend", "active"],
+    "agent": "analytics"
+  },
+  {
+    "query": "Generate a sales funnel analysis for Q3.",
+    "expected_keywords": ["funnel", "conversion", "leads", "sales"],
+    "agent": "analytics"
+  },
+  {
+    "query": "What is the customer churn rate this month?",
+    "expected_keywords": ["churn", "retention", "customers", "rate"],
+    "agent": "analytics"
+  },
+  {
+    "query": "Compare revenue across regions for the current fiscal year.",
+    "expected_keywords": ["revenue", "region", "comparison", "fiscal"],
+    "agent": "analytics"
+  }
+]

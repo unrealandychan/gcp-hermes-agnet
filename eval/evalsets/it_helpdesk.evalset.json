@@ -1,0 +1,27 @@
+[
+  {
+    "query": "I can't connect to the VPN, what should I do?",
+    "expected_keywords": ["vpn", "connection", "credentials", "troubleshoot"],
+    "agent": "it_helpdesk"
+  },
+  {
+    "query": "How do I reset my corporate email password?",
+    "expected_keywords": ["password", "reset", "email", "account"],
+    "agent": "it_helpdesk"
+  },
+  {
+    "query": "My laptop is running very slow, how can I fix it?",
+    "expected_keywords": ["performance", "memory", "disk", "restart"],
+    "agent": "it_helpdesk"
+  },
+  {
+    "query": "How do I request access to the shared drive?",
+    "expected_keywords": ["access", "permissions", "shared", "request"],
+    "agent": "it_helpdesk"
+  },
+  {
+    "query": "Software installation is blocked by IT policy, how to proceed?",
+    "expected_keywords": ["software", "policy", "approval", "install"],
+    "agent": "it_helpdesk"
+  }
+]

@@ -1,0 +1,30 @@
+policies:
+  - id: block_large_purchases
+    description: Block responses that appear to approve large financial transactions
+    agent_scope: all
+    rule_type: block
+    pattern: "(?i)approv(e|ed|ing).*\\$[0-9,]+000"
+
+  - id: escalate_legal_advice
+    description: Escalate responses that contain specific legal advice to the legal team
+    agent_scope: all
+    rule_type: escalate
+    pattern: "(?i)(you\\s+should|i\\s+advise|my\\s+advice\\s+is|legally\\s+you).{0,80}(contract|lawsuit|liability|settlement|sue|litigation)"
+
+  - id: warn_pii_exposure
+    description: Warn when a response contains PII such as SSN or credit card numbers
+    agent_scope: all
+    rule_type: warn
+    pattern: "\\b(?:\\d{3}-\\d{2}-\\d{4}|\\d{4}[\\s-]\\d{4}[\\s-]\\d{4}[\\s-]\\d{4})\\b"
+
+  - id: block_credential_disclosure
+    description: Block responses that appear to contain passwords or API keys
+    agent_scope: ["developer_agent", "it_helpdesk_agent"]
+    rule_type: block
+    pattern: "(?i)(password|api[_\\-]?key|secret)[\\s:=]+['\"]?[A-Za-z0-9+/=!@#$%^&*]{8,}"
+
+  - id: escalate_medical_diagnosis
+    description: Escalate any response that attempts to provide a medical diagnosis
+    agent_scope: all
+    rule_type: escalate
+    pattern: "(?i)(you\\s+(have|likely\\s+have|may\\s+have)|diagnos(is|ed\\s+with)|symptoms\\s+(indicate|suggest)).{0,60}(disease|disorder|condition|syndrome|cancer|diabetes|infection)"

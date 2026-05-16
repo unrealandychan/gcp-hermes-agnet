@@ -417,6 +417,30 @@ def seed_demo_data(cfg: dict[str, str]) -> None:
             warn(f"{script} not found — skipping")
 
 
+def setup_memory_bank(cfg: dict[str, str], env_path: Path) -> None:
+    header("VertexAiMemoryBank")
+
+    existing = read_env_value(env_path, "MEMORY_BANK_RESOURCE_NAME")
+    if existing:
+        ok(f"MemoryBank already configured: {existing}")
+        return
+
+    step("Creating VertexAiMemoryBank resource …")
+    try:
+        import vertexai
+        vertexai.init(project=cfg["project_id"], location=cfg["region"])
+        from memory.memory_bank import create_memory_bank
+        resource_name = create_memory_bank(
+            project=cfg["project_id"],
+            location=cfg["region"],
+        )
+        write_env(env_path, "MEMORY_BANK_RESOURCE_NAME", resource_name)
+        ok(f"MemoryBank created: {resource_name}")
+    except Exception as exc:  # noqa: BLE001
+        warn(f"MemoryBank creation failed ({exc}) — continuing without it.")
+        warn("Long-term user memory will be disabled. Re-run wizard to retry.")
+
+
 # ── Cloud Run deploy ──────────────────────────────────────────────────────────
 def deploy_cloud_run(cfg: dict[str, str], env_path: Path) -> str | None:
     if not shutil.which("docker"):
@@ -558,6 +582,9 @@ def main() -> None:
     install_python_deps()
 
     setup_rag(cfg, env_path)
+
+    # ── VertexAiMemoryBank ──────────────────────────────────────────────────
+    setup_memory_bank(cfg, env_path)
 
     deploy_agent(cfg, env_path)
 
