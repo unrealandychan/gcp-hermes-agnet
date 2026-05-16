@@ -158,6 +158,21 @@ See **[docs/cost-estimation.md](docs/cost-estimation.md)** for detailed tables.
 
 ---
 
+## Teardown (PoC cleanup)
+
+Delete **all** GCP resources in one command:
+
+```bash
+python teardown_wizard.py
+```
+
+Shows a full resource list, asks for explicit `yes` confirmation, then deletes in safe dependency order:
+Cloud Run → Reasoning Engine → Memory Bank → RAG Corpora → GCS bucket → Firestore → Service Account → Container image → Scheduler jobs
+
+**The GCP project itself is never deleted.**
+
+---
+
 ## Quick Start
 
 **Prerequisites:** `gcloud` CLI authenticated as project owner. Python 3.11+.

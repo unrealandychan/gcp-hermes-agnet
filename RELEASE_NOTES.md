@@ -43,7 +43,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `build_cross_corpus_retriever()`: reads corpus list from settings
 - 9 offline unit tests
 
-**Total tests: 176 / 176 ✅**
+### Teardown
+- `teardown_wizard.py`: single command to delete ALL GCP resources (PoC cleanup)
+- Idempotent, graceful, safe dependency order
+- Double confirmation (`yes` required) — project never deleted
+- 26 offline unit tests
+
+
 
 ---
 
