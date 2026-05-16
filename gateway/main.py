@@ -4,9 +4,11 @@ gateway/main.py
 Hermes API Gateway — FastAPI application.
 
 Endpoints:
-  POST /chat              — SSE streaming chat with the Hermes agent
-  GET  /sessions/{user_id} — List active sessions for a user
-  DELETE /memories/{user_id} — Clear long-term memory for a user
+  POST /chat                   — SSE streaming chat with the Hermes agent
+  GET  /sessions/{user_id}     — List active sessions for a user
+  GET  /memories/{user_id}     — List long-term memories for a user
+  POST /memories/{user_id}     — Directly write a memory fact (memory-as-a-tool)
+  DELETE /memories/{user_id}   — Clear all long-term memories for a user
 
 All endpoints require a valid Google ID token (Bearer).
 
@@ -43,6 +45,7 @@ from gateway import tasks as task_store
 from gateway.observability import agent_span, instrument_fastapi, setup_tracing
 from tools.model_armor import screen_prompt
 from governance.policy_engine import PolicyEngine, PolicyResult, build_policy_engine
+from memory.memory_bank import HermesMemoryBank, build_memory_bank
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +57,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 _runner: Runner | None = None
 _policy_engine: PolicyEngine | None = None
+_memory_bank: HermesMemoryBank | None = None
 
 
 @asynccontextmanager
@@ -87,6 +91,12 @@ async def lifespan(app: FastAPI):
         logger.info("PolicyEngine loaded %d rules.", len(_policy_engine.rules))
     else:
         logger.warning("PolicyEngine unavailable — governance checks disabled.")
+    global _memory_bank  # noqa: PLW0603
+    _memory_bank = build_memory_bank()
+    if _memory_bank:
+        logger.info("HermesMemoryBank initialized.")
+    else:
+        logger.info("MEMORY_BANK_RESOURCE_NAME not set — long-term memory disabled.")
     yield
     logger.info("Hermes gateway shutting down.")
 
@@ -267,16 +277,60 @@ async def clear_memories(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Cannot clear memories for another user.",
         )
-    # ADK VertexAiMemoryBankService deletion (best-effort; logs on failure)
-    try:
-        if _runner:
-            await _runner.memory_service.delete_memories(  # type: ignore[attr-defined]
-                app_name=_runner.app_name, user_id=user_id
-            )
-    except AttributeError:
-        logger.warning("Memory service does not support delete_memories.")
-    except Exception:  # noqa: BLE001
-        logger.exception("Failed to delete memories for user %s", user_id)
+    if not _memory_bank:
+        # MemoryBank not configured — nothing to delete
+        return
+    deleted = await _memory_bank.purge_memories(user_id=user_id)
+    logger.info("Cleared %d memories for user %s", deleted, user_id)
+
+
+@app.get("/memories/{user_id}")
+async def list_memories(
+    user_id: str = Path(..., min_length=1, max_length=128),
+    user: CurrentUser = ...,
+    query: str = "",
+    top_k: int = 10,
+) -> dict:
+    """Retrieve long-term memories for the authenticated user."""
+    caller_id: str = user.get("sub", "")
+    if caller_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot list memories for another user.",
+        )
+    if not _memory_bank:
+        return {"memories": [], "profiles": []}
+    memories = await _memory_bank.fetch_memories(
+        user_id=user_id, query=query or "*", top_k=top_k
+    )
+    profiles = await _memory_bank.retrieve_profiles(user_id=user_id)
+    return {"memories": memories, "profiles": profiles}
+
+
+class CreateMemoryRequest(BaseModel):
+    fact: str
+
+
+@app.post("/memories/{user_id}", status_code=status.HTTP_201_CREATED)
+async def create_memory(
+    user_id: str = Path(..., min_length=1, max_length=128),
+    body: CreateMemoryRequest = ...,
+    user: CurrentUser = ...,
+) -> dict:
+    """Directly write a memory fact for the authenticated user (memory-as-a-tool)."""
+    caller_id: str = user.get("sub", "")
+    if caller_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot create memories for another user.",
+        )
+    if not _memory_bank:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Memory Bank not configured.",
+        )
+    resource_name = await _memory_bank.create_memory(user_id=user_id, fact=body.fact)
+    return {"resource_name": resource_name, "fact": body.fact}
 
 
 # ── Long-running task endpoints ────────────────────────────────────────────────

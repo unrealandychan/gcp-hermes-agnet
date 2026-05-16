@@ -360,3 +360,212 @@ class TestCreateMemoryBank:
         assert result == "projects/p/memoryBanks/custom"
         call_kwargs = mock_mb.MemoryBank.create.call_args[1]
         assert call_kwargs["display_name"] == "my-custom-bank"
+
+
+# ── HermesMemoryBank.generate_memories (wait_for_completion) ──────────────────
+
+class TestGenerateMemoriesAsync:
+
+    async def test_passes_wait_for_completion_false(self):
+        mock_mb, mock_bank = _make_mock_module()
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            await bank.generate_memories(user_id="u1", user_text="hi", agent_text="hello")
+        call_kwargs = mock_bank.generate_memories.call_args[1]
+        assert call_kwargs.get("wait_for_completion") is False
+
+
+# ── HermesMemoryBank.ingest_events ────────────────────────────────────────────
+
+class TestIngestEvents:
+
+    async def test_calls_bank_ingest_events(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_mb.ConversationEvent = MagicMock(side_effect=lambda role, text: SimpleNamespace(role=role, text=text))
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            await bank.ingest_events(
+                user_id="u1",
+                events=[
+                    {"role": "user", "text": "How do I reset VPN?"},
+                    {"role": "agent", "text": "Go to Settings > VPN > Reset."},
+                ],
+            )
+        mock_bank.ingest_events.assert_called_once()
+        call_kwargs = mock_bank.ingest_events.call_args[1]
+        assert call_kwargs["scope"] == {"user_id": "u1"}
+        assert len(call_kwargs["events"]) == 2
+
+    async def test_falls_back_to_dict_when_no_conversation_event_class(self):
+        mock_mb, mock_bank = _make_mock_module()
+        # ConversationEvent not available on module
+        del mock_mb.ConversationEvent
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            await bank.ingest_events(user_id="u1", events=[{"role": "user", "text": "hi"}])
+        mock_bank.ingest_events.assert_called_once()
+
+    async def test_exception_is_swallowed(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_mb.ConversationEvent = MagicMock(side_effect=AttributeError)
+        mock_bank.ingest_events.side_effect = RuntimeError("sdk error")
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            # Should not raise
+            await bank.ingest_events(user_id="u1", events=[{"role": "user", "text": "hi"}])
+
+
+# ── HermesMemoryBank.purge_memories ───────────────────────────────────────────
+
+class TestPurgeMemories:
+
+    async def test_calls_purge_with_force_true(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.purge_memories.return_value = SimpleNamespace(purge_count=5)
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            count = await bank.purge_memories(user_id="u1")
+        assert count == 5
+        call_kwargs = mock_bank.purge_memories.call_args[1]
+        assert call_kwargs["scope"] == {"user_id": "u1"}
+        assert call_kwargs["force"] is True  # dry_run=False → force=True
+
+    async def test_dry_run_passes_force_false(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.purge_memories.return_value = SimpleNamespace(purge_count=3)
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            count = await bank.purge_memories(user_id="u1", dry_run=True)
+        assert count == 3
+        call_kwargs = mock_bank.purge_memories.call_args[1]
+        assert call_kwargs["force"] is False  # dry_run=True → force=False
+
+    async def test_returns_zero_on_exception(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.purge_memories.side_effect = RuntimeError("quota error")
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            count = await bank.purge_memories(user_id="u1")
+        assert count == 0
+
+    async def test_purge_count_attribute_missing_returns_zero(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.purge_memories.return_value = SimpleNamespace()  # no purge_count
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            count = await bank.purge_memories(user_id="u1")
+        assert count == 0
+
+
+# ── HermesMemoryBank.delete_memory ────────────────────────────────────────────
+
+class TestDeleteMemory:
+
+    async def test_calls_memories_delete(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.memories = MagicMock()
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            result = await bank.delete_memory("projects/p/memoryBanks/b/memories/m1")
+        assert result is True
+        mock_bank.memories.delete.assert_called_once_with(name="projects/p/memoryBanks/b/memories/m1")
+
+    async def test_returns_false_on_exception(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.memories = MagicMock()
+        mock_bank.memories.delete.side_effect = RuntimeError("not found")
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            result = await bank.delete_memory("projects/p/memoryBanks/b/memories/m1")
+        assert result is False
+
+
+# ── HermesMemoryBank.create_memory ────────────────────────────────────────────
+
+class TestCreateMemory:
+
+    async def test_calls_memories_create_and_returns_name(self):
+        mock_mb, mock_bank = _make_mock_module()
+        created = SimpleNamespace(name="projects/p/memoryBanks/b/memories/new")
+        mock_bank.memories = MagicMock()
+        mock_bank.memories.create.return_value = created
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            result = await bank.create_memory(user_id="u1", fact="User is based in HK")
+        assert result == "projects/p/memoryBanks/b/memories/new"
+        call_kwargs = mock_bank.memories.create.call_args[1]
+        assert call_kwargs["scope"] == {"user_id": "u1"}
+        assert call_kwargs["fact"] == "User is based in HK"
+
+    async def test_returns_none_on_exception(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.memories = MagicMock()
+        mock_bank.memories.create.side_effect = RuntimeError("sdk error")
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            result = await bank.create_memory(user_id="u1", fact="some fact")
+        assert result is None
+
+
+# ── HermesMemoryBank.update_memory ────────────────────────────────────────────
+
+class TestUpdateMemory:
+
+    async def test_calls_memories_update(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.memories = MagicMock()
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            result = await bank.update_memory(
+                memory_resource_name="projects/p/memoryBanks/b/memories/m1",
+                new_fact="Updated fact",
+            )
+        assert result is True
+        mock_bank.memories.update.assert_called_once_with(
+            name="projects/p/memoryBanks/b/memories/m1",
+            fact="Updated fact",
+        )
+
+    async def test_returns_false_on_exception(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.memories = MagicMock()
+        mock_bank.memories.update.side_effect = RuntimeError("not found")
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            result = await bank.update_memory("projects/p/.../m1", "fact")
+        assert result is False
+
+
+# ── HermesMemoryBank.retrieve_profiles ────────────────────────────────────────
+
+class TestRetrieveProfiles:
+
+    async def test_returns_profiles_with_facts(self):
+        mock_mb, mock_bank = _make_mock_module()
+        profile = SimpleNamespace(
+            scope={"user_id": "u1"},
+            facts=[SimpleNamespace(fact="Prefers Python"), SimpleNamespace(fact="Works in EMEA")],
+        )
+        mock_bank.retrieve_profiles.return_value = SimpleNamespace(profiles=[profile])
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            result = await bank.retrieve_profiles(user_id="u1")
+        assert len(result) == 1
+        assert result[0]["scope"] == {"user_id": "u1"}
+        assert result[0]["facts"] == ["Prefers Python", "Works in EMEA"]
+
+    async def test_returns_empty_on_exception(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.retrieve_profiles.side_effect = RuntimeError("unavailable")
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            result = await bank.retrieve_profiles(user_id="u1")
+        assert result == []
+
+    async def test_profiles_attribute_missing_returns_empty(self):
+        mock_mb, mock_bank = _make_mock_module()
+        mock_bank.retrieve_profiles.return_value = SimpleNamespace()  # no .profiles
+        with patch("memory.memory_bank._get_memory_bank_module", return_value=mock_mb):
+            bank = HermesMemoryBank(resource_name="projects/p/memoryBanks/b")
+            result = await bank.retrieve_profiles(user_id="u1")
+        assert result == []
