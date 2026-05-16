@@ -195,6 +195,19 @@ def _build_generic(cfg: dict, settings: Settings, tool_map: dict) -> LlmAgent:
                 name, key, sorted(tool_map.keys()),
             )
 
+    # ── Gemini API constraint: google_search (grounding) cannot be mixed with
+    # other function tools. If google_search is present alongside other tools,
+    # drop it and log a warning rather than letting the agent crash at runtime.
+    from google.adk.tools import google_search as _gs  # noqa: PLC0415
+    if _gs in tools and len(tools) > 1:
+        logger.warning(
+            "Agent '%s': google_search cannot be combined with other tools "
+            "(Gemini API constraint). Removing google_search — use the "
+            "Orchestrator for web search.",
+            name,
+        )
+        tools = [t for t in tools if t is not _gs]
+
     return LlmAgent(
         name=name,
         model=get_model(model_name),

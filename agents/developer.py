@@ -6,7 +6,6 @@ Developer assistant agent — helps engineers with code, debugging, and infrastr
 import logging
 
 from google.adk.agents import LlmAgent
-from google.adk.tools import google_search
 from google.adk.tools.preload_memory_tool import PreloadMemoryTool
 
 from config import Settings
@@ -41,12 +40,10 @@ When answering:
 3. Use storage_tool to read configuration files or deployment manifests when needed.
 4. Use search_drive_files / read_drive_file to access architecture diagrams, design
    docs, ADRs, or specs stored in Google Drive.
-5. Use google_search to look up public library docs, Stack Overflow answers, GitHub
-   issues, or vendor release notes.
-6. Use the code execution tool to run and verify code snippets, data transforms,
+5. Use the code execution tool to run and verify code snippets, data transforms,
    or shell commands in a secure sandbox before recommending them.
-7. Provide runnable, production-quality code examples.
-8. For security-sensitive operations (IAM, secrets, network rules), explicitly note
+6. Provide runnable, production-quality code examples.
+7. For security-sensitive operations (IAM, secrets, network rules), explicitly note
    the security implications and recommended best practices.
 """
 
@@ -56,7 +53,6 @@ def build_developer_agent(settings: Settings) -> LlmAgent:
         make_search_tool(settings),
         make_storage_tool(settings),
         PreloadMemoryTool(),
-        google_search,
         # Drive — read architecture docs, design specs, ADRs
         search_drive_tool,
         read_drive_tool,

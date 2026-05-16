@@ -74,10 +74,13 @@ class TestAnalyticsAgentBuild:
         agent = build_analytics_agent(_mock_settings())
         assert agent.name == "AnalyticsAgent"
 
-    def test_has_google_search_in_tools(self):
+    def test_no_google_search_in_tools(self):
+        # google_search (grounding) must NOT be mixed with other FunctionTools —
+        # Gemini API raises 400 INVALID_ARGUMENT: "Multiple tools are supported
+        # only when they are all search tools."
         from agents.analytics import build_analytics_agent
         agent = build_analytics_agent(_mock_settings())
-        assert any("google_search" in str(t) for t in (agent.tools or []))
+        assert not any("google_search" in str(t) for t in (agent.tools or []))
 
 
 class TestHrAgentBuild:
@@ -113,10 +116,11 @@ class TestItHelpdeskAgentBuild:
         agent = build_it_helpdesk_agent(_mock_settings())
         assert agent.name == "ITHelpdeskAgent"
 
-    def test_has_google_search_in_tools(self):
+    def test_no_google_search_in_tools(self):
+        # google_search must NOT be mixed with other FunctionTools
         from agents.it_helpdesk import build_it_helpdesk_agent
         agent = build_it_helpdesk_agent(_mock_settings())
-        assert any("google_search" in str(t) for t in (agent.tools or []))
+        assert not any("google_search" in str(t) for t in (agent.tools or []))
 
 
 class TestDeveloperAgentBuild:
@@ -137,10 +141,11 @@ class TestDeveloperAgentBuild:
         agent = build_developer_agent(_mock_settings())
         assert "sandbox" in agent.description.lower()
 
-    def test_has_google_search_in_tools(self):
+    def test_no_google_search_in_tools(self):
+        # google_search must NOT be mixed with other FunctionTools
         from agents.developer import build_developer_agent
         agent = build_developer_agent(_mock_settings())
-        assert any("google_search" in str(t) for t in (agent.tools or []))
+        assert not any("google_search" in str(t) for t in (agent.tools or []))
 
 
 class TestOrchestratorBuild:

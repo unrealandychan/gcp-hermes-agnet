@@ -6,7 +6,6 @@ Includes Google Workspace integrations: Gmail (incident notifications), Calendar
 (maintenance windows), Drive (runbooks and IT documentation).
 """
 from google.adk.agents import LlmAgent
-from google.adk.tools import google_search
 from google.adk.tools.preload_memory_tool import PreloadMemoryTool
 
 from config import Settings
@@ -32,10 +31,8 @@ When answering:
    retrospectives.  Use check_availability to find a slot for all stakeholders.
 6. Use send_email to send incident notifications, status updates, or post-mortem
    summaries to affected users or the on-call team.
-7. Use google_search to look up public CVEs, vendor advisories, or error messages
-   not covered by internal runbooks.
-8. Provide step-by-step resolution guidance.
-9. Escalate clearly if the issue requires human intervention (say "ESCALATE: <reason>").
+7. Provide step-by-step resolution guidance.
+8. Escalate clearly if the issue requires human intervention (say "ESCALATE: <reason>").
 """
 
 
@@ -53,7 +50,6 @@ def build_it_helpdesk_agent(settings: Settings) -> LlmAgent:
             make_search_tool(settings),
             make_storage_tool(settings),
             PreloadMemoryTool(),
-            google_search,
             # Gmail
             send_email_tool,
             search_emails_tool,

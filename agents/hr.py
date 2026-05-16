@@ -6,7 +6,6 @@ Includes Google Workspace integrations: Gmail (notify employees), Calendar (sche
 interviews/meetings), Drive (access HR policy documents and templates).
 """
 from google.adk.agents import LlmAgent
-from google.adk.tools import google_search
 from google.adk.tools.preload_memory_tool import PreloadMemoryTool
 
 from config import Settings
@@ -31,11 +30,9 @@ When answering:
 5. Use send_email to send formal notifications, offer letters, or reminders to
    employees.  Use search_emails to look up related threads if needed.
 6. Provide accurate, policy-compliant answers. Quote the relevant policy when possible.
-7. Use google_search to look up current labour law requirements, public holiday
-   calendars, or benefit market benchmarks when internal docs are insufficient.
-8. If you are unsure or the question is sensitive (e.g., compensation disputes),
+7. If you are unsure or the question is sensitive (e.g., compensation disputes),
    direct the user to contact HR directly and provide the contact channel.
-9. Never disclose another employee's personal or salary information.
+8. Never disclose another employee's personal or salary information.
 """
 
 
@@ -52,7 +49,6 @@ def build_hr_agent(settings: Settings) -> LlmAgent:
         tools=[
             make_search_tool(settings),
             PreloadMemoryTool(),
-            google_search,
             # Gmail
             send_email_tool,
             search_emails_tool,
