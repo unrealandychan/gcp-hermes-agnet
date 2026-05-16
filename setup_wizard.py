@@ -454,8 +454,25 @@ def setup_memory_bank(cfg: dict[str, str], env_path: Path) -> None:
         write_env(env_path, "MEMORY_BANK_RESOURCE_NAME", resource_name)
         ok(f"MemoryBank created: {resource_name}")
     except Exception as exc:  # noqa: BLE001
-        warn(f"MemoryBank creation failed ({exc}) — continuing without it.")
-        warn("Long-term user memory will be disabled. Re-run wizard to retry.")
+        warn(f"VertexAiMemoryBank unavailable ({exc})")
+        step("Falling back: creating RAG corpus as memory bank …")
+        try:
+            import vertexai
+            from vertexai.preview import rag
+            vertexai.init(project=cfg["project_id"], location=cfg["region"])
+            embedding_config = rag.EmbeddingModelConfig(
+                publisher_model="publishers/google/models/text-embedding-004",
+            )
+            corpus = rag.create_corpus(
+                display_name="hermes-memory-bank",
+                description="Per-user long-term memory for Hermes (RAG corpus fallback).",
+                embedding_model_config=embedding_config,
+            )
+            write_env(env_path, "MEMORY_BANK_RESOURCE_NAME", corpus.name)
+            ok(f"Memory bank corpus created: {corpus.name}")
+        except Exception as exc2:  # noqa: BLE001
+            warn(f"Memory bank creation failed ({exc2}) — continuing without it.")
+            warn("Long-term user memory will be disabled. Re-run wizard to retry.")
 
 
 # ── Cloud Run deploy ──────────────────────────────────────────────────────────
