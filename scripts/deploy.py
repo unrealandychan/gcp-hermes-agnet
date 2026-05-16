@@ -79,6 +79,13 @@ def main() -> None:
     wrapped_app = agent_engines.AdkApp(
         agent=raw_agent,
         enable_tracing=True,
+        env_vars={
+            "GCP_PROJECT_ID":            settings.gcp_project_id,
+            "GCP_LOCATION":              settings.gcp_location,
+            "KNOWLEDGE_CORPUS_NAME":     settings.knowledge_corpus_name,
+            "SKILLS_CORPUS_NAME":        settings.skills_corpus_name,
+            "MEMORY_BANK_RESOURCE_NAME": settings.memory_bank_resource_name,
+        },
     )
 
     requirements = [

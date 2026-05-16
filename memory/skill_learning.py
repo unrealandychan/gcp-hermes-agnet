@@ -41,7 +41,9 @@ def build_skill_learning_callback(agent_name: str):
         try:
             # ── 1. Collect text from the interaction ───────────────────────────
             user_text = _extract_text(callback_context.user_content)
-            agent_text = _extract_text(callback_context.agent_response)
+            agent_text = _extract_text(
+                getattr(callback_context, "agent_response", None)
+            )
 
             if not user_text or not agent_text:
                 return
