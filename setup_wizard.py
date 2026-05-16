@@ -237,6 +237,7 @@ _REQUIRED_APIS = [
 _SA_ROLES = [
     "roles/aiplatform.user",
     "roles/bigquery.dataViewer",
+    "roles/bigquery.metadataViewer",   # required for INFORMATION_SCHEMA queries
     "roles/bigquery.jobUser",
     "roles/storage.objectAdmin",
     "roles/secretmanager.secretAccessor",
@@ -309,6 +310,7 @@ def bootstrap_gcp(cfg: dict[str, str]) -> None:
     _RE_SA_ROLES = [
         "roles/aiplatform.user",
         "roles/bigquery.dataViewer",
+        "roles/bigquery.metadataViewer",   # required for INFORMATION_SCHEMA queries
         "roles/bigquery.jobUser",
         "roles/storage.objectViewer",
         "roles/secretmanager.secretAccessor",
