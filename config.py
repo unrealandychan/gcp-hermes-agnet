@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     reasoning_engine_resource_name: str = ""
 
     # RAG Corpora
+    # IMPORTANT: corpus region MUST match gcp_location.
+    # e.g. if gcp_location=asia-southeast1, corpus must be in asia-southeast1.
+    # Cross-region RAG calls will fail with PermissionDenied.
     knowledge_corpus_name: str = ""
     skills_corpus_name: str = ""
 
@@ -157,6 +160,39 @@ class Settings(BaseSettings):
         for env_var, value in _env_map.items():
             if value and env_var not in os.environ:
                 os.environ[env_var] = value
+
+
+    def validate_rag_regions(self) -> list[str]:
+        """
+        Check that all configured RAG corpus resource names are in the same
+        region as gcp_location.  Returns a list of warning strings (empty = OK).
+
+        Call at startup to catch cross-region mismatches before the first request.
+        Example bad config: gcp_location=asia-southeast1 but corpus in us-central1.
+        """
+        import re
+        warnings: list[str] = []
+        corpus_fields = {
+            "KNOWLEDGE_CORPUS_NAME": self.knowledge_corpus_name,
+            "SKILLS_CORPUS_NAME": self.skills_corpus_name,
+            "MEMORY_BANK_RESOURCE_NAME": self.memory_bank_resource_name,
+        }
+        # resource names look like: projects/.../locations/<region>/ragCorpora/...
+        _loc_re = re.compile(r"/locations/([^/]+)/")
+        for field, resource_name in corpus_fields.items():
+            if not resource_name:
+                continue
+            m = _loc_re.search(resource_name)
+            if not m:
+                continue
+            corpus_region = m.group(1)
+            if corpus_region != self.gcp_location:
+                warnings.append(
+                    f"{field} is in '{corpus_region}' but GCP_LOCATION='{self.gcp_location}'. "
+                    f"Cross-region RAG calls will fail with PermissionDenied. "
+                    f"Rebuild the corpus in '{self.gcp_location}' or update GCP_LOCATION."
+                )
+        return warnings
 
 
 @lru_cache

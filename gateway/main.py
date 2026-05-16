@@ -65,6 +65,10 @@ async def lifespan(app: FastAPI):
     settings = get_settings()
     settings.inject_litellm_env()  # export provider API keys for LiteLLM
 
+    # Warn early about region mismatches — cross-region RAG = PermissionDenied
+    for warn in settings.validate_rag_regions():
+        logger.warning("⚠️  Region mismatch: %s", warn)
+
     # ── Agent Observability: Cloud Trace ──────────────────────────────────
     if settings.enable_cloud_trace:
         setup_tracing(project_id=settings.gcp_project_id)
