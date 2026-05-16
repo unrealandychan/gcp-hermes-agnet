@@ -164,8 +164,12 @@ class TestOrchestratorBuild:
     def test_has_sub_agents(self):
         from agents.orchestrator import build_orchestrator
         agent = build_orchestrator(_mock_settings())
-        # Sub-agents are loaded from agents.yaml — at least the built-in ones
-        assert len(agent.sub_agents) >= 4
+        # Orchestrator now only holds TaskAgent as its direct sub_agent.
+        # Specialists (Analytics, HR, IT, Developer) are TaskAgent's children.
+        assert len(agent.sub_agents) == 1
+        assert agent.sub_agents[0].name == "TaskAgent"
+        # TaskAgent should hold the specialist agents
+        assert len(agent.sub_agents[0].sub_agents) >= 4
 
     def test_has_no_tools(self):
         # Orchestrator is a pure routing agent — no tools, only sub_agents.
