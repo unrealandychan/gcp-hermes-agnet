@@ -19,6 +19,7 @@ Web UI using Server-Sent Events (SSE).
 from __future__ import annotations
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -63,6 +64,13 @@ _memory_bank: HermesMemoryBank | None = None
 async def lifespan(app: FastAPI):
     global _runner  # noqa: PLW0603
     settings = get_settings()
+
+    # Force ADK to use Vertex AI (not Google AI Studio).
+    # If GOOGLE_API_KEY or GEMINI_API_KEY exist in the environment, ADK switches
+    # to generativelanguage.googleapis.com — causing "API key not valid" errors.
+    os.environ.pop("GOOGLE_API_KEY", None)
+    os.environ.pop("GEMINI_API_KEY", None)
+
     settings.inject_litellm_env()  # export provider API keys for LiteLLM
 
     # Warn early about region mismatches — cross-region RAG = PermissionDenied
