@@ -352,6 +352,11 @@ def setup_rag(cfg: dict[str, str], env_path: Path) -> None:
             display_name=display_name,
             description=description,
             embedding_model_config=embedding_config,
+            backend_config=rag.RagCorpusBackendConfig(
+                rag_vector_db_config=rag.RagVectorDbConfig(
+                    rag_managed_db=rag.RagManagedDb(),
+                ),
+            ),
         )
         return corpus.name
 
@@ -468,6 +473,11 @@ def setup_memory_bank(cfg: dict[str, str], env_path: Path) -> None:
                 display_name="hermes-memory-bank",
                 description="Per-user long-term memory for Hermes (RAG corpus fallback).",
                 embedding_model_config=embedding_config,
+                backend_config=rag.RagCorpusBackendConfig(
+                    rag_vector_db_config=rag.RagVectorDbConfig(
+                        rag_managed_db=rag.RagManagedDb(),
+                    ),
+                ),
             )
             write_env(env_path, "MEMORY_BANK_RESOURCE_NAME", corpus.name)
             ok(f"Memory bank corpus created: {corpus.name}")

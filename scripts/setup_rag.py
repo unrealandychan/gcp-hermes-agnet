@@ -37,10 +37,18 @@ def create_corpus(display_name: str, description: str) -> str:
     embedding_config = rag.EmbeddingModelConfig(
         publisher_model=_EMBEDDING_MODEL,
     )
+    # Use Unmanaged Spanner (Serverless) mode — required for new projects
+    # in us-central1/us-east1/us-east4 due to capacity restrictions.
+    vector_db_config = rag.RagVectorDbConfig(
+        rag_managed_db=rag.RagManagedDb(),
+    )
     corpus = rag.create_corpus(
         display_name=display_name,
         description=description,
         embedding_model_config=embedding_config,
+        backend_config=rag.RagCorpusBackendConfig(
+            rag_vector_db_config=vector_db_config,
+        ),
     )
     logger.info("Created corpus: %s  →  %s", display_name, corpus.name)
     return corpus.name
