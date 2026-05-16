@@ -127,15 +127,24 @@ def build_task_agent(
     """
     Build the hybrid TaskAgent (parallel + sequential planner).
 
-    Args:
-        settings:          Application settings.
-        specialist_agents: List of specialist LlmAgent instances.
-
-    Returns:
-        An LlmAgent that routes to ParallelDispatcher or sequential agents.
+    specialist_agents are used for sequential transfer_to_agent calls.
+    ParallelDispatcher gets its OWN fresh copies (ADK forbids dual-parent).
     """
-    # ParallelDispatcher runs all specialists simultaneously.
-    # ADK ParallelAgent fans out to all sub_agents and collects their responses.
+    # Import builders to create independent copies for ParallelDispatcher.
+    # Each agent object can only have ONE parent in ADK — so ParallelDispatcher
+    # gets fresh instances, TaskAgent gets the originals for sequential use.
+    from agents.analytics import build_analytics_agent
+    from agents.developer import build_developer_agent
+    from agents.hr import build_hr_agent
+    from agents.it_helpdesk import build_it_helpdesk_agent
+
+    parallel_copies = [
+        build_analytics_agent(settings),
+        build_hr_agent(settings),
+        build_it_helpdesk_agent(settings),
+        build_developer_agent(settings),
+    ]
+
     parallel_dispatcher = ParallelAgent(
         name="ParallelDispatcher",
         description=(
@@ -143,15 +152,10 @@ def build_task_agent(
             "simultaneously. Use this for independent sub-tasks that do not depend "
             "on each other's output."
         ),
-        sub_agents=list(specialist_agents),
+        sub_agents=parallel_copies,
     )
 
-    # TaskAgent sees ParallelDispatcher + individual specialists for sequential use.
-    # NOTE: specialist_agents objects are shared — ParallelDispatcher holds them as
-    # children; TaskAgent holds ParallelDispatcher + the same specialists directly.
-    # ADK allows an agent to appear under multiple parents only if it is the SAME
-    # object reference (not a copy). If ADK raises a dual-parent error here, swap
-    # to sequential-only by removing specialist_agents from task_sub_agents.
+    # TaskAgent: ParallelDispatcher first, then originals for sequential use
     task_sub_agents = [parallel_dispatcher] + list(specialist_agents)
 
     return LlmAgent(
