@@ -1,0 +1,27 @@
+[
+  {
+    "query": "What is the process for requesting parental leave?",
+    "expected_keywords": ["leave", "parental", "policy", "request"],
+    "agent": "hr"
+  },
+  {
+    "query": "How many vacation days do I have remaining this year?",
+    "expected_keywords": ["vacation", "days", "balance", "remaining"],
+    "agent": "hr"
+  },
+  {
+    "query": "How do I submit a reimbursement for work expenses?",
+    "expected_keywords": ["reimbursement", "expenses", "submit", "receipt"],
+    "agent": "hr"
+  },
+  {
+    "query": "What are the health insurance benefits offered?",
+    "expected_keywords": ["health", "insurance", "benefits", "coverage"],
+    "agent": "hr"
+  },
+  {
+    "query": "How do I update my direct deposit banking information?",
+    "expected_keywords": ["direct deposit", "banking", "payroll", "update"],
+    "agent": "hr"
+  }
+]

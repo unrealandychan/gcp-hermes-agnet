@@ -103,7 +103,7 @@ def agent_span(
         try:
             from opentelemetry.trace import Span  # noqa: PLC0415
 
-            if isinstance(span, Span):
+            if isinstance(Span, type) and isinstance(span, Span):
                 span.set_attribute("hermes.agent", agent_name)
                 if user_id:
                     span.set_attribute("hermes.user_id", user_id)

@@ -54,21 +54,47 @@ def build_skill_learning_callback(agent_name: str):
                 _learn_in_background(agent_name, user_text, agent_text)
             )
 
-            # ── 3. Persist to Memory Bank for PreloadMemoryTool ────────────────
-            try:
-                session = callback_context.session
-                logger.debug(
-                    "Memory persisted for session %s (user=%s)",
-                    session.id,
-                    session.user_id,
+            # ── 3. Persist to VertexAiMemoryBank (official native API) ─────────
+            # Fire-and-forget alongside skill extraction so the response path
+            # is never blocked by memory writes.
+            asyncio.create_task(
+                _persist_to_memory_bank(
+                    agent_name=agent_name,
+                    user_text=user_text,
+                    agent_text=agent_text,
+                    callback_context=callback_context,
                 )
-            except Exception:  # noqa: BLE001
-                logger.exception("Memory persistence logging failed.")
+            )
 
         except Exception:  # noqa: BLE001
             logger.exception("skill_learning_callback encountered an unexpected error.")
 
     return skill_learning_callback
+
+
+async def _persist_to_memory_bank(
+    agent_name: str,
+    user_text: str,
+    agent_text: str,
+    callback_context: Any,
+) -> None:
+    """Write this conversation turn to the native VertexAiMemoryBank."""
+    try:
+        from memory.memory_bank import build_memory_bank
+        bank = build_memory_bank()
+        if bank is None:
+            return
+        session = callback_context.session
+        user_id = getattr(session, "user_id", "anonymous")
+        await bank.generate_memories(
+            user_id=user_id,
+            user_text=user_text,
+            agent_text=agent_text,
+            agent_name=agent_name,
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception("MemoryBank persistence failed — no memory written.")
+
 
 
 async def _learn_in_background(

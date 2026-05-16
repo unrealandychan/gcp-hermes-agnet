@@ -20,6 +20,46 @@ This PoC implements all key capabilities from the [Google Cloud Enterprise Agent
 
 ---
 
+## What's New
+
+See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for the full changelog.
+
+**Latest additions:**
+- 📋 `AGENTS.md` — onboarding guide for AI assistants and human contributors
+- 🧩 `agents.yaml` — add new agents without touching Python
+- 📚 `skills/` — write skills as Markdown files, no code required
+- 🧠 Memory split: user profile (who) vs. skills (what), with context budget guard
+- ✅ 90 tests, all passing
+
+---
+
+## Customising Agents
+
+### Add a new agent (no Python required)
+
+Edit `agents.yaml` and append your agent:
+
+```yaml
+agents:
+  - name: FinanceAgent
+    description: "Financial reporting, P&L queries, budget forecasting"
+    model: ${AGENT_MODEL_FINANCE:-gemini-2.0-flash}
+    tools: [bigquery, search]
+```
+
+Valid tool names: `bigquery`, `search`, `storage`, `rag_knowledge`, `code_sandbox`, `mcp_filesystem`, `mcp_sse`.
+
+### Add a custom skill (no Python required)
+
+Copy `skills/TEMPLATE.md` to `skills/your-skill-name.md`, fill in the YAML frontmatter and steps.
+Skills are loaded into the RAG corpus automatically on gateway startup.
+
+### For custom agent logic
+
+See `AGENTS.md` for step-by-step instructions on adding Python builders.
+
+---
+
 ## Architecture
 
 ```
@@ -118,146 +158,68 @@ See **[docs/cost-estimation.md](docs/cost-estimation.md)** for detailed tables.
 
 ---
 
+## Teardown (PoC cleanup)
+
+Delete **all** GCP resources in one command:
+
+```bash
+python teardown_wizard.py
+```
+
+Shows a full resource list, asks for explicit `yes` confirmation, then deletes in safe dependency order:
+Cloud Run → Reasoning Engine → Memory Bank → RAG Corpora → GCS bucket → Firestore → Service Account → Container image → Scheduler jobs
+
+**The GCP project itself is never deleted.**
+
+---
+
 ## Quick Start
 
-### Prerequisites
+**Prerequisites:** `gcloud` CLI authenticated as project owner. Python 3.11+.
 
-| Tool | Version |
-|---|---|
-| Python | 3.12+ |
-| Node.js | 20+ |
-| `gcloud` CLI | latest, authenticated as project owner |
+```bash
+git clone https://github.com/unrealandychan/gcp-hermes-agnet.git
+cd gcp-hermes-agnet
+python setup_wizard.py
+```
+
+The wizard asks **3 questions**, then handles everything automatically:
+
+- ✅ Pre-flight checks (gcloud auth, Python/Node version)
+- ⚙️ Enables 13 GCP APIs, creates bucket + service account + Firestore
+- 🗄️ Creates Vertex AI RAG corpora, writes resource names into `.env`
+- 🚀 Deploys agent to Vertex AI Reasoning Engine
+- 🐳 Optionally deploys gateway to Cloud Run
+- 🌱 Optionally seeds demo data (BigQuery tables + knowledge docs)
+
+It is **idempotent** — safe to re-run at any time if something fails mid-way.
 
 ---
 
-### Step 1 — Clone and configure
+### After setup — start locally
 
 ```bash
-git clone <repo-url>
-cd hermes-gcp
-cp .env.example .env
-```
-
-Open `.env` and set at minimum:
-
-```bash
-GCP_PROJECT_ID=your-project-id          # must already exist
-GCP_LOCATION=us-central1
-GCP_STAGING_BUCKET=gs://your-bucket-name
-GOOGLE_CLIENT_ID=<your-oauth-client-id> # GCP Console → APIs & Services → Credentials
-```
-
----
-
-### Step 2 — Bootstrap GCP
-
-```bash
-bash infra/setup.sh
-```
-
-This enables required APIs (Vertex AI, Cloud Run, BigQuery, Secret Manager, Cloud Logging,
-**Model Armor, Cloud Trace**), creates the GCS bucket, and creates `hermes-agent-sa` service
-account with required IAM roles.
-
----
-
-### Step 3 — Python environment
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
----
-
-### Step 3b — (Optional) Enable Model Armor
-
-1. GCP Console → **Model Armor** → Create a template (e.g. `hermes-default`).
-2. Add the template ID to `.env`:
-
-```bash
-MODEL_ARMOR_TEMPLATE_ID=hermes-default
-```
-
-Every `/chat` request will now be screened. Leave blank to disable (local dev default).
-
----
-
-### Step 3c — (Optional) Enable MCP Tool Servers
-
-**Filesystem server** (exposes a local directory to the Developer agent):
-
-```bash
-MCP_FILESYSTEM_PATH=/path/to/your/shared/directory
-```
-
-**Remote SSE server** (connect any custom MCP-compatible tool server):
-
-```bash
-MCP_SSE_SERVER_URL=https://your-mcp-server.example.com/sse
-MCP_SSE_AUTH_TOKEN=<bearer-token>   # optional
-```
-
-Requires Node.js / npx for the filesystem server.
-
----
-
-### Step 4 — Create RAG corpora
-
-```bash
-python scripts/setup_rag.py
-```
-
-Copy the two output values into `.env`:
-
-```bash
-KNOWLEDGE_CORPUS_NAME=projects/.../locations/.../ragCorpora/...
-SKILLS_CORPUS_NAME=projects/.../locations/.../ragCorpora/...
-```
-
----
-
-### Step 5 — Deploy to Vertex AI Agent Runtime
-
-```bash
-python scripts/deploy.py
-```
-
-Copy the output into `.env`:
-
-```bash
-REASONING_ENGINE_RESOURCE_NAME=projects/.../locations/.../reasoningEngines/...
-```
-
----
-
-### Step 6 — Run gateway locally
-
-```bash
+source .env
 uvicorn gateway.main:app --reload --port 8080
 ```
 
-Verify it starts:
+Test it works:
 
 ```bash
-curl http://localhost:8080/docs   # Swagger UI
+curl -X POST http://localhost:8080/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello! What can you help me with?"}'
 ```
 
 ---
 
-### Step 7 — Run Web UI locally
+### Web UI (optional)
 
 ```bash
 cd ui
 cp .env.local.example .env.local
-# Edit .env.local:
-#   NEXTAUTH_SECRET=<any-random-string>
-#   GOOGLE_CLIENT_ID=<same as above>
-#   GOOGLE_CLIENT_SECRET=<from GCP Console>
-#   NEXT_PUBLIC_GATEWAY_URL=http://localhost:8080
-npm install
-npm run dev
+# Edit .env.local: set NEXT_PUBLIC_GATEWAY_URL=http://localhost:8080
+npm install && npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000), sign in with Google, and start chatting.

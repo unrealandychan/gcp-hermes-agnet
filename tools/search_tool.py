@@ -56,3 +56,36 @@ def make_search_tool(settings: Settings) -> FunctionTool:
             return {"error": str(exc)}
 
     return FunctionTool(func=knowledge_search)
+
+
+def search_knowledge_base(query: str, top_k: int = 5) -> list[dict]:
+    """
+    Module-level knowledge base search for direct tool use (e.g. TaskAgent).
+
+    Args:
+        query: Natural language search query.
+        top_k: Maximum number of results to return.
+
+    Returns:
+        List of dicts with 'text' and 'score' keys.
+    """
+    from config import get_settings
+    settings = get_settings()
+    corpus = settings.knowledge_corpus_name
+    if not corpus:
+        return []
+    try:
+        from vertexai.preview import rag
+        response = rag.retrieval_query(
+            rag_resources=[rag.RagResource(rag_corpus=corpus)],
+            text=query,
+            similarity_top_k=top_k,
+        )
+        return [
+            {"text": ctx.text, "score": getattr(ctx, "score", 0.0)}
+            for ctx in response.contexts.contexts
+        ]
+    except Exception:  # noqa: BLE001
+        import logging
+        logging.getLogger(__name__).exception("search_knowledge_base failed.")
+        return []

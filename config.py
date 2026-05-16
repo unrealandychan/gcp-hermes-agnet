@@ -105,6 +105,17 @@ class Settings(BaseSettings):
     teams_app_id: str = ""             # Azure Bot registration App ID
     teams_app_password: str = ""       # Azure Bot registration App Password
 
+    # ── Agent Gateway (centralised routing + security) ────────────────────
+    agent_gateway_endpoint: str = ""
+    agent_gateway_api_key: str = ""
+    agent_gateway_timeout_seconds: int = 60
+    agent_gateway_model_armor_delegate: bool = True
+
+    # ── Vertex AI Memory Bank (native long-term user memory) ─────────────────
+    # Resource name created by setup_wizard.py.
+    # Leave blank to disable MemoryBank (graceful degradation — skills RAG still works).
+    memory_bank_resource_name: str = ""
+
     # ── Model Armor ───────────────────────────────────────────────────────────
     # Template ID created in the GCP console or via gcloud.
     # Leave blank to disable prompt/response screening (safe default for dev).
