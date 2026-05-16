@@ -1,0 +1,6 @@
+{
+  "model": "text-embedding-3-small",
+  "dim": 1536,
+  "n_chunks": 384,
+  "built_at": "2026-05-16T04:13:14.966220+00:00"
+}

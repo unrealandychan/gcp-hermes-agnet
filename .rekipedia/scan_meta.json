@@ -1,0 +1,11 @@
+{
+  "rekipedia_version": "0.15.1",
+  "scanned_at": "2026-05-16T04:12:57.339322+00:00",
+  "repo_path": "/Users/eddiechan/PycharmProjects/hermes-gcp",
+  "run_id": "6781f2a1-c7fe-46a8-949a-97896760334f",
+  "model": "gpt-5.4-mini",
+  "file_count": 145,
+  "page_count": 22,
+  "embed_model": "text-embedding-3-small",
+  "embedded": true
+}

@@ -1,0 +1,1209 @@
+{
+  "generated_at": "2026-05-16T04:12:57.346651+00:00",
+  "rekipedia_version": "0.15.1",
+  "summary": {
+    "high": 2,
+    "medium": 0,
+    "low": 95
+  },
+  "issues": [
+    {
+      "kind": "god_class",
+      "symbol": "AgentGatewayClient",
+      "file": "gateway/agent_gateway.py",
+      "severity": "high",
+      "metrics": {
+        "lines": 116,
+        "fan_in": 10,
+        "fan_out": 0
+      },
+      "suggestion": "Split `AgentGatewayClient` into smaller, single-responsibility classes",
+      "callers": [
+        "build_agent_gateway",
+        "TestSendMessage.test_returns_none_when_disabled",
+        "TestSendMessage.test_calls_post_and_returns_json",
+        "TestSendMessage.test_returns_none_on_http_error",
+        "TestSendMessage.test_includes_reasoning_engine_id_in_payload",
+        "TestStreamMessage.test_yields_nothing_when_disabled",
+        "TestStreamMessage.test_yields_data_lines",
+        "TestStreamMessage.test_stream_error_yields_nothing",
+        "TestClose.test_close_calls_aclose",
+        "TestClose.test_close_noop_when_not_initialised"
+      ]
+    },
+    {
+      "kind": "god_class",
+      "symbol": "HermesMemoryBank",
+      "file": "memory/memory_bank.py",
+      "severity": "high",
+      "metrics": {
+        "lines": 352,
+        "fan_in": 35,
+        "fan_out": 0
+      },
+      "suggestion": "Split `HermesMemoryBank` into smaller, single-responsibility classes",
+      "callers": [
+        "build_memory_bank",
+        "TestGenerateMemories.test_success_calls_bank_generate",
+        "TestGenerateMemories.test_success_with_agent_name_in_conversation",
+        "TestGenerateMemories.test_exception_is_swallowed",
+        "TestGenerateMemories.test_bank_is_lazily_initialised",
+        "TestFetchMemories.test_returns_fact_strings",
+        "TestFetchMemories.test_returns_empty_list_on_error",
+        "TestFetchMemories.test_passes_top_k_to_sdk",
+        "TestFetchMemories.test_memories_attribute_missing_returns_empty",
+        "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
+        "TestListRevisions.test_returns_list_of_dicts",
+        "TestListRevisions.test_returns_empty_list_on_error",
+        "TestListRevisions.test_revisions_attribute_missing_returns_empty",
+        "TestListRevisions.test_missing_fields_default_gracefully",
+        "TestFormatForPrompt.test_returns_formatted_string_with_header",
+        "TestFormatForPrompt.test_returns_empty_string_when_no_memories",
+        "TestFormatForPrompt.test_returns_empty_string_when_fetch_fails",
+        "TestFormatForPrompt.test_respects_max_tokens_budget",
+        "TestGenerateMemoriesAsync.test_passes_wait_for_completion_false",
+        "TestIngestEvents.test_calls_bank_ingest_events"
+      ]
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "AgentGatewayClient.__init__",
+      "file": "gateway/agent_gateway.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `AgentGatewayClient.__init__` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "AgentGatewayClient._ensure_client",
+      "file": "gateway/agent_gateway.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `AgentGatewayClient._ensure_client` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "AgentGatewayClient.close",
+      "file": "gateway/agent_gateway.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `AgentGatewayClient.close` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "AgentGatewayClient.send_message",
+      "file": "gateway/agent_gateway.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 6
+      },
+      "suggestion": "Remove `AgentGatewayClient.send_message` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "AgentGatewayClient.stream_message",
+      "file": "gateway/agent_gateway.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 7
+      },
+      "suggestion": "Remove `AgentGatewayClient.stream_message` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "AgentGatewayConfig.__post_init__",
+      "file": "gateway/agent_gateway.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `AgentGatewayConfig.__post_init__` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "ChatPage",
+      "file": "ui/src/app/chat/page.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `ChatPage` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "EvalMetrics.__post_init__",
+      "file": "eval/metrics.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `EvalMetrics.__post_init__` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesAgentRegistry.__init__",
+      "file": "registry/agent_registry.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `HermesAgentRegistry.__init__` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesAgentRegistry._vertex_list",
+      "file": "registry/agent_registry.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 5
+      },
+      "suggestion": "Remove `HermesAgentRegistry._vertex_list` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesAgentRegistry._vertex_register",
+      "file": "registry/agent_registry.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `HermesAgentRegistry._vertex_register` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesAgentRegistry.get_agent",
+      "file": "registry/agent_registry.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `HermesAgentRegistry.get_agent` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesAgentRegistry.list_agents",
+      "file": "registry/agent_registry.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `HermesAgentRegistry.list_agents` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesAgentRegistry.register_agent",
+      "file": "registry/agent_registry.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `HermesAgentRegistry.register_agent` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.__init__",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `HermesMemoryBank.__init__` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank._ensure_bank",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `HermesMemoryBank._ensure_bank` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.create_memory",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 6
+      },
+      "suggestion": "Remove `HermesMemoryBank.create_memory` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.delete_memory",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 5
+      },
+      "suggestion": "Remove `HermesMemoryBank.delete_memory` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.fetch_memories",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 9
+      },
+      "suggestion": "Remove `HermesMemoryBank.fetch_memories` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.format_for_prompt",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 5
+      },
+      "suggestion": "Remove `HermesMemoryBank.format_for_prompt` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.generate_memories",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 5
+      },
+      "suggestion": "Remove `HermesMemoryBank.generate_memories` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.ingest_events",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 11
+      },
+      "suggestion": "Remove `HermesMemoryBank.ingest_events` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.list_revisions",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 10
+      },
+      "suggestion": "Remove `HermesMemoryBank.list_revisions` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.purge_memories",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 6
+      },
+      "suggestion": "Remove `HermesMemoryBank.purge_memories` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.retrieve_profiles",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 10
+      },
+      "suggestion": "Remove `HermesMemoryBank.retrieve_profiles` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "HermesMemoryBank.update_memory",
+      "file": "memory/memory_bank.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 5
+      },
+      "suggestion": "Remove `HermesMemoryBank.update_memory` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "LoginPage",
+      "file": "ui/src/app/page.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `LoginPage` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "MessageBubble",
+      "file": "ui/src/components/MessageBubble.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `MessageBubble` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "PolicyEngine.__init__",
+      "file": "governance/policy_engine.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `PolicyEngine.__init__` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "PolicyEngine._check",
+      "file": "governance/policy_engine.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 5
+      },
+      "suggestion": "Remove `PolicyEngine._check` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "PolicyEngine.check_prompt",
+      "file": "governance/policy_engine.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `PolicyEngine.check_prompt` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "PolicyEngine.check_response",
+      "file": "governance/policy_engine.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `PolicyEngine.check_response` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "PolicyEngine.rules",
+      "file": "governance/policy_engine.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `PolicyEngine.rules` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "PolicyRule.applies_to",
+      "file": "governance/policy_engine.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `PolicyRule.applies_to` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "PolicyRule.matches",
+      "file": "governance/policy_engine.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 3
+      },
+      "suggestion": "Remove `PolicyRule.matches` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "Providers",
+      "file": "ui/src/app/providers.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `Providers` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "RootLayout",
+      "file": "ui/src/app/layout.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `RootLayout` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "Settings.cors_origins_list",
+      "file": "config.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 3
+      },
+      "suggestion": "Remove `Settings.cors_origins_list` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "Settings.inject_litellm_env",
+      "file": "config.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `Settings.inject_litellm_env` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "Skill.from_json",
+      "file": "memory/skill_models.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `Skill.from_json` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "Skill.to_metadata",
+      "file": "memory/skill_models.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `Skill.to_metadata` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "Skill.to_rag_text",
+      "file": "memory/skill_models.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `Skill.to_rag_text` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "UserProfile.prompt_token_estimate",
+      "file": "memory/user_profile.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 3
+      },
+      "suggestion": "Remove `UserProfile.prompt_token_estimate` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "UserProfile.to_prompt_summary",
+      "file": "memory/user_profile.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 7
+      },
+      "suggestion": "Remove `UserProfile.to_prompt_summary` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_FakeEventSourceResponse.__init__",
+      "file": "tests/conftest.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `_FakeEventSourceResponse.__init__` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_FakeLlmAgent.__init__",
+      "file": "tests/conftest.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `_FakeLlmAgent.__init__` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_FakeLoopAgent.__init__",
+      "file": "tests/conftest.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `_FakeLoopAgent.__init__` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_NoopSpan.record_exception",
+      "file": "gateway/observability.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `_NoopSpan.record_exception` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_NoopSpan.set_attribute",
+      "file": "gateway/observability.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `_NoopSpan.set_attribute` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_NoopSpan.set_status",
+      "file": "gateway/observability.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `_NoopSpan.set_status` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_NoopTracer.start_as_current_span",
+      "file": "gateway/observability.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `_NoopTracer.start_as_current_span` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_get_access_token",
+      "file": "tools/model_armor.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 3
+      },
+      "suggestion": "Remove `_get_access_token` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_noop_limit",
+      "file": "tests/conftest.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `_noop_limit` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_query_corpus",
+      "file": "memory/cross_corpus.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 8
+      },
+      "suggestion": "Remove `_query_corpus` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_register_all",
+      "file": "tests/conftest.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 7
+      },
+      "suggestion": "Remove `_register_all` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "build_adk_app",
+      "file": "agents/__init__.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `build_adk_app` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "chat",
+      "file": "gateway/main.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 11
+      },
+      "suggestion": "Remove `chat` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "check_availability",
+      "file": "tools/calendar_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 14
+      },
+      "suggestion": "Remove `check_availability` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "clearMemories",
+      "file": "ui/src/lib/api.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `clearMemories` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "clear_memories",
+      "file": "gateway/main.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 6
+      },
+      "suggestion": "Remove `clear_memories` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "create_calendar_event",
+      "file": "tools/calendar_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 11
+      },
+      "suggestion": "Remove `create_calendar_event` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "delete_container_image",
+      "file": "teardown_wizard.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 7
+      },
+      "suggestion": "Remove `delete_container_image` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "delete_rag_corpora",
+      "file": "teardown_wizard.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 8
+      },
+      "suggestion": "Remove `delete_rag_corpora` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "delete_scheduled_task",
+      "file": "tools/scheduler_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 11
+      },
+      "suggestion": "Remove `delete_scheduled_task` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "dim",
+      "file": "setup_wizard.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `dim` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "fetchSessions",
+      "file": "ui/src/lib/api.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `fetchSessions` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "finish_task",
+      "file": "agents/task_agent.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `finish_task` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "get_email",
+      "file": "tools/gmail_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 25
+      },
+      "suggestion": "Remove `get_email` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "handleClearMemory",
+      "file": "ui/src/app/chat/page.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `handleClearMemory` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "handleSend",
+      "file": "ui/src/app/chat/page.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `handleSend` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "lifespan",
+      "file": "gateway/main.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 17
+      },
+      "suggestion": "Remove `lifespan` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "list_calendar_events",
+      "file": "tools/calendar_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 24
+      },
+      "suggestion": "Remove `list_calendar_events` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "list_drive_folder",
+      "file": "tools/drive_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 16
+      },
+      "suggestion": "Remove `list_drive_folder` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "list_memories",
+      "file": "gateway/main.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 6
+      },
+      "suggestion": "Remove `list_memories` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "list_my_tasks",
+      "file": "gateway/main.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 3
+      },
+      "suggestion": "Remove `list_my_tasks` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "list_scheduled_tasks",
+      "file": "tools/scheduler_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 10
+      },
+      "suggestion": "Remove `list_scheduled_tasks` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "loadSessions",
+      "file": "ui/src/app/chat/page.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `loadSessions` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "log_quality_score",
+      "file": "eval/online_monitor.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 5
+      },
+      "suggestion": "Remove `log_quality_score` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "main",
+      "file": "scripts/setup_rag.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 238
+      },
+      "suggestion": "Remove `main` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "read_drive_file",
+      "file": "tools/drive_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 22
+      },
+      "suggestion": "Remove `read_drive_file` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "read_gcs_file",
+      "file": "tools/storage_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `read_gcs_file` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "resolve_model_str",
+      "file": "models/provider.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `resolve_model_str` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "run_bigquery_query",
+      "file": "tools/bigquery_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 2
+      },
+      "suggestion": "Remove `run_bigquery_query` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "schedule_agent_task",
+      "file": "tools/scheduler_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 18
+      },
+      "suggestion": "Remove `schedule_agent_task` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "scheduler_trigger",
+      "file": "gateway/main.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 8
+      },
+      "suggestion": "Remove `scheduler_trigger` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "search_drive_files",
+      "file": "tools/drive_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 16
+      },
+      "suggestion": "Remove `search_drive_files` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "search_emails",
+      "file": "tools/gmail_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 23
+      },
+      "suggestion": "Remove `search_emails` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "search_knowledge_base",
+      "file": "tools/search_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 6
+      },
+      "suggestion": "Remove `search_knowledge_base` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "send_email",
+      "file": "tools/gmail_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 14
+      },
+      "suggestion": "Remove `send_email` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "slack_webhook",
+      "file": "connectors/slack.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 28
+      },
+      "suggestion": "Remove `slack_webhook` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "streamChat",
+      "file": "ui/src/lib/api.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `streamChat` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "teams_webhook",
+      "file": "connectors/teams.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 22
+      },
+      "suggestion": "Remove `teams_webhook` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "telegram_webhook",
+      "file": "connectors/telegram.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 13
+      },
+      "suggestion": "Remove `telegram_webhook` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "verify_google_token",
+      "file": "gateway/auth.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 16
+      },
+      "suggestion": "Remove `verify_google_token` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "write_gcs_file",
+      "file": "tools/storage_tool.py",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      "suggestion": "Remove `write_gcs_file` — 0 callers detected",
+      "callers": []
+    }
+  ]
+}

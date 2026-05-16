@@ -56,3 +56,8 @@ logs/
 *.tmp
 *.bak
 node_modules/
+.rekipedia/store.db
+.mcp.json
+
+.rekipedia/config.yml
+.rekipedia/rag/index.faiss

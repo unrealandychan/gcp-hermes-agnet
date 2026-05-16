@@ -1,0 +1,6428 @@
+[
+  {
+    "name": "config",
+    "kind": "module",
+    "file": "config.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Settings",
+    "kind": "class",
+    "file": "config.py",
+    "line_start": 7,
+    "line_end": 159,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Settings.cors_origins_list",
+    "kind": "function",
+    "file": "config.py",
+    "line_start": 139,
+    "line_end": 140,
+    "signature": "cors_origins_list(self)",
+    "docstring": null
+  },
+  {
+    "name": "Settings.inject_litellm_env",
+    "kind": "function",
+    "file": "config.py",
+    "line_start": 142,
+    "line_end": 159,
+    "signature": "inject_litellm_env(self)",
+    "docstring": "Export provider API keys into the process environment so that LiteLLM\ncan pick them up automatically.  Call once at application startup."
+  },
+  {
+    "name": "get_settings",
+    "kind": "function",
+    "file": "config.py",
+    "line_start": 163,
+    "line_end": 164,
+    "signature": "get_settings()",
+    "docstring": null
+  },
+  {
+    "name": "conftest",
+    "kind": "module",
+    "file": "conftest.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "setup_wizard",
+    "kind": "module",
+    "file": "setup_wizard.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_c",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 41,
+    "line_end": 42,
+    "signature": "_c(colour, text)",
+    "docstring": null
+  },
+  {
+    "name": "ok",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 44,
+    "line_end": 44,
+    "signature": "ok(msg)",
+    "docstring": null
+  },
+  {
+    "name": "warn",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 45,
+    "line_end": 45,
+    "signature": "warn(msg)",
+    "docstring": null
+  },
+  {
+    "name": "err",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 46,
+    "line_end": 46,
+    "signature": "err(msg)",
+    "docstring": null
+  },
+  {
+    "name": "step",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 47,
+    "line_end": 47,
+    "signature": "step(msg)",
+    "docstring": null
+  },
+  {
+    "name": "header",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 48,
+    "line_end": 49,
+    "signature": "header(msg)",
+    "docstring": null
+  },
+  {
+    "name": "dim",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 50,
+    "line_end": 50,
+    "signature": "dim(msg)",
+    "docstring": null
+  },
+  {
+    "name": "run",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 54,
+    "line_end": 67,
+    "signature": "run(cmd, capture, check, env)",
+    "docstring": null
+  },
+  {
+    "name": "gcloud",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 70,
+    "line_end": 72,
+    "signature": "gcloud()",
+    "docstring": null
+  },
+  {
+    "name": "ask",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 75,
+    "line_end": 86,
+    "signature": "ask(question, default)",
+    "docstring": null
+  },
+  {
+    "name": "ask_yn",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 89,
+    "line_end": 95,
+    "signature": "ask_yn(question, default)",
+    "docstring": null
+  },
+  {
+    "name": "write_env",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 98,
+    "line_end": 107,
+    "signature": "write_env(path, key, value)",
+    "docstring": "Upsert KEY=value in an .env file."
+  },
+  {
+    "name": "read_env_value",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 110,
+    "line_end": 117,
+    "signature": "read_env_value(path, key)",
+    "docstring": null
+  },
+  {
+    "name": "preflight",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 121,
+    "line_end": 167,
+    "signature": "preflight()",
+    "docstring": null
+  },
+  {
+    "name": "gather_config",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 171,
+    "line_end": 211,
+    "signature": "gather_config(env_path)",
+    "docstring": null
+  },
+  {
+    "name": "bootstrap_gcp",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 244,
+    "line_end": 316,
+    "signature": "bootstrap_gcp(cfg)",
+    "docstring": null
+  },
+  {
+    "name": "setup_rag",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 320,
+    "line_end": 371,
+    "signature": "setup_rag(cfg, env_path)",
+    "docstring": null
+  },
+  {
+    "name": "deploy_agent",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 375,
+    "line_end": 414,
+    "signature": "deploy_agent(cfg, env_path)",
+    "docstring": null
+  },
+  {
+    "name": "seed_demo_data",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 418,
+    "line_end": 430,
+    "signature": "seed_demo_data(cfg)",
+    "docstring": null
+  },
+  {
+    "name": "setup_memory_bank",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 433,
+    "line_end": 454,
+    "signature": "setup_memory_bank(cfg, env_path)",
+    "docstring": null
+  },
+  {
+    "name": "deploy_cloud_run",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 458,
+    "line_end": 502,
+    "signature": "deploy_cloud_run(cfg, env_path)",
+    "docstring": null
+  },
+  {
+    "name": "install_python_deps",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 506,
+    "line_end": 512,
+    "signature": "install_python_deps()",
+    "docstring": null
+  },
+  {
+    "name": "print_summary",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 516,
+    "line_end": 553,
+    "signature": "print_summary(cfg, gateway_url, env_path)",
+    "docstring": null
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "setup_wizard.py",
+    "line_start": 557,
+    "line_end": 611,
+    "signature": "main()",
+    "docstring": null
+  },
+  {
+    "name": "teardown_wizard",
+    "kind": "module",
+    "file": "teardown_wizard.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_c",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 42,
+    "line_end": 43,
+    "signature": "_c(colour, text)",
+    "docstring": null
+  },
+  {
+    "name": "header",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 45,
+    "line_end": 50,
+    "signature": "header(title)",
+    "docstring": null
+  },
+  {
+    "name": "step",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 52,
+    "line_end": 52,
+    "signature": "step(msg)",
+    "docstring": null
+  },
+  {
+    "name": "ok",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 53,
+    "line_end": 53,
+    "signature": "ok(msg)",
+    "docstring": null
+  },
+  {
+    "name": "warn",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 54,
+    "line_end": 54,
+    "signature": "warn(msg)",
+    "docstring": null
+  },
+  {
+    "name": "err",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 55,
+    "line_end": 55,
+    "signature": "err(msg)",
+    "docstring": null
+  },
+  {
+    "name": "skip",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 56,
+    "line_end": 56,
+    "signature": "skip(msg)",
+    "docstring": null
+  },
+  {
+    "name": "run",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 61,
+    "line_end": 70,
+    "signature": "run(cmd, capture, check)",
+    "docstring": null
+  },
+  {
+    "name": "gcloud",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 73,
+    "line_end": 74,
+    "signature": "gcloud()",
+    "docstring": null
+  },
+  {
+    "name": "gsutil",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 77,
+    "line_end": 78,
+    "signature": "gsutil()",
+    "docstring": null
+  },
+  {
+    "name": "read_env",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 83,
+    "line_end": 93,
+    "signature": "read_env(env_path)",
+    "docstring": null
+  },
+  {
+    "name": "confirm",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 98,
+    "line_end": 107,
+    "signature": "confirm(prompt, require_yes)",
+    "docstring": "Ask the user to confirm.  If require_yes=True the user must type\nthe exact word 'yes' (not just 'y') to proceed."
+  },
+  {
+    "name": "delete_cloud_run",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 112,
+    "line_end": 123,
+    "signature": "delete_cloud_run(project, region)",
+    "docstring": null
+  },
+  {
+    "name": "delete_reasoning_engine",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 126,
+    "line_end": 147,
+    "signature": "delete_reasoning_engine(resource_name)",
+    "docstring": null
+  },
+  {
+    "name": "delete_memory_bank",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 150,
+    "line_end": 176,
+    "signature": "delete_memory_bank(resource_name)",
+    "docstring": null
+  },
+  {
+    "name": "delete_rag_corpora",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 179,
+    "line_end": 198,
+    "signature": "delete_rag_corpora(knowledge_corpus, skills_corpus, project, region)",
+    "docstring": null
+  },
+  {
+    "name": "delete_gcs_bucket",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 201,
+    "line_end": 214,
+    "signature": "delete_gcs_bucket(bucket)",
+    "docstring": null
+  },
+  {
+    "name": "delete_firestore",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 217,
+    "line_end": 233,
+    "signature": "delete_firestore(project)",
+    "docstring": null
+  },
+  {
+    "name": "delete_service_account",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 236,
+    "line_end": 246,
+    "signature": "delete_service_account(project)",
+    "docstring": null
+  },
+  {
+    "name": "delete_container_image",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 249,
+    "line_end": 267,
+    "signature": "delete_container_image(project)",
+    "docstring": null
+  },
+  {
+    "name": "delete_scheduler_jobs",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 270,
+    "line_end": 292,
+    "signature": "delete_scheduler_jobs(project, region)",
+    "docstring": null
+  },
+  {
+    "name": "disable_apis",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 305,
+    "line_end": 320,
+    "signature": "disable_apis(project)",
+    "docstring": null
+  },
+  {
+    "name": "wipe_env_file",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 323,
+    "line_end": 332,
+    "signature": "wipe_env_file(env_path)",
+    "docstring": null
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "teardown_wizard.py",
+    "line_start": 337,
+    "line_end": 441,
+    "signature": "main()",
+    "docstring": null
+  },
+  {
+    "name": "agents.__init__",
+    "kind": "module",
+    "file": "agents/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "build_agent",
+    "kind": "function",
+    "file": "agents/__init__.py",
+    "line_start": 11,
+    "line_end": 14,
+    "signature": "build_agent()",
+    "docstring": "Return the raw ADK Agent — used by the local gateway Runner."
+  },
+  {
+    "name": "build_adk_app",
+    "kind": "function",
+    "file": "agents/__init__.py",
+    "line_start": 17,
+    "line_end": 19,
+    "signature": "build_adk_app()",
+    "docstring": "Return an AdkApp wrapping the full agent graph — used for Agent Runtime deploy only."
+  },
+  {
+    "name": "agents.analytics",
+    "kind": "module",
+    "file": "agents/analytics.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "build_analytics_agent",
+    "kind": "function",
+    "file": "agents/analytics.py",
+    "line_start": 37,
+    "line_end": 53,
+    "signature": "build_analytics_agent(settings)",
+    "docstring": null
+  },
+  {
+    "name": "agents.developer",
+    "kind": "module",
+    "file": "agents/developer.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "build_developer_agent",
+    "kind": "function",
+    "file": "agents/developer.py",
+    "line_start": 54,
+    "line_end": 79,
+    "signature": "build_developer_agent(settings)",
+    "docstring": null
+  },
+  {
+    "name": "agents.hr",
+    "kind": "module",
+    "file": "agents/hr.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "build_hr_agent",
+    "kind": "function",
+    "file": "agents/hr.py",
+    "line_start": 42,
+    "line_end": 70,
+    "signature": "build_hr_agent(settings)",
+    "docstring": null
+  },
+  {
+    "name": "agents.it_helpdesk",
+    "kind": "module",
+    "file": "agents/it_helpdesk.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "build_it_helpdesk_agent",
+    "kind": "function",
+    "file": "agents/it_helpdesk.py",
+    "line_start": 42,
+    "line_end": 71,
+    "signature": "build_it_helpdesk_agent(settings)",
+    "docstring": null
+  },
+  {
+    "name": "agents.loader",
+    "kind": "module",
+    "file": "agents/loader.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_tool_factories",
+    "kind": "function",
+    "file": "agents/loader.py",
+    "line_start": 47,
+    "line_end": 100,
+    "signature": "_tool_factories(settings)",
+    "docstring": null
+  },
+  {
+    "name": "_custom_builders",
+    "kind": "function",
+    "file": "agents/loader.py",
+    "line_start": 107,
+    "line_end": 120,
+    "signature": "_custom_builders()",
+    "docstring": null
+  },
+  {
+    "name": "_resolve_env_vars",
+    "kind": "function",
+    "file": "agents/loader.py",
+    "line_start": 125,
+    "line_end": 130,
+    "signature": "_resolve_env_vars(text)",
+    "docstring": "Substitute ${VAR:-default} patterns using os.environ."
+  },
+  {
+    "name": "load_agents_yaml",
+    "kind": "function",
+    "file": "agents/loader.py",
+    "line_start": 133,
+    "line_end": 142,
+    "signature": "load_agents_yaml(path)",
+    "docstring": "Parse agents.yaml and return the list of agent config dicts."
+  },
+  {
+    "name": "build_agents_from_yaml",
+    "kind": "function",
+    "file": "agents/loader.py",
+    "line_start": 147,
+    "line_end": 178,
+    "signature": "build_agents_from_yaml(settings, yaml_path)",
+    "docstring": "Load agents.yaml and build all configured sub-agents.\n\nReturns a list of LlmAgent instances in the order they appear in the YAML."
+  },
+  {
+    "name": "_build_generic",
+    "kind": "function",
+    "file": "agents/loader.py",
+    "line_start": 181,
+    "line_end": 203,
+    "signature": "_build_generic(cfg, settings, tool_map)",
+    "docstring": "Build a generic LlmAgent from a YAML config dict."
+  },
+  {
+    "name": "agents.orchestrator",
+    "kind": "module",
+    "file": "agents/orchestrator.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "build_orchestrator",
+    "kind": "function",
+    "file": "agents/orchestrator.py",
+    "line_start": 34,
+    "line_end": 44,
+    "signature": "build_orchestrator(settings)",
+    "docstring": null
+  },
+  {
+    "name": "agents.task_agent",
+    "kind": "module",
+    "file": "agents/task_agent.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "finish_task",
+    "kind": "function",
+    "file": "agents/task_agent.py",
+    "line_start": 55,
+    "line_end": 68,
+    "signature": "finish_task(summary)",
+    "docstring": "Signal that the long-running task is fully complete.\n\nCall this when you have produced the final result and there is nothing\nmore to do.  Pass a concise summary of the outcome as `summary`.\n\nArgs:\n    summary: Human-readable summary of what was accomplished.\n\nReturns:\n    A completion marker dict (do not parse; just return it to the user)."
+  },
+  {
+    "name": "_build_planner",
+    "kind": "function",
+    "file": "agents/task_agent.py",
+    "line_start": 90,
+    "line_end": 96,
+    "signature": "_build_planner(settings)",
+    "docstring": null
+  },
+  {
+    "name": "_build_executor",
+    "kind": "function",
+    "file": "agents/task_agent.py",
+    "line_start": 138,
+    "line_end": 154,
+    "signature": "_build_executor(settings)",
+    "docstring": null
+  },
+  {
+    "name": "build_task_agent",
+    "kind": "function",
+    "file": "agents/task_agent.py",
+    "line_start": 160,
+    "line_end": 180,
+    "signature": "build_task_agent(settings)",
+    "docstring": "Build the long-running task LoopAgent.\n\nReturns:\n    A LoopAgent that autonomously executes multi-step tasks, iterating\n    up to MAX_ITERATIONS times before stopping."
+  },
+  {
+    "name": "connectors.__init__",
+    "kind": "module",
+    "file": "connectors/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "connectors.runner",
+    "kind": "module",
+    "file": "connectors/runner.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_platform_session_id",
+    "kind": "function",
+    "file": "connectors/runner.py",
+    "line_start": 28,
+    "line_end": 31,
+    "signature": "_platform_session_id(platform, platform_user_id)",
+    "docstring": null
+  },
+  {
+    "name": "run_agent",
+    "kind": "function",
+    "file": "connectors/runner.py",
+    "line_start": 34,
+    "line_end": 87,
+    "signature": "run_agent(platform, platform_user_id, message)",
+    "docstring": "Run the Hermes agent for a connector message and return the full text reply.\n\nArgs:\n    platform: Short platform tag used for session namespacing, e.g. \"telegram\".\n    platform_user_id: Stable user identifier from the platform.\n    message: The user's text message.\n\nReturns:\n    The agent's full plain-text response."
+  },
+  {
+    "name": "connectors.slack",
+    "kind": "module",
+    "file": "connectors/slack.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_slack_client",
+    "kind": "function",
+    "file": "connectors/slack.py",
+    "line_start": 40,
+    "line_end": 41,
+    "signature": "_get_slack_client(token)",
+    "docstring": null
+  },
+  {
+    "name": "_verify_slack_signature",
+    "kind": "function",
+    "file": "connectors/slack.py",
+    "line_start": 44,
+    "line_end": 64,
+    "signature": "_verify_slack_signature(signing_secret, timestamp, raw_body, signature)",
+    "docstring": "Verify Slack's HMAC-SHA256 request signature."
+  },
+  {
+    "name": "slack_webhook",
+    "kind": "function",
+    "file": "connectors/slack.py",
+    "line_start": 68,
+    "line_end": 143,
+    "signature": "slack_webhook(request)",
+    "docstring": "Receive a Slack Events API payload.\n\nHandles:\n  - url_verification challenge (required during app setup)\n  - message events (DMs and app mentions)"
+  },
+  {
+    "name": "_split_text",
+    "kind": "function",
+    "file": "connectors/slack.py",
+    "line_start": 146,
+    "line_end": 153,
+    "signature": "_split_text(text, limit)",
+    "docstring": null
+  },
+  {
+    "name": "connectors.teams",
+    "kind": "module",
+    "file": "connectors/teams.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_jwks",
+    "kind": "function",
+    "file": "connectors/teams.py",
+    "line_start": 50,
+    "line_end": 63,
+    "signature": "_get_jwks()",
+    "docstring": null
+  },
+  {
+    "name": "_verify_teams_token",
+    "kind": "function",
+    "file": "connectors/teams.py",
+    "line_start": 66,
+    "line_end": 89,
+    "signature": "_verify_teams_token(token, app_id)",
+    "docstring": "Verify the Bot Framework JWT. Returns True if valid."
+  },
+  {
+    "name": "teams_webhook",
+    "kind": "function",
+    "file": "connectors/teams.py",
+    "line_start": 93,
+    "line_end": 147,
+    "signature": "teams_webhook(request)",
+    "docstring": "Receive a Bot Framework Activity from Microsoft Teams and reply.\n\nHandles Activity type 'message'; all other types are acknowledged silently."
+  },
+  {
+    "name": "_send_teams_reply",
+    "kind": "function",
+    "file": "connectors/teams.py",
+    "line_start": 150,
+    "line_end": 185,
+    "signature": "_send_teams_reply(settings, service_url, conversation_id, reply_to_id, text)",
+    "docstring": "Obtain a Bot Framework access token and post a reply activity."
+  },
+  {
+    "name": "connectors.telegram",
+    "kind": "module",
+    "file": "connectors/telegram.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_send_message",
+    "kind": "function",
+    "file": "connectors/telegram.py",
+    "line_start": 40,
+    "line_end": 47,
+    "signature": "_send_message(token, chat_id, text)",
+    "docstring": "Send a text reply to a Telegram chat."
+  },
+  {
+    "name": "_split_text",
+    "kind": "function",
+    "file": "connectors/telegram.py",
+    "line_start": 50,
+    "line_end": 57,
+    "signature": "_split_text(text, limit)",
+    "docstring": null
+  },
+  {
+    "name": "telegram_webhook",
+    "kind": "function",
+    "file": "connectors/telegram.py",
+    "line_start": 61,
+    "line_end": 100,
+    "signature": "telegram_webhook(request, x_telegram_bot_api_secret_token)",
+    "docstring": "Receive an Update from Telegram and reply via the Bot API.\n\nTelegram sends POST requests with a JSON body containing an Update object.\nWe only handle message updates (text messages); other update types are ignored."
+  },
+  {
+    "name": "eval.__init__",
+    "kind": "module",
+    "file": "eval/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "eval.metrics",
+    "kind": "module",
+    "file": "eval/metrics.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "EvalMetrics",
+    "kind": "class",
+    "file": "eval/metrics.py",
+    "line_start": 13,
+    "line_end": 20,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "EvalMetrics.__post_init__",
+    "kind": "function",
+    "file": "eval/metrics.py",
+    "line_start": 19,
+    "line_end": 20,
+    "signature": "__post_init__(self)",
+    "docstring": null
+  },
+  {
+    "name": "score_response",
+    "kind": "function",
+    "file": "eval/metrics.py",
+    "line_start": 23,
+    "line_end": 52,
+    "signature": "score_response(response, expected_keywords, context)",
+    "docstring": "Score a response against expected keywords. Fully offline."
+  },
+  {
+    "name": "eval.online_monitor",
+    "kind": "module",
+    "file": "eval/online_monitor.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "MonitorConfig",
+    "kind": "class",
+    "file": "eval/online_monitor.py",
+    "line_start": 15,
+    "line_end": 18,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "log_quality_score",
+    "kind": "function",
+    "file": "eval/online_monitor.py",
+    "line_start": 21,
+    "line_end": 55,
+    "signature": "log_quality_score(user_id, agent_name, query, response, metrics, config)",
+    "docstring": "Async — logs a quality score row to BigQuery. Fails silently."
+  },
+  {
+    "name": "build_online_monitor",
+    "kind": "function",
+    "file": "eval/online_monitor.py",
+    "line_start": 58,
+    "line_end": 66,
+    "signature": "build_online_monitor()",
+    "docstring": "Returns a MonitorConfig if GCP_PROJECT_ID is set, else None."
+  },
+  {
+    "name": "eval.run_eval",
+    "kind": "module",
+    "file": "eval/run_eval.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "parse_args",
+    "kind": "function",
+    "file": "eval/run_eval.py",
+    "line_start": 16,
+    "line_end": 22,
+    "signature": "parse_args(argv)",
+    "docstring": null
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "eval/run_eval.py",
+    "line_start": 25,
+    "line_end": 78,
+    "signature": "main(argv)",
+    "docstring": null
+  },
+  {
+    "name": "gateway.__init__",
+    "kind": "module",
+    "file": "gateway/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "gateway.agent_gateway",
+    "kind": "module",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "AgentGatewayConfig",
+    "kind": "class",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 30,
+    "line_end": 58,
+    "signature": null,
+    "docstring": "Configuration for Agent Gateway routing.\n\nAll fields are optional — unset fields cause graceful fallback to\ndirect Runner execution."
+  },
+  {
+    "name": "AgentGatewayConfig.__post_init__",
+    "kind": "function",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 57,
+    "line_end": 58,
+    "signature": "__post_init__(self)",
+    "docstring": null
+  },
+  {
+    "name": "AgentGatewayClient",
+    "kind": "class",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 63,
+    "line_end": 179,
+    "signature": null,
+    "docstring": "Async client for sending chat requests via Agent Gateway.\n\nWhen gateway is disabled (config.enabled == False), all methods\nreturn None and the caller falls back to direct Runner execution."
+  },
+  {
+    "name": "AgentGatewayClient.__init__",
+    "kind": "function",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 71,
+    "line_end": 73,
+    "signature": "__init__(self, config)",
+    "docstring": null
+  },
+  {
+    "name": "AgentGatewayClient._ensure_client",
+    "kind": "function",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 75,
+    "line_end": 92,
+    "signature": "_ensure_client(self)",
+    "docstring": null
+  },
+  {
+    "name": "AgentGatewayClient.send_message",
+    "kind": "function",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 94,
+    "line_end": 135,
+    "signature": "send_message(self, user_id, session_id, message, agent_name)",
+    "docstring": "Send a message via Agent Gateway and return the JSON response.\n\nReturns None if the gateway is disabled or the call fails (graceful fallback)."
+  },
+  {
+    "name": "AgentGatewayClient.stream_message",
+    "kind": "function",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 137,
+    "line_end": 173,
+    "signature": "stream_message(self, user_id, session_id, message)",
+    "docstring": "Stream SSE events from Agent Gateway.\n\nFalls back to empty iterator if gateway is disabled or fails.\nThe caller (gateway/main.py) detects the empty iterator and uses\nthe direct ADK runner instead."
+  },
+  {
+    "name": "AgentGatewayClient.close",
+    "kind": "function",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 175,
+    "line_end": 179,
+    "signature": "close(self)",
+    "docstring": "Close the underlying HTTP client. Call on app shutdown."
+  },
+  {
+    "name": "build_agent_gateway",
+    "kind": "function",
+    "file": "gateway/agent_gateway.py",
+    "line_start": 184,
+    "line_end": 211,
+    "signature": "build_agent_gateway()",
+    "docstring": "Build an AgentGatewayClient from settings.\n\nReturns a disabled client (config.enabled=False) when\nAGENT_GATEWAY_ENDPOINT is not set, so all calls fall through\nto direct Runner execution transparently."
+  },
+  {
+    "name": "gateway.auth",
+    "kind": "module",
+    "file": "gateway/auth.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "verify_google_token",
+    "kind": "function",
+    "file": "gateway/auth.py",
+    "line_start": 42,
+    "line_end": 110,
+    "signature": "verify_google_token(credentials)",
+    "docstring": "Validate a Google ID token and return the decoded claims.\n\nRaises HTTP 401 on invalid/expired token.\nCached for 5 minutes to avoid a Google round-trip on every request.\n\nWhen DISABLE_AUTH=true (local dev only), skips all validation and returns\na synthetic \"local-dev\" user so every endpoint works without a token."
+  },
+  {
+    "name": "gateway.main",
+    "kind": "module",
+    "file": "gateway/main.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "lifespan",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 63,
+    "line_end": 100,
+    "signature": "lifespan(app)",
+    "docstring": null
+  },
+  {
+    "name": "ChatRequest",
+    "kind": "class",
+    "file": "gateway/main.py",
+    "line_start": 136,
+    "line_end": 138,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "ChatEvent",
+    "kind": "class",
+    "file": "gateway/main.py",
+    "line_start": 141,
+    "line_end": 144,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "chat",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 152,
+    "line_end": 200,
+    "signature": "chat(request, body, user)",
+    "docstring": "Stream chat responses as Server-Sent Events.\n\nEach SSE event is a JSON-encoded ChatEvent.\nFinal event has type='done'."
+  },
+  {
+    "name": "_stream_agent",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 203,
+    "line_end": 239,
+    "signature": "_stream_agent(user_id, session_id, message)",
+    "docstring": "Yield SSE-formatted JSON strings for each agent event."
+  },
+  {
+    "name": "_sse",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 242,
+    "line_end": 243,
+    "signature": "_sse(event)",
+    "docstring": null
+  },
+  {
+    "name": "list_sessions",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 247,
+    "line_end": 264,
+    "signature": "list_sessions(user_id, user)",
+    "docstring": "List active sessions for the authenticated user."
+  },
+  {
+    "name": "clear_memories",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 268,
+    "line_end": 283,
+    "signature": "clear_memories(user_id, user)",
+    "docstring": "Clear all long-term memories for the authenticated user."
+  },
+  {
+    "name": "list_memories",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 287,
+    "line_end": 306,
+    "signature": "list_memories(user_id, user, query, top_k)",
+    "docstring": "Retrieve long-term memories for the authenticated user."
+  },
+  {
+    "name": "CreateMemoryRequest",
+    "kind": "class",
+    "file": "gateway/main.py",
+    "line_start": 309,
+    "line_end": 310,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "create_memory",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 314,
+    "line_end": 332,
+    "signature": "create_memory(user_id, body, user)",
+    "docstring": "Directly write a memory fact for the authenticated user (memory-as-a-tool)."
+  },
+  {
+    "name": "TaskRequest",
+    "kind": "class",
+    "file": "gateway/main.py",
+    "line_start": 338,
+    "line_end": 340,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "submit_task",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 345,
+    "line_end": 364,
+    "signature": "submit_task(request, body, user)",
+    "docstring": "Submit a long-running task to the ReAct LoopAgent.\n\nReturns immediately with a task_id and status='pending'.\nThe task runs in the background for up to 1 hour.\n\nPoll GET /tasks/{task_id} for status and results."
+  },
+  {
+    "name": "get_task",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 368,
+    "line_end": 395,
+    "signature": "get_task(task_id, user)",
+    "docstring": "Poll the status of a long-running task.\n\nstatus values:\n  pending   — queued, not yet started\n  running   — LoopAgent is actively working\n  done      — completed successfully; result field contains the answer\n  failed    — an error occurred; error field contains the message\n  cancelled — client called DELETE /tasks/{task_id}\n\nprogress is a list of intermediate notes from the agent."
+  },
+  {
+    "name": "cancel_task",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 399,
+    "line_end": 410,
+    "signature": "cancel_task(task_id, user)",
+    "docstring": "Cancel a running task. No-op if the task is already complete."
+  },
+  {
+    "name": "list_my_tasks",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 414,
+    "line_end": 417,
+    "signature": "list_my_tasks(user)",
+    "docstring": "List all tasks submitted by the authenticated user (most recent first)."
+  },
+  {
+    "name": "SchedulerTriggerRequest",
+    "kind": "class",
+    "file": "gateway/main.py",
+    "line_start": 423,
+    "line_end": 426,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "scheduler_trigger",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 430,
+    "line_end": 457,
+    "signature": "scheduler_trigger(request, body)",
+    "docstring": "Webhook called by Cloud Scheduler to trigger an agent task.\n\nAuthentication: Cloud Scheduler attaches an OIDC token issued for the\nHermes service account.  We verify it matches our expected service account\nto prevent unauthorised task injection.\n\nThis endpoint intentionally does NOT use the normal Google OAuth2 CurrentUser\ndependency — Cloud Scheduler is a server-to-server caller, not a human user."
+  },
+  {
+    "name": "_verify_scheduler_oidc_token",
+    "kind": "function",
+    "file": "gateway/main.py",
+    "line_start": 460,
+    "line_end": 489,
+    "signature": "_verify_scheduler_oidc_token(token)",
+    "docstring": "Verify a Google OIDC token and confirm it was issued for our service account.\nRaises HTTPException 401/403 on failure."
+  },
+  {
+    "name": "gateway.observability",
+    "kind": "module",
+    "file": "gateway/observability.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "setup_tracing",
+    "kind": "function",
+    "file": "gateway/observability.py",
+    "line_start": 37,
+    "line_end": 66,
+    "signature": "setup_tracing(project_id, service_name)",
+    "docstring": "Initialise OpenTelemetry with the Google Cloud Trace exporter.\n\nSafe to call at startup — silently degrades when the packages are\nabsent so local development is unaffected."
+  },
+  {
+    "name": "instrument_fastapi",
+    "kind": "function",
+    "file": "gateway/observability.py",
+    "line_start": 69,
+    "line_end": 77,
+    "signature": "instrument_fastapi(app)",
+    "docstring": "Auto-instrument a FastAPI app to emit HTTP request/response spans."
+  },
+  {
+    "name": "get_tracer",
+    "kind": "function",
+    "file": "gateway/observability.py",
+    "line_start": 80,
+    "line_end": 82,
+    "signature": "get_tracer()",
+    "docstring": "Return the active tracer, or a no-op stub when tracing is disabled."
+  },
+  {
+    "name": "agent_span",
+    "kind": "function",
+    "file": "gateway/observability.py",
+    "line_start": 86,
+    "line_end": 114,
+    "signature": "agent_span(agent_name, user_id, session_id)",
+    "docstring": "Context manager that wraps one agent turn in a Cloud Trace span.\n\nUsage:\n    with agent_span(\"HRAgent\", user_id=uid, session_id=sid) as span:\n        # run agent turn\n        span.set_attribute(\"hermes.message_len\", len(message))\n\nFalls back to a no-op context manager when tracing is not configured."
+  },
+  {
+    "name": "_NoopSpan",
+    "kind": "class",
+    "file": "gateway/observability.py",
+    "line_start": 119,
+    "line_end": 127,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_NoopSpan.set_attribute",
+    "kind": "function",
+    "file": "gateway/observability.py",
+    "line_start": 120,
+    "line_end": 121,
+    "signature": "set_attribute(self)",
+    "docstring": null
+  },
+  {
+    "name": "_NoopSpan.record_exception",
+    "kind": "function",
+    "file": "gateway/observability.py",
+    "line_start": 123,
+    "line_end": 124,
+    "signature": "record_exception(self)",
+    "docstring": null
+  },
+  {
+    "name": "_NoopSpan.set_status",
+    "kind": "function",
+    "file": "gateway/observability.py",
+    "line_start": 126,
+    "line_end": 127,
+    "signature": "set_status(self)",
+    "docstring": null
+  },
+  {
+    "name": "_NoopTracer",
+    "kind": "class",
+    "file": "gateway/observability.py",
+    "line_start": 130,
+    "line_end": 133,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_NoopTracer.start_as_current_span",
+    "kind": "function",
+    "file": "gateway/observability.py",
+    "line_start": 132,
+    "line_end": 133,
+    "signature": "start_as_current_span(self, _name)",
+    "docstring": null
+  },
+  {
+    "name": "gateway.tasks",
+    "kind": "module",
+    "file": "gateway/tasks.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_firestore_client",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 58,
+    "line_end": 62,
+    "signature": "_get_firestore_client()",
+    "docstring": "Return a cached synchronous Firestore client."
+  },
+  {
+    "name": "_fs_doc",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 65,
+    "line_end": 67,
+    "signature": "_fs_doc(task_id)",
+    "docstring": "Return the Firestore DocumentReference for a task."
+  },
+  {
+    "name": "_now_iso",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 73,
+    "line_end": 74,
+    "signature": "_now_iso()",
+    "docstring": null
+  },
+  {
+    "name": "_make_record",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 77,
+    "line_end": 90,
+    "signature": "_make_record(task_id, task, user_id, context)",
+    "docstring": null
+  },
+  {
+    "name": "_persist",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 96,
+    "line_end": 101,
+    "signature": "_persist(record)",
+    "docstring": "Write/merge the task record to Firestore (non-blocking via thread)."
+  },
+  {
+    "name": "load_task_from_firestore",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 104,
+    "line_end": 112,
+    "signature": "load_task_from_firestore(task_id)",
+    "docstring": "Load a task record from Firestore (used after an instance restart)."
+  },
+  {
+    "name": "load_task_from_gcs",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 116,
+    "line_end": 117,
+    "signature": "load_task_from_gcs(task_id)",
+    "docstring": null
+  },
+  {
+    "name": "_run_task_background",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 126,
+    "line_end": 218,
+    "signature": "_run_task_background(task_id)",
+    "docstring": "Background coroutine: runs the LoopAgent for a task."
+  },
+  {
+    "name": "_public_record",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 224,
+    "line_end": 226,
+    "signature": "_public_record(record)",
+    "docstring": "Strip internal-only fields before returning to the client."
+  },
+  {
+    "name": "submit_task",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 229,
+    "line_end": 240,
+    "signature": "submit_task(task, user_id, context)",
+    "docstring": "Submit a long-running task.  Returns the task record (status=pending).\nThe background runner is started as a fire-and-forget asyncio.Task."
+  },
+  {
+    "name": "get_task",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 243,
+    "line_end": 248,
+    "signature": "get_task(task_id)",
+    "docstring": "Return the public (serialisable) task record, or None if not found."
+  },
+  {
+    "name": "cancel_task",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 251,
+    "line_end": 260,
+    "signature": "cancel_task(task_id)",
+    "docstring": "Cancel a running task. Returns True if a cancellation was requested."
+  },
+  {
+    "name": "list_user_tasks",
+    "kind": "function",
+    "file": "gateway/tasks.py",
+    "line_start": 263,
+    "line_end": 267,
+    "signature": "list_user_tasks(user_id)",
+    "docstring": "Return all task records for a given user (most recent first)."
+  },
+  {
+    "name": "governance.__init__",
+    "kind": "module",
+    "file": "governance/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "governance.policy_engine",
+    "kind": "module",
+    "file": "governance/policy_engine.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "PolicyRule",
+    "kind": "class",
+    "file": "governance/policy_engine.py",
+    "line_start": 19,
+    "line_end": 36,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "PolicyRule.applies_to",
+    "kind": "function",
+    "file": "governance/policy_engine.py",
+    "line_start": 26,
+    "line_end": 29,
+    "signature": "applies_to(self, agent_name)",
+    "docstring": null
+  },
+  {
+    "name": "PolicyRule.matches",
+    "kind": "function",
+    "file": "governance/policy_engine.py",
+    "line_start": 31,
+    "line_end": 36,
+    "signature": "matches(self, text)",
+    "docstring": null
+  },
+  {
+    "name": "PolicyResult",
+    "kind": "class",
+    "file": "governance/policy_engine.py",
+    "line_start": 40,
+    "line_end": 44,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "PolicyEngine",
+    "kind": "class",
+    "file": "governance/policy_engine.py",
+    "line_start": 54,
+    "line_end": 90,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "PolicyEngine.__init__",
+    "kind": "function",
+    "file": "governance/policy_engine.py",
+    "line_start": 55,
+    "line_end": 56,
+    "signature": "__init__(self, rules)",
+    "docstring": null
+  },
+  {
+    "name": "PolicyEngine._check",
+    "kind": "function",
+    "file": "governance/policy_engine.py",
+    "line_start": 62,
+    "line_end": 74,
+    "signature": "_check(self, agent_name, text)",
+    "docstring": null
+  },
+  {
+    "name": "PolicyEngine.check_response",
+    "kind": "function",
+    "file": "governance/policy_engine.py",
+    "line_start": 80,
+    "line_end": 82,
+    "signature": "check_response(self, agent_name, response)",
+    "docstring": "Check an agent response against all applicable policies."
+  },
+  {
+    "name": "PolicyEngine.check_prompt",
+    "kind": "function",
+    "file": "governance/policy_engine.py",
+    "line_start": 84,
+    "line_end": 86,
+    "signature": "check_prompt(self, agent_name, prompt)",
+    "docstring": "Check a user prompt against all applicable policies."
+  },
+  {
+    "name": "PolicyEngine.rules",
+    "kind": "function",
+    "file": "governance/policy_engine.py",
+    "line_start": 89,
+    "line_end": 90,
+    "signature": "rules(self)",
+    "docstring": null
+  },
+  {
+    "name": "_load_rules",
+    "kind": "function",
+    "file": "governance/policy_engine.py",
+    "line_start": 93,
+    "line_end": 108,
+    "signature": "_load_rules(path)",
+    "docstring": null
+  },
+  {
+    "name": "build_policy_engine",
+    "kind": "function",
+    "file": "governance/policy_engine.py",
+    "line_start": 111,
+    "line_end": 119,
+    "signature": "build_policy_engine(path)",
+    "docstring": "Build a PolicyEngine from policies.yaml. Returns None on failure."
+  },
+  {
+    "name": "memory.__init__",
+    "kind": "module",
+    "file": "memory/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "memory.context_budget",
+    "kind": "module",
+    "file": "memory/context_budget.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "build_context_summary",
+    "kind": "function",
+    "file": "memory/context_budget.py",
+    "line_start": 37,
+    "line_end": 91,
+    "signature": "build_context_summary(profile, skills, budget_tokens)",
+    "docstring": "Build a compact memory summary for system prompt injection.\n\nArgs:\n    profile:       User profile (Tier 1). If None, skipped.\n    skills:        Relevant skills ranked by recency/relevance (Tier 2).\n    budget_tokens: Maximum tokens to spend on the entire summary.\n\nReturns:\n    A plain-text string ready for system prompt injection.\n    Returns an empty string if nothing fits in the budget."
+  },
+  {
+    "name": "prioritise_memory",
+    "kind": "function",
+    "file": "memory/context_budget.py",
+    "line_start": 94,
+    "line_end": 111,
+    "signature": "prioritise_memory(items, budget)",
+    "docstring": "Trim a list of Skill objects to fit within *budget* tokens.\n\nItems earlier in the list have higher priority (pass pre-ranked list).\nReturns the subset that fits."
+  },
+  {
+    "name": "memory.cross_corpus",
+    "kind": "module",
+    "file": "memory/cross_corpus.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "RetrievedContext",
+    "kind": "class",
+    "file": "memory/cross_corpus.py",
+    "line_start": 21,
+    "line_end": 24,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_query_corpus",
+    "kind": "function",
+    "file": "memory/cross_corpus.py",
+    "line_start": 27,
+    "line_end": 50,
+    "signature": "_query_corpus(corpus, query, top_k)",
+    "docstring": "Query a single corpus. Returns empty list on failure."
+  },
+  {
+    "name": "_deduplicate",
+    "kind": "function",
+    "file": "memory/cross_corpus.py",
+    "line_start": 53,
+    "line_end": 61,
+    "signature": "_deduplicate(contexts)",
+    "docstring": null
+  },
+  {
+    "name": "retrieve_cross_corpus",
+    "kind": "function",
+    "file": "memory/cross_corpus.py",
+    "line_start": 64,
+    "line_end": 94,
+    "signature": "retrieve_cross_corpus(query, corpora, top_k)",
+    "docstring": "Query multiple corpora, merge results, sort by score, and deduplicate.\n\nArgs:\n    query: The search query string.\n    corpora: List of corpus resource names or RagCorpus objects.\n    top_k: Maximum number of results to return after merging.\n\nReturns:\n    A sorted, deduplicated list of RetrievedContext (up to top_k)."
+  },
+  {
+    "name": "memory.memory_bank",
+    "kind": "module",
+    "file": "memory/memory_bank.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_memory_bank_module",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 43,
+    "line_end": 51,
+    "signature": "_get_memory_bank_module()",
+    "docstring": null
+  },
+  {
+    "name": "HermesMemoryBank",
+    "kind": "class",
+    "file": "memory/memory_bank.py",
+    "line_start": 56,
+    "line_end": 408,
+    "signature": null,
+    "docstring": "Application-level facade over VertexAiMemoryBank.\n\nUsage:\n    bank = HermesMemoryBank(resource_name=\"projects/.../memoryBanks/...\")\n    await bank.generate_memories(user_id=\"u123\", conversation_turn=turn)\n    memories = await bank.fetch_memories(user_id=\"u123\", query=\"VPN setup\")"
+  },
+  {
+    "name": "HermesMemoryBank.__init__",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 66,
+    "line_end": 68,
+    "signature": "__init__(self, resource_name)",
+    "docstring": null
+  },
+  {
+    "name": "HermesMemoryBank._ensure_bank",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 72,
+    "line_end": 76,
+    "signature": "_ensure_bank(self)",
+    "docstring": null
+  },
+  {
+    "name": "HermesMemoryBank.generate_memories",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 80,
+    "line_end": 117,
+    "signature": "generate_memories(self, user_id, user_text, agent_text, agent_name)",
+    "docstring": "Distil a conversation turn into durable memories.\n\nCalled from skill_learning_callback (fire-and-forget) after every agent turn.\nThe SDK call is blocking — we wrap it in asyncio.to_thread.\n\nArgs:\n    user_id:    The authenticated user identifier.\n    user_text:  The user's message text.\n    agent_text: The agent's response text.\n    agent_name: Optional agent name for metadata."
+  },
+  {
+    "name": "HermesMemoryBank.ingest_events",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 119,
+    "line_end": 164,
+    "signature": "ingest_events(self, user_id, events)",
+    "docstring": "Stream conversation events to Memory Bank for automatic batched memory generation.\n\nMore production-grade than generate_memories() — the SDK batches events\nand triggers memory generation automatically via IngestEvents RPC.\n\nArgs:\n    user_id: The authenticated user identifier.\n    events:  List of event dicts with keys 'role' ('user'|'agent') and 'text'.\n\nExample:\n    await bank.ingest_events(user_id=\"u1\", events=[\n        {\"role\": \"user\",  \"text\": \"How do I reset my VPN?\"},\n        {\"role\": \"agent\", \"text\": \"Go to Settings > VPN > Reset.\"},\n    ])"
+  },
+  {
+    "name": "HermesMemoryBank.purge_memories",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 166,
+    "line_end": 199,
+    "signature": "purge_memories(self, user_id, dry_run)",
+    "docstring": "Bulk-delete all memories for a user.\n\nUses MemoryBankService.PurgeMemories with a user_id filter.\nThis is the correct implementation for DELETE /memories/{user_id}.\n\nArgs:\n    user_id: The user whose memories to delete.\n    dry_run: If True, returns count without deleting (default: False).\n\nReturns:\n    Number of memories deleted (or that would be deleted on dry_run)."
+  },
+  {
+    "name": "HermesMemoryBank.delete_memory",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 201,
+    "line_end": 222,
+    "signature": "delete_memory(self, memory_resource_name)",
+    "docstring": "Delete a specific memory by its resource name.\n\nArgs:\n    memory_resource_name: Full resource name, e.g.\n        \"projects/p/locations/l/memoryBanks/b/memories/m\"\n\nReturns:\n    True on success, False on failure."
+  },
+  {
+    "name": "HermesMemoryBank.create_memory",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 224,
+    "line_end": 256,
+    "signature": "create_memory(self, user_id, fact)",
+    "docstring": "Directly write a memory fact without LLM extraction/consolidation.\n\nUseful for the 'memory-as-a-tool' pattern where the agent explicitly\ndecides what to remember, bypassing automatic extraction.\n\nArgs:\n    user_id: The user this memory belongs to.\n    fact:    The plain-text fact to store.\n\nReturns:\n    The new memory's resource name, or None on failure."
+  },
+  {
+    "name": "HermesMemoryBank.update_memory",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 258,
+    "line_end": 286,
+    "signature": "update_memory(self, memory_resource_name, new_fact)",
+    "docstring": "Update an existing memory with a corrected fact.\n\nArgs:\n    memory_resource_name: Full resource name of the memory to update.\n    new_fact: The corrected/updated fact text.\n\nReturns:\n    True on success, False on failure."
+  },
+  {
+    "name": "HermesMemoryBank.retrieve_profiles",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 288,
+    "line_end": 319,
+    "signature": "retrieve_profiles(self, user_id)",
+    "docstring": "Retrieve structured memory profiles for a user.\n\nRetrieveProfiles returns a higher-level view than RetrieveMemories —\nfacts are organised into a structured profile object per scope.\n\nReturns:\n    List of profile dicts with keys 'scope' and 'facts'."
+  },
+  {
+    "name": "HermesMemoryBank.fetch_memories",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 321,
+    "line_end": 358,
+    "signature": "fetch_memories(self, user_id, query, top_k)",
+    "docstring": "Retrieve the most relevant memories for a user.\n\nCalled at session start (PreloadMemoryTool) to inject user context\ninto the system prompt.\n\nReturns:\n    List of memory strings, ready for system prompt injection."
+  },
+  {
+    "name": "HermesMemoryBank.list_revisions",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 360,
+    "line_end": 381,
+    "signature": "list_revisions(self, user_id)",
+    "docstring": "Return revision history for all memories belonging to a user.\nUseful for debugging and the DELETE /memories/{user_id} endpoint."
+  },
+  {
+    "name": "HermesMemoryBank.format_for_prompt",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 383,
+    "line_end": 408,
+    "signature": "format_for_prompt(self, user_id, query, max_tokens)",
+    "docstring": "Fetch memories and format them as a system prompt snippet.\n\nReturns an empty string if no memories are found or MemoryBank is unavailable.\nThe caller (gateway/main.py) injects this into the session system prompt."
+  },
+  {
+    "name": "build_memory_bank",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 413,
+    "line_end": 429,
+    "signature": "build_memory_bank()",
+    "docstring": "Build a HermesMemoryBank from settings.\n\nReturns None if MEMORY_BANK_RESOURCE_NAME is not configured (graceful degradation)."
+  },
+  {
+    "name": "create_memory_bank",
+    "kind": "function",
+    "file": "memory/memory_bank.py",
+    "line_start": 434,
+    "line_end": 458,
+    "signature": "create_memory_bank(project, location, display_name)",
+    "docstring": "Create a new MemoryBank resource. Returns the resource name.\nSafe to call multiple times — returns existing resource if found."
+  },
+  {
+    "name": "memory.skill_extractor",
+    "kind": "module",
+    "file": "memory/skill_extractor.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_build_extractor_agent",
+    "kind": "function",
+    "file": "memory/skill_extractor.py",
+    "line_start": 50,
+    "line_end": 58,
+    "signature": "_build_extractor_agent()",
+    "docstring": "Build the SkillExtractor agent using the configured lightweight model."
+  },
+  {
+    "name": "_get_extractor_agent",
+    "kind": "function",
+    "file": "memory/skill_extractor.py",
+    "line_start": 65,
+    "line_end": 69,
+    "signature": "_get_extractor_agent()",
+    "docstring": null
+  },
+  {
+    "name": "extract_skill",
+    "kind": "function",
+    "file": "memory/skill_extractor.py",
+    "line_start": 72,
+    "line_end": 118,
+    "signature": "extract_skill(agent_name, user_query, agent_response)",
+    "docstring": "Run the extractor agent and parse the result.\n\nReturns a Skill if one was extracted, None otherwise."
+  },
+  {
+    "name": "memory.skill_learning",
+    "kind": "module",
+    "file": "memory/skill_learning.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "build_skill_learning_callback",
+    "kind": "function",
+    "file": "memory/skill_learning.py",
+    "line_start": 25,
+    "line_end": 72,
+    "signature": "build_skill_learning_callback(agent_name)",
+    "docstring": "Return an after_agent_callback coroutine bound to `agent_name`.\n\nADK signature: async (callback_context) -> None"
+  },
+  {
+    "name": "_persist_to_memory_bank",
+    "kind": "function",
+    "file": "memory/skill_learning.py",
+    "line_start": 75,
+    "line_end": 96,
+    "signature": "_persist_to_memory_bank(agent_name, user_text, agent_text, callback_context)",
+    "docstring": "Write this conversation turn to the native VertexAiMemoryBank."
+  },
+  {
+    "name": "_learn_in_background",
+    "kind": "function",
+    "file": "memory/skill_learning.py",
+    "line_start": 100,
+    "line_end": 117,
+    "signature": "_learn_in_background(agent_name, user_text, agent_text)",
+    "docstring": "Background task: extract and persist a skill without blocking the response."
+  },
+  {
+    "name": "_extract_text",
+    "kind": "function",
+    "file": "memory/skill_learning.py",
+    "line_start": 120,
+    "line_end": 132,
+    "signature": "_extract_text(content)",
+    "docstring": "Extract plain text from an ADK Content object or string."
+  },
+  {
+    "name": "memory.skill_loader",
+    "kind": "module",
+    "file": "memory/skill_loader.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "load_skills_from_dir",
+    "kind": "function",
+    "file": "memory/skill_loader.py",
+    "line_start": 42,
+    "line_end": 74,
+    "signature": "load_skills_from_dir(skills_dir)",
+    "docstring": "Scan *skills_dir* for ``*.md`` files and parse each one into a Skill.\n\nFiles that fail to parse are skipped with a warning.\n``TEMPLATE.md`` is always skipped.\n\nArgs:\n    skills_dir: Path to the skills directory.  Defaults to ``skills/``\n                at the project root.\n\nReturns:\n    List of parsed Skill objects (may be empty if no valid files found)."
+  },
+  {
+    "name": "_iter_skill_files",
+    "kind": "function",
+    "file": "memory/skill_loader.py",
+    "line_start": 77,
+    "line_end": 82,
+    "signature": "_iter_skill_files(directory)",
+    "docstring": "Yield all *.md files under directory, excluding TEMPLATE.md."
+  },
+  {
+    "name": "_parse_skill_file",
+    "kind": "function",
+    "file": "memory/skill_loader.py",
+    "line_start": 85,
+    "line_end": 130,
+    "signature": "_parse_skill_file(path)",
+    "docstring": "Parse a single skill markdown file.\n\nReturns a Skill on success, None if the file should be silently skipped\n(e.g. no frontmatter — likely a README or notes file).\n\nRaises ValueError / KeyError for files that have frontmatter but are\nmissing required fields, so the caller can log a useful warning."
+  },
+  {
+    "name": "_extract_procedure",
+    "kind": "function",
+    "file": "memory/skill_loader.py",
+    "line_start": 133,
+    "line_end": 149,
+    "signature": "_extract_procedure(body)",
+    "docstring": "Extract ordered list items from the Steps section of the markdown body."
+  },
+  {
+    "name": "_infer_domain",
+    "kind": "function",
+    "file": "memory/skill_loader.py",
+    "line_start": 152,
+    "line_end": 154,
+    "signature": "_infer_domain(agent_name)",
+    "docstring": "Best-effort domain from agent name (e.g. 'AnalyticsAgent' -> 'analytics')."
+  },
+  {
+    "name": "memory.skill_models",
+    "kind": "module",
+    "file": "memory/skill_models.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Skill",
+    "kind": "class",
+    "file": "memory/skill_models.py",
+    "line_start": 15,
+    "line_end": 61,
+    "signature": null,
+    "docstring": "A single versioned, agent-generated skill."
+  },
+  {
+    "name": "Skill.to_rag_text",
+    "kind": "function",
+    "file": "memory/skill_models.py",
+    "line_start": 34,
+    "line_end": 46,
+    "signature": "to_rag_text(self)",
+    "docstring": "Serialise to text suitable for RAG corpus ingestion."
+  },
+  {
+    "name": "Skill.to_metadata",
+    "kind": "function",
+    "file": "memory/skill_models.py",
+    "line_start": 48,
+    "line_end": 56,
+    "signature": "to_metadata(self)",
+    "docstring": null
+  },
+  {
+    "name": "Skill.from_json",
+    "kind": "function",
+    "file": "memory/skill_models.py",
+    "line_start": 59,
+    "line_end": 61,
+    "signature": "from_json(cls, raw)",
+    "docstring": null
+  },
+  {
+    "name": "memory.skill_store",
+    "kind": "module",
+    "file": "memory/skill_store.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_corpus_name",
+    "kind": "function",
+    "file": "memory/skill_store.py",
+    "line_start": 29,
+    "line_end": 33,
+    "signature": "_get_corpus_name()",
+    "docstring": null
+  },
+  {
+    "name": "search_skills",
+    "kind": "function",
+    "file": "memory/skill_store.py",
+    "line_start": 36,
+    "line_end": 70,
+    "signature": "search_skills(query, top_k)",
+    "docstring": "Retrieve the top-k current skills from the skills corpus matching `query`.\nSkips entries that fail to parse (corpus may contain non-skill documents)."
+  },
+  {
+    "name": "_parse_rag_text",
+    "kind": "function",
+    "file": "memory/skill_store.py",
+    "line_start": 73,
+    "line_end": 112,
+    "signature": "_parse_rag_text(text)",
+    "docstring": "Parse a Skill back from its to_rag_text() representation."
+  },
+  {
+    "name": "upsert_skill",
+    "kind": "function",
+    "file": "memory/skill_store.py",
+    "line_start": 115,
+    "line_end": 140,
+    "signature": "upsert_skill(new_skill)",
+    "docstring": "Insert a new skill or create a new version if a near-duplicate exists.\n\nNear-duplicate detection: search for the skill's trigger text; if a result\nwith the same skill_id and score >= VERSION_THRESHOLD exists, archive it first."
+  },
+  {
+    "name": "_upload_skill",
+    "kind": "function",
+    "file": "memory/skill_store.py",
+    "line_start": 143,
+    "line_end": 171,
+    "signature": "_upload_skill(corpus_name, skill)",
+    "docstring": "Upload skill as a RagFile text blob.\n\nrag.upload_file is a blocking SDK call — wrapping it in asyncio.to_thread\nprevents it from stalling the event loop under high concurrency."
+  },
+  {
+    "name": "memory.user_profile",
+    "kind": "module",
+    "file": "memory/user_profile.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "UserProfile",
+    "kind": "class",
+    "file": "memory/user_profile.py",
+    "line_start": 31,
+    "line_end": 59,
+    "signature": null,
+    "docstring": "Stable facts about a user, persisted across sessions."
+  },
+  {
+    "name": "UserProfile.to_prompt_summary",
+    "kind": "function",
+    "file": "memory/user_profile.py",
+    "line_start": 42,
+    "line_end": 54,
+    "signature": "to_prompt_summary(self)",
+    "docstring": "Return a compact string suitable for injection into a system prompt."
+  },
+  {
+    "name": "UserProfile.prompt_token_estimate",
+    "kind": "function",
+    "file": "memory/user_profile.py",
+    "line_start": 57,
+    "line_end": 59,
+    "signature": "prompt_token_estimate(self)",
+    "docstring": "Rough token estimate (4 chars ≈ 1 token)."
+  },
+  {
+    "name": "_get_firestore_client",
+    "kind": "function",
+    "file": "memory/user_profile.py",
+    "line_start": 62,
+    "line_end": 65,
+    "signature": "_get_firestore_client()",
+    "docstring": "Lazy import — avoids import errors when Firestore is not available."
+  },
+  {
+    "name": "get_or_create_profile",
+    "kind": "function",
+    "file": "memory/user_profile.py",
+    "line_start": 68,
+    "line_end": 85,
+    "signature": "get_or_create_profile(user_id)",
+    "docstring": "Fetch the user profile from Firestore, or create a minimal one if absent.\n\nNever raises — returns a minimal profile on any error so the caller is\nnever blocked by a Firestore outage."
+  },
+  {
+    "name": "update_profile",
+    "kind": "function",
+    "file": "memory/user_profile.py",
+    "line_start": 88,
+    "line_end": 101,
+    "signature": "update_profile(user_id, updates)",
+    "docstring": "Upsert profile fields for a user.\n\nOnly fields present in updates are modified; other fields are preserved.\nAlways stamps last_seen to current UTC time."
+  },
+  {
+    "name": "models.__init__",
+    "kind": "module",
+    "file": "models/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "models.provider",
+    "kind": "module",
+    "file": "models/provider.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "resolve_model_str",
+    "kind": "function",
+    "file": "models/provider.py",
+    "line_start": 66,
+    "line_end": 72,
+    "signature": "resolve_model_str(model_str)",
+    "docstring": "Normalise the raw model string.\n\nReturns the model string unchanged (LiteLlm wrapping happens in get_model)."
+  },
+  {
+    "name": "get_model",
+    "kind": "function",
+    "file": "models/provider.py",
+    "line_start": 75,
+    "line_end": 108,
+    "signature": "get_model(model_str)",
+    "docstring": "Return the correct ADK model value for the given model string.\n\n- Native Gemini IDs are returned as plain strings.\n- Everything else is wrapped in google.adk.models.LiteLlm so that\n  OpenAI, Anthropic, Bedrock, Ollama, etc. all work transparently.\n\nArgs:\n    model_str: Model identifier in \"<provider>/<model>\" format for\n               non-Gemini models, or bare Gemini model name.\n\nReturns:\n    str | LiteLlm: Value suitable for LlmAgent(model=...)."
+  },
+  {
+    "name": "_is_native_gemini",
+    "kind": "function",
+    "file": "models/provider.py",
+    "line_start": 111,
+    "line_end": 121,
+    "signature": "_is_native_gemini(model_str)",
+    "docstring": "Return True if model_str refers to a native Gemini/Vertex AI model."
+  },
+  {
+    "name": "registry.__init__",
+    "kind": "module",
+    "file": "registry/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "registry.agent_registry",
+    "kind": "module",
+    "file": "registry/agent_registry.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "AgentRecord",
+    "kind": "class",
+    "file": "registry/agent_registry.py",
+    "line_start": 14,
+    "line_end": 20,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "HermesAgentRegistry",
+    "kind": "class",
+    "file": "registry/agent_registry.py",
+    "line_start": 23,
+    "line_end": 81,
+    "signature": null,
+    "docstring": "Registry backed by Vertex AI agent registry with graceful fallback."
+  },
+  {
+    "name": "HermesAgentRegistry.__init__",
+    "kind": "function",
+    "file": "registry/agent_registry.py",
+    "line_start": 26,
+    "line_end": 28,
+    "signature": "__init__(self)",
+    "docstring": null
+  },
+  {
+    "name": "HermesAgentRegistry._vertex_register",
+    "kind": "function",
+    "file": "registry/agent_registry.py",
+    "line_start": 34,
+    "line_end": 47,
+    "signature": "_vertex_register(self, record)",
+    "docstring": "Synchronous Vertex AI register call (run in thread)."
+  },
+  {
+    "name": "HermesAgentRegistry._vertex_list",
+    "kind": "function",
+    "file": "registry/agent_registry.py",
+    "line_start": 49,
+    "line_end": 58,
+    "signature": "_vertex_list(self)",
+    "docstring": "Synchronous Vertex AI list call (run in thread)."
+  },
+  {
+    "name": "HermesAgentRegistry.register_agent",
+    "kind": "function",
+    "file": "registry/agent_registry.py",
+    "line_start": 64,
+    "line_end": 68,
+    "signature": "register_agent(self, record)",
+    "docstring": "Register an agent. Returns its resource ID."
+  },
+  {
+    "name": "HermesAgentRegistry.list_agents",
+    "kind": "function",
+    "file": "registry/agent_registry.py",
+    "line_start": 70,
+    "line_end": 73,
+    "signature": "list_agents(self)",
+    "docstring": "Return all registered agents."
+  },
+  {
+    "name": "HermesAgentRegistry.get_agent",
+    "kind": "function",
+    "file": "registry/agent_registry.py",
+    "line_start": 75,
+    "line_end": 81,
+    "signature": "get_agent(self, name)",
+    "docstring": "Look up a single agent by name. Returns None if not found."
+  },
+  {
+    "name": "build_registry",
+    "kind": "function",
+    "file": "registry/agent_registry.py",
+    "line_start": 84,
+    "line_end": 90,
+    "signature": "build_registry()",
+    "docstring": "Build a HermesAgentRegistry. Returns None on unrecoverable failure."
+  },
+  {
+    "name": "scripts.demo.e2e_test",
+    "kind": "module",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "get_token",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 46,
+    "line_end": 56,
+    "signature": "get_token()",
+    "docstring": null
+  },
+  {
+    "name": "TestResult",
+    "kind": "class",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 69,
+    "line_end": 73,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "record",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 79,
+    "line_end": 86,
+    "signature": "record(name, passed, duration_s, detail)",
+    "docstring": null
+  },
+  {
+    "name": "chat_sse",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 91,
+    "line_end": 135,
+    "signature": "chat_sse(client, message, session_id)",
+    "docstring": "Send a chat message via SSE stream.\nReturns (response_text, new_session_id)."
+  },
+  {
+    "name": "submit_task",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 138,
+    "line_end": 148,
+    "signature": "submit_task(client, task, context)",
+    "docstring": "Submit a long-running task and return the task_id."
+  },
+  {
+    "name": "get_task",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 151,
+    "line_end": 158,
+    "signature": "get_task(client, task_id)",
+    "docstring": null
+  },
+  {
+    "name": "cancel_task",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 161,
+    "line_end": 168,
+    "signature": "cancel_task(client, task_id)",
+    "docstring": null
+  },
+  {
+    "name": "list_tasks",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 171,
+    "line_end": 178,
+    "signature": "list_tasks(client)",
+    "docstring": null
+  },
+  {
+    "name": "poll_until_done",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 181,
+    "line_end": 194,
+    "signature": "poll_until_done(client, task_id, timeout_s, interval_s)",
+    "docstring": "Poll a task until it reaches a terminal state or timeout."
+  },
+  {
+    "name": "test_health",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 201,
+    "line_end": 209,
+    "signature": "test_health(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_chat_hr_pto",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 212,
+    "line_end": 222,
+    "signature": "test_chat_hr_pto(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_chat_hr_benefits",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 225,
+    "line_end": 235,
+    "signature": "test_chat_hr_benefits(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_chat_it_vpn",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 238,
+    "line_end": 248,
+    "signature": "test_chat_it_vpn(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_chat_it_incident",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 251,
+    "line_end": 264,
+    "signature": "test_chat_it_incident(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_chat_developer_deploy",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 267,
+    "line_end": 277,
+    "signature": "test_chat_developer_deploy(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_chat_analytics_bigquery",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 280,
+    "line_end": 293,
+    "signature": "test_chat_analytics_bigquery(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_chat_analytics_sales",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 296,
+    "line_end": 310,
+    "signature": "test_chat_analytics_sales(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_multiturn_session",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 313,
+    "line_end": 333,
+    "signature": "test_multiturn_session(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_long_running_task",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 336,
+    "line_end": 360,
+    "signature": "test_long_running_task(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_task_cancellation",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 363,
+    "line_end": 377,
+    "signature": "test_task_cancellation(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_task_list",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 380,
+    "line_end": 388,
+    "signature": "test_task_list(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_self_scheduling",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 391,
+    "line_end": 427,
+    "signature": "test_self_scheduling(client)",
+    "docstring": "Test the self-scheduling feature via chat."
+  },
+  {
+    "name": "test_workspace_gmail",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 430,
+    "line_end": 441,
+    "signature": "test_workspace_gmail(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_workspace_calendar",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 444,
+    "line_end": 458,
+    "signature": "test_workspace_calendar(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_workspace_drive",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 461,
+    "line_end": 472,
+    "signature": "test_workspace_drive(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_open_incidents",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 475,
+    "line_end": 489,
+    "signature": "test_open_incidents(client)",
+    "docstring": null
+  },
+  {
+    "name": "test_pending_pto",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 492,
+    "line_end": 506,
+    "signature": "test_pending_pto(client)",
+    "docstring": null
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "scripts/demo/e2e_test.py",
+    "line_start": 513,
+    "line_end": 568,
+    "signature": "main()",
+    "docstring": null
+  },
+  {
+    "name": "scripts.demo.seed_bigquery",
+    "kind": "module",
+    "file": "scripts/demo/seed_bigquery.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "get_client",
+    "kind": "function",
+    "file": "scripts/demo/seed_bigquery.py",
+    "line_start": 36,
+    "line_end": 43,
+    "signature": "get_client()",
+    "docstring": null
+  },
+  {
+    "name": "ensure_dataset",
+    "kind": "function",
+    "file": "scripts/demo/seed_bigquery.py",
+    "line_start": 46,
+    "line_end": 56,
+    "signature": "ensure_dataset(client)",
+    "docstring": null
+  },
+  {
+    "name": "generate_sales_data",
+    "kind": "function",
+    "file": "scripts/demo/seed_bigquery.py",
+    "line_start": 147,
+    "line_end": 193,
+    "signature": "generate_sales_data()",
+    "docstring": "Generate 12 months × 4 regions × 3 products of sales data."
+  },
+  {
+    "name": "seed_table",
+    "kind": "function",
+    "file": "scripts/demo/seed_bigquery.py",
+    "line_start": 266,
+    "line_end": 288,
+    "signature": "seed_table(client, name, schema, rows)",
+    "docstring": null
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "scripts/demo/seed_bigquery.py",
+    "line_start": 291,
+    "line_end": 311,
+    "signature": "main()",
+    "docstring": null
+  },
+  {
+    "name": "scripts.demo.seed_knowledge_base",
+    "kind": "module",
+    "file": "scripts/demo/seed_knowledge_base.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "get_settings",
+    "kind": "function",
+    "file": "scripts/demo/seed_knowledge_base.py",
+    "line_start": 131,
+    "line_end": 141,
+    "signature": "get_settings()",
+    "docstring": null
+  },
+  {
+    "name": "upload_doc",
+    "kind": "function",
+    "file": "scripts/demo/seed_knowledge_base.py",
+    "line_start": 144,
+    "line_end": 156,
+    "signature": "upload_doc(corpus_name, file_path, display_name, description)",
+    "docstring": "Upload a local text file to a RAG corpus."
+  },
+  {
+    "name": "upload_skill",
+    "kind": "function",
+    "file": "scripts/demo/seed_knowledge_base.py",
+    "line_start": 159,
+    "line_end": 178,
+    "signature": "upload_skill(corpus_name, skill)",
+    "docstring": "Write a skill to a temp file and upload it to the skills corpus."
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "scripts/demo/seed_knowledge_base.py",
+    "line_start": 181,
+    "line_end": 223,
+    "signature": "main()",
+    "docstring": null
+  },
+  {
+    "name": "scripts.deploy",
+    "kind": "module",
+    "file": "scripts/deploy.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "scripts/deploy.py",
+    "line_start": 31,
+    "line_end": 111,
+    "signature": "main()",
+    "docstring": null
+  },
+  {
+    "name": "scripts.register_agents",
+    "kind": "module",
+    "file": "scripts/register_agents.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "load_agents_yaml",
+    "kind": "function",
+    "file": "scripts/register_agents.py",
+    "line_start": 23,
+    "line_end": 29,
+    "signature": "load_agents_yaml(path)",
+    "docstring": null
+  },
+  {
+    "name": "build_record",
+    "kind": "function",
+    "file": "scripts/register_agents.py",
+    "line_start": 32,
+    "line_end": 40,
+    "signature": "build_record(raw)",
+    "docstring": null
+  },
+  {
+    "name": "run",
+    "kind": "function",
+    "file": "scripts/register_agents.py",
+    "line_start": 43,
+    "line_end": 66,
+    "signature": "run(args)",
+    "docstring": null
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "scripts/register_agents.py",
+    "line_start": 69,
+    "line_end": 82,
+    "signature": "main()",
+    "docstring": null
+  },
+  {
+    "name": "scripts.setup_rag",
+    "kind": "module",
+    "file": "scripts/setup_rag.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "create_corpus",
+    "kind": "function",
+    "file": "scripts/setup_rag.py",
+    "line_start": 29,
+    "line_end": 40,
+    "signature": "create_corpus(display_name, description)",
+    "docstring": "Create a RAG corpus and return its resource name."
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "scripts/setup_rag.py",
+    "line_start": 43,
+    "line_end": 59,
+    "signature": "main()",
+    "docstring": null
+  },
+  {
+    "name": "tests.agents.test_agent_builds",
+    "kind": "module",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_mock_settings",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 17,
+    "line_end": 40,
+    "signature": "_mock_settings(model)",
+    "docstring": null
+  },
+  {
+    "name": "_patch_all",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 43,
+    "line_end": 51,
+    "signature": "_patch_all()",
+    "docstring": "Return a fresh dict of patch objects — call start/stop per test."
+  },
+  {
+    "name": "_start",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 54,
+    "line_end": 56,
+    "signature": "_start(patches)",
+    "docstring": null
+  },
+  {
+    "name": "_stop",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 59,
+    "line_end": 61,
+    "signature": "_stop(patches)",
+    "docstring": null
+  },
+  {
+    "name": "TestAnalyticsAgentBuild",
+    "kind": "class",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 64,
+    "line_end": 80,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestAnalyticsAgentBuild.setup_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 65,
+    "line_end": 67,
+    "signature": "setup_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestAnalyticsAgentBuild.teardown_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 69,
+    "line_end": 70,
+    "signature": "teardown_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestAnalyticsAgentBuild.test_returns_llm_agent_with_correct_name",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 72,
+    "line_end": 75,
+    "signature": "test_returns_llm_agent_with_correct_name(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestAnalyticsAgentBuild.test_has_google_search_in_tools",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 77,
+    "line_end": 80,
+    "signature": "test_has_google_search_in_tools(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestHrAgentBuild",
+    "kind": "class",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 83,
+    "line_end": 100,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestHrAgentBuild.setup_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 84,
+    "line_end": 86,
+    "signature": "setup_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestHrAgentBuild.teardown_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 88,
+    "line_end": 89,
+    "signature": "teardown_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestHrAgentBuild.test_returns_llm_agent_with_correct_name",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 91,
+    "line_end": 94,
+    "signature": "test_returns_llm_agent_with_correct_name(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestHrAgentBuild.test_has_multiple_tools",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 96,
+    "line_end": 100,
+    "signature": "test_has_multiple_tools(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestItHelpdeskAgentBuild",
+    "kind": "class",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 103,
+    "line_end": 119,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestItHelpdeskAgentBuild.setup_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 104,
+    "line_end": 106,
+    "signature": "setup_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestItHelpdeskAgentBuild.teardown_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 108,
+    "line_end": 109,
+    "signature": "teardown_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestItHelpdeskAgentBuild.test_returns_llm_agent_with_correct_name",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 111,
+    "line_end": 114,
+    "signature": "test_returns_llm_agent_with_correct_name(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestItHelpdeskAgentBuild.test_has_google_search_in_tools",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 116,
+    "line_end": 119,
+    "signature": "test_has_google_search_in_tools(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeveloperAgentBuild",
+    "kind": "class",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 122,
+    "line_end": 143,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDeveloperAgentBuild.setup_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 123,
+    "line_end": 125,
+    "signature": "setup_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeveloperAgentBuild.teardown_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 127,
+    "line_end": 128,
+    "signature": "teardown_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeveloperAgentBuild.test_returns_llm_agent_with_correct_name",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 130,
+    "line_end": 133,
+    "signature": "test_returns_llm_agent_with_correct_name(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeveloperAgentBuild.test_description_mentions_sandbox",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 135,
+    "line_end": 138,
+    "signature": "test_description_mentions_sandbox(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeveloperAgentBuild.test_has_google_search_in_tools",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 140,
+    "line_end": 143,
+    "signature": "test_has_google_search_in_tools(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestOrchestratorBuild",
+    "kind": "class",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 146,
+    "line_end": 168,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestOrchestratorBuild.setup_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 147,
+    "line_end": 149,
+    "signature": "setup_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestOrchestratorBuild.teardown_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 151,
+    "line_end": 152,
+    "signature": "teardown_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestOrchestratorBuild.test_returns_llm_agent_with_correct_name",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 154,
+    "line_end": 157,
+    "signature": "test_returns_llm_agent_with_correct_name(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestOrchestratorBuild.test_has_sub_agents",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 159,
+    "line_end": 163,
+    "signature": "test_has_sub_agents(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestOrchestratorBuild.test_has_google_search_tool",
+    "kind": "function",
+    "file": "tests/agents/test_agent_builds.py",
+    "line_start": 165,
+    "line_end": 168,
+    "signature": "test_has_google_search_tool(self)",
+    "docstring": null
+  },
+  {
+    "name": "tests.agents.test_agent_loader",
+    "kind": "module",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_mock_settings",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 18,
+    "line_end": 36,
+    "signature": "_mock_settings(model)",
+    "docstring": null
+  },
+  {
+    "name": "_write_yaml",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 39,
+    "line_end": 42,
+    "signature": "_write_yaml(tmp_path, content)",
+    "docstring": null
+  },
+  {
+    "name": "_start",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 103,
+    "line_end": 106,
+    "signature": "_start(patches)",
+    "docstring": null
+  },
+  {
+    "name": "_stop",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 109,
+    "line_end": 111,
+    "signature": "_stop(patches)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadAgentsYaml",
+    "kind": "class",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 116,
+    "line_end": 142,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestLoadAgentsYaml.test_parses_minimal_yaml",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 117,
+    "line_end": 122,
+    "signature": "test_parses_minimal_yaml(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadAgentsYaml.test_resolves_env_var_with_default",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 124,
+    "line_end": 129,
+    "signature": "test_resolves_env_var_with_default(self, tmp_path, monkeypatch)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadAgentsYaml.test_resolves_env_var_from_environment",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 131,
+    "line_end": 136,
+    "signature": "test_resolves_env_var_from_environment(self, tmp_path, monkeypatch)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadAgentsYaml.test_raises_for_invalid_structure",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 138,
+    "line_end": 142,
+    "signature": "test_raises_for_invalid_structure(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentsFromYaml",
+    "kind": "class",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 147,
+    "line_end": 198,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentsFromYaml.setup_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 148,
+    "line_end": 149,
+    "signature": "setup_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentsFromYaml.teardown_method",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 151,
+    "line_end": 152,
+    "signature": "teardown_method(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentsFromYaml.test_builds_generic_agents",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 154,
+    "line_end": 161,
+    "signature": "test_builds_generic_agents(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentsFromYaml.test_skips_entry_with_no_name",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 163,
+    "line_end": 170,
+    "signature": "test_skips_entry_with_no_name(self, tmp_path, caplog)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentsFromYaml.test_unknown_tool_is_skipped_with_warning",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 172,
+    "line_end": 180,
+    "signature": "test_unknown_tool_is_skipped_with_warning(self, tmp_path, caplog)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentsFromYaml.test_uses_custom_builder_for_known_agents",
+    "kind": "function",
+    "file": "tests/agents/test_agent_loader.py",
+    "line_start": 182,
+    "line_end": 198,
+    "signature": "test_uses_custom_builder_for_known_agents(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "tests.conftest",
+    "kind": "module",
+    "file": "tests/conftest.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_make_module",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 22,
+    "line_end": 26,
+    "signature": "_make_module(name)",
+    "docstring": null
+  },
+  {
+    "name": "_FakeLlmAgent",
+    "kind": "class",
+    "file": "tests/conftest.py",
+    "line_start": 30,
+    "line_end": 36,
+    "signature": null,
+    "docstring": "Lightweight stand-in for google.adk.agents.LlmAgent."
+  },
+  {
+    "name": "_FakeLlmAgent.__init__",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 32,
+    "line_end": 36,
+    "signature": "__init__(self)",
+    "docstring": null
+  },
+  {
+    "name": "_FakeLoopAgent",
+    "kind": "class",
+    "file": "tests/conftest.py",
+    "line_start": 39,
+    "line_end": 41,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_FakeLoopAgent.__init__",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 40,
+    "line_end": 41,
+    "signature": "__init__(self)",
+    "docstring": null
+  },
+  {
+    "name": "_noop_limit",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 130,
+    "line_end": 136,
+    "signature": "_noop_limit(_rate)",
+    "docstring": null
+  },
+  {
+    "name": "_FakeEventSourceResponse",
+    "kind": "class",
+    "file": "tests/conftest.py",
+    "line_start": 148,
+    "line_end": 151,
+    "signature": null,
+    "docstring": "Minimal stub so FastAPI accepts EventSourceResponse as a response type."
+  },
+  {
+    "name": "_FakeEventSourceResponse.__init__",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 150,
+    "line_end": 151,
+    "signature": "__init__(self, content)",
+    "docstring": null
+  },
+  {
+    "name": "_register_all",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 184,
+    "line_end": 245,
+    "signature": "_register_all()",
+    "docstring": null
+  },
+  {
+    "name": "tests.eval.__init__",
+    "kind": "module",
+    "file": "tests/eval/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "tests.eval.test_eval_metrics",
+    "kind": "module",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "test_high_groundedness_when_keywords_present",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 21,
+    "line_end": 23,
+    "signature": "test_high_groundedness_when_keywords_present()",
+    "docstring": null
+  },
+  {
+    "name": "test_partial_groundedness",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 26,
+    "line_end": 28,
+    "signature": "test_partial_groundedness()",
+    "docstring": null
+  },
+  {
+    "name": "test_zero_groundedness_when_no_keywords_in_response",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 31,
+    "line_end": 33,
+    "signature": "test_zero_groundedness_when_no_keywords_in_response()",
+    "docstring": null
+  },
+  {
+    "name": "test_groundedness_case_insensitive",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 36,
+    "line_end": 38,
+    "signature": "test_groundedness_case_insensitive()",
+    "docstring": null
+  },
+  {
+    "name": "test_task_completion_long_response",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 41,
+    "line_end": 44,
+    "signature": "test_task_completion_long_response()",
+    "docstring": null
+  },
+  {
+    "name": "test_task_completion_short_response",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 47,
+    "line_end": 49,
+    "signature": "test_task_completion_short_response()",
+    "docstring": null
+  },
+  {
+    "name": "test_safety_score_clean_response",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 52,
+    "line_end": 54,
+    "signature": "test_safety_score_clean_response()",
+    "docstring": null
+  },
+  {
+    "name": "test_safety_score_toxic_response",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 57,
+    "line_end": 59,
+    "signature": "test_safety_score_toxic_response()",
+    "docstring": null
+  },
+  {
+    "name": "test_overall_is_average_of_three_scores",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 62,
+    "line_end": 68,
+    "signature": "test_overall_is_average_of_three_scores()",
+    "docstring": null
+  },
+  {
+    "name": "test_empty_keywords_gives_full_groundedness",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 71,
+    "line_end": 73,
+    "signature": "test_empty_keywords_gives_full_groundedness()",
+    "docstring": null
+  },
+  {
+    "name": "test_build_online_monitor_returns_none_when_no_project",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 78,
+    "line_end": 83,
+    "signature": "test_build_online_monitor_returns_none_when_no_project()",
+    "docstring": null
+  },
+  {
+    "name": "test_build_online_monitor_returns_config_when_project_set",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 86,
+    "line_end": 94,
+    "signature": "test_build_online_monitor_returns_config_when_project_set()",
+    "docstring": null
+  },
+  {
+    "name": "test_run_eval_dry_run_exits_zero",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 99,
+    "line_end": 107,
+    "signature": "test_run_eval_dry_run_exits_zero()",
+    "docstring": null
+  },
+  {
+    "name": "test_run_eval_dry_run_prints_pass",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 110,
+    "line_end": 118,
+    "signature": "test_run_eval_dry_run_prints_pass()",
+    "docstring": null
+  },
+  {
+    "name": "test_run_eval_missing_evalset_exits_nonzero",
+    "kind": "function",
+    "file": "tests/eval/test_eval_metrics.py",
+    "line_start": 121,
+    "line_end": 128,
+    "signature": "test_run_eval_missing_evalset_exits_nonzero()",
+    "docstring": null
+  },
+  {
+    "name": "tests.gateway.test_agent_gateway",
+    "kind": "module",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_enabled_config",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 22,
+    "line_end": 25,
+    "signature": "_enabled_config()",
+    "docstring": null
+  },
+  {
+    "name": "_disabled_config",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 28,
+    "line_end": 29,
+    "signature": "_disabled_config()",
+    "docstring": null
+  },
+  {
+    "name": "TestAgentGatewayConfig",
+    "kind": "class",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 34,
+    "line_end": 47,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestAgentGatewayConfig.test_enabled_when_endpoint_set",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 35,
+    "line_end": 37,
+    "signature": "test_enabled_when_endpoint_set(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestAgentGatewayConfig.test_disabled_when_no_endpoint",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 39,
+    "line_end": 41,
+    "signature": "test_disabled_when_no_endpoint(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestAgentGatewayConfig.test_defaults",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 43,
+    "line_end": 47,
+    "signature": "test_defaults(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestSendMessage",
+    "kind": "class",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 52,
+    "line_end": 105,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestSendMessage.test_returns_none_when_disabled",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 53,
+    "line_end": 56,
+    "signature": "test_returns_none_when_disabled(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestSendMessage.test_calls_post_and_returns_json",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 58,
+    "line_end": 73,
+    "signature": "test_calls_post_and_returns_json(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestSendMessage.test_returns_none_on_http_error",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 75,
+    "line_end": 85,
+    "signature": "test_returns_none_on_http_error(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestSendMessage.test_includes_reasoning_engine_id_in_payload",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 87,
+    "line_end": 105,
+    "signature": "test_includes_reasoning_engine_id_in_payload(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestStreamMessage",
+    "kind": "class",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 110,
+    "line_end": 152,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestStreamMessage.test_yields_nothing_when_disabled",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 111,
+    "line_end": 114,
+    "signature": "test_yields_nothing_when_disabled(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestStreamMessage.test_yields_data_lines",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 116,
+    "line_end": 140,
+    "signature": "test_yields_data_lines(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestStreamMessage.test_stream_error_yields_nothing",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 142,
+    "line_end": 152,
+    "signature": "test_stream_error_yields_nothing(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestClose",
+    "kind": "class",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 157,
+    "line_end": 171,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestClose.test_close_calls_aclose",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 158,
+    "line_end": 166,
+    "signature": "test_close_calls_aclose(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestClose.test_close_noop_when_not_initialised",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 168,
+    "line_end": 171,
+    "signature": "test_close_noop_when_not_initialised(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentGateway",
+    "kind": "class",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 176,
+    "line_end": 208,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentGateway.test_returns_disabled_client_when_no_env",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 177,
+    "line_end": 188,
+    "signature": "test_returns_disabled_client_when_no_env(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentGateway.test_returns_enabled_client_when_endpoint_set",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 190,
+    "line_end": 203,
+    "signature": "test_returns_enabled_client_when_endpoint_set(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAgentGateway.test_returns_disabled_client_on_settings_error",
+    "kind": "function",
+    "file": "tests/gateway/test_agent_gateway.py",
+    "line_start": 205,
+    "line_end": 208,
+    "signature": "test_returns_disabled_client_on_settings_error(self)",
+    "docstring": null
+  },
+  {
+    "name": "tests.gateway.test_main_chat",
+    "kind": "module",
+    "file": "tests/gateway/test_main_chat.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_app",
+    "kind": "function",
+    "file": "tests/gateway/test_main_chat.py",
+    "line_start": 19,
+    "line_end": 22,
+    "signature": "_get_app()",
+    "docstring": "Import (or re-use) the FastAPI app with no real GCP calls."
+  },
+  {
+    "name": "_override_auth",
+    "kind": "function",
+    "file": "tests/gateway/test_main_chat.py",
+    "line_start": 25,
+    "line_end": 33,
+    "signature": "_override_auth(gm, fake_user)",
+    "docstring": "Override the auth dependency using the correct callable key.\n\nFastAPI dependency_overrides must be keyed by the dependency callable\n(verify_google_token), NOT by the Annotated type alias (CurrentUser)."
+  },
+  {
+    "name": "TestChatModelArmor",
+    "kind": "class",
+    "file": "tests/gateway/test_main_chat.py",
+    "line_start": 38,
+    "line_end": 93,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestChatModelArmor.test_blocked_prompt_returns_400",
+    "kind": "function",
+    "file": "tests/gateway/test_main_chat.py",
+    "line_start": 40,
+    "line_end": 71,
+    "signature": "test_blocked_prompt_returns_400(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestChatModelArmor.test_runner_not_initialised_returns_503",
+    "kind": "function",
+    "file": "tests/gateway/test_main_chat.py",
+    "line_start": 74,
+    "line_end": 93,
+    "signature": "test_runner_not_initialised_returns_503(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestSessions",
+    "kind": "class",
+    "file": "tests/gateway/test_main_chat.py",
+    "line_start": 98,
+    "line_end": 138,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestSessions.test_cannot_list_other_users_sessions",
+    "kind": "function",
+    "file": "tests/gateway/test_main_chat.py",
+    "line_start": 100,
+    "line_end": 113,
+    "signature": "test_cannot_list_other_users_sessions(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestSessions.test_can_list_own_sessions",
+    "kind": "function",
+    "file": "tests/gateway/test_main_chat.py",
+    "line_start": 116,
+    "line_end": 138,
+    "signature": "test_can_list_own_sessions(self)",
+    "docstring": null
+  },
+  {
+    "name": "tests.gateway.test_observability",
+    "kind": "module",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_reload_observability",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 18,
+    "line_end": 22,
+    "signature": "_reload_observability()",
+    "docstring": "Reload the module so the module-level _tracer global is reset."
+  },
+  {
+    "name": "TestNoopComponents",
+    "kind": "class",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 27,
+    "line_end": 42,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestNoopComponents.test_noop_tracer_start_span_is_context_manager",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 28,
+    "line_end": 35,
+    "signature": "test_noop_tracer_start_span_is_context_manager(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestNoopComponents.test_noop_span_methods_are_no_ops",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 37,
+    "line_end": 42,
+    "signature": "test_noop_span_methods_are_no_ops(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetTracer",
+    "kind": "class",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 48,
+    "line_end": 62,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestGetTracer.test_returns_noop_tracer_when_not_initialised",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 49,
+    "line_end": 54,
+    "signature": "test_returns_noop_tracer_when_not_initialised(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetTracer.test_returns_real_tracer_when_set",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 56,
+    "line_end": 62,
+    "signature": "test_returns_real_tracer_when_set(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestSetupTracing",
+    "kind": "class",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 67,
+    "line_end": 116,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestSetupTracing.test_silently_degrades_when_packages_missing",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 68,
+    "line_end": 82,
+    "signature": "test_silently_degrades_when_packages_missing(self)",
+    "docstring": "setup_tracing must not raise even if opentelemetry is not installed."
+  },
+  {
+    "name": "TestSetupTracing.test_sets_tracer_when_packages_present",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 84,
+    "line_end": 116,
+    "signature": "test_sets_tracer_when_packages_present(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestInstrumentFastapi",
+    "kind": "class",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 121,
+    "line_end": 140,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestInstrumentFastapi.test_silently_skips_when_package_missing",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 122,
+    "line_end": 126,
+    "signature": "test_silently_skips_when_package_missing(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestInstrumentFastapi.test_calls_instrument_app_when_available",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 128,
+    "line_end": 140,
+    "signature": "test_calls_instrument_app_when_available(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestAgentSpan",
+    "kind": "class",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 145,
+    "line_end": 182,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestAgentSpan.test_span_context_manager_yields",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 146,
+    "line_end": 152,
+    "signature": "test_span_context_manager_yields(self)",
+    "docstring": "agent_span must work as a context manager even with NoopTracer."
+  },
+  {
+    "name": "TestAgentSpan.test_noop_span_does_not_raise_on_set_attribute",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 154,
+    "line_end": 160,
+    "signature": "test_noop_span_does_not_raise_on_set_attribute(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestAgentSpan.test_span_uses_agent_name_in_span_name",
+    "kind": "function",
+    "file": "tests/gateway/test_observability.py",
+    "line_start": 162,
+    "line_end": 182,
+    "signature": "test_span_uses_agent_name_in_span_name(self)",
+    "docstring": "The real tracer should be called with 'agent/<name>'."
+  },
+  {
+    "name": "tests.governance.test_policy_engine",
+    "kind": "module",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "make_engine",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 22,
+    "line_end": 25,
+    "signature": "make_engine()",
+    "docstring": null
+  },
+  {
+    "name": "test_build_policy_engine_loads_rules",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 33,
+    "line_end": 35,
+    "signature": "test_build_policy_engine_loads_rules()",
+    "docstring": null
+  },
+  {
+    "name": "test_check_response_passes_clean_text",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 38,
+    "line_end": 43,
+    "signature": "test_check_response_passes_clean_text()",
+    "docstring": null
+  },
+  {
+    "name": "test_block_large_purchase_response",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 46,
+    "line_end": 51,
+    "signature": "test_block_large_purchase_response()",
+    "docstring": null
+  },
+  {
+    "name": "test_escalate_legal_advice",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 54,
+    "line_end": 61,
+    "signature": "test_escalate_legal_advice()",
+    "docstring": null
+  },
+  {
+    "name": "test_warn_pii_ssn",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 64,
+    "line_end": 69,
+    "signature": "test_warn_pii_ssn()",
+    "docstring": null
+  },
+  {
+    "name": "test_warn_pii_credit_card",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 72,
+    "line_end": 76,
+    "signature": "test_warn_pii_credit_card()",
+    "docstring": null
+  },
+  {
+    "name": "test_scope_limits_rule_to_specific_agents",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 79,
+    "line_end": 85,
+    "signature": "test_scope_limits_rule_to_specific_agents()",
+    "docstring": null
+  },
+  {
+    "name": "test_check_prompt_mirrors_check_response",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 88,
+    "line_end": 92,
+    "signature": "test_check_prompt_mirrors_check_response()",
+    "docstring": null
+  },
+  {
+    "name": "test_build_policy_engine_returns_none_on_missing_file",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 95,
+    "line_end": 98,
+    "signature": "test_build_policy_engine_returns_none_on_missing_file(tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "test_policy_result_fields",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 101,
+    "line_end": 109,
+    "signature": "test_policy_result_fields()",
+    "docstring": null
+  },
+  {
+    "name": "test_policy_rule_applies_to_all",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 112,
+    "line_end": 121,
+    "signature": "test_policy_rule_applies_to_all()",
+    "docstring": null
+  },
+  {
+    "name": "test_policy_rule_applies_to_list",
+    "kind": "function",
+    "file": "tests/governance/test_policy_engine.py",
+    "line_start": 124,
+    "line_end": 133,
+    "signature": "test_policy_rule_applies_to_list()",
+    "docstring": null
+  },
+  {
+    "name": "tests.memory.test_context_budget",
+    "kind": "module",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_make_skill",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 10,
+    "line_end": 19,
+    "signature": "_make_skill(skill_id, trigger, steps)",
+    "docstring": null
+  },
+  {
+    "name": "_make_profile",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 22,
+    "line_end": 24,
+    "signature": "_make_profile(user_id, name, role)",
+    "docstring": null
+  },
+  {
+    "name": "TestPrioritiseMemory",
+    "kind": "class",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 27,
+    "line_end": 55,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestPrioritiseMemory.test_returns_all_when_within_budget",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 28,
+    "line_end": 32,
+    "signature": "test_returns_all_when_within_budget(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestPrioritiseMemory.test_trims_when_over_budget",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 34,
+    "line_end": 38,
+    "signature": "test_trims_when_over_budget(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestPrioritiseMemory.test_returns_empty_for_zero_budget",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 40,
+    "line_end": 44,
+    "signature": "test_returns_empty_for_zero_budget(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestPrioritiseMemory.test_returns_empty_for_empty_input",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 46,
+    "line_end": 49,
+    "signature": "test_returns_empty_for_empty_input(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestPrioritiseMemory.test_preserves_priority_order",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 51,
+    "line_end": 55,
+    "signature": "test_preserves_priority_order(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildContextSummary",
+    "kind": "class",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 58,
+    "line_end": 107,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestBuildContextSummary.test_includes_profile_tier1",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 59,
+    "line_end": 64,
+    "signature": "test_includes_profile_tier1(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildContextSummary.test_includes_skills_tier2",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 66,
+    "line_end": 71,
+    "signature": "test_includes_skills_tier2(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildContextSummary.test_profile_and_skills_combined",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 73,
+    "line_end": 79,
+    "signature": "test_profile_and_skills_combined(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildContextSummary.test_returns_empty_string_when_nothing_fits",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 81,
+    "line_end": 86,
+    "signature": "test_returns_empty_string_when_nothing_fits(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildContextSummary.test_skills_trimmed_to_budget",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 88,
+    "line_end": 93,
+    "signature": "test_skills_trimmed_to_budget(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildContextSummary.test_none_profile_skipped_gracefully",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 95,
+    "line_end": 100,
+    "signature": "test_none_profile_skipped_gracefully(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildContextSummary.test_empty_skills_list",
+    "kind": "function",
+    "file": "tests/memory/test_context_budget.py",
+    "line_start": 102,
+    "line_end": 107,
+    "signature": "test_empty_skills_list(self)",
+    "docstring": null
+  },
+  {
+    "name": "tests.memory.test_cross_corpus",
+    "kind": "module",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "make_chunk",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 17,
+    "line_end": 18,
+    "signature": "make_chunk(text, score)",
+    "docstring": null
+  },
+  {
+    "name": "make_rag_response",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 21,
+    "line_end": 22,
+    "signature": "make_rag_response()",
+    "docstring": null
+  },
+  {
+    "name": "patched_rag",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 25,
+    "line_end": 39,
+    "signature": "patched_rag(chunks_per_corpus)",
+    "docstring": "Return a context manager that patches rag.retrieval_query per call."
+  },
+  {
+    "name": "test_retrieve_returns_empty_for_no_corpora",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 48,
+    "line_end": 50,
+    "signature": "test_retrieve_returns_empty_for_no_corpora()",
+    "docstring": null
+  },
+  {
+    "name": "test_retrieve_single_corpus_returns_results",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 54,
+    "line_end": 60,
+    "signature": "test_retrieve_single_corpus_returns_results()",
+    "docstring": null
+  },
+  {
+    "name": "test_retrieve_merges_multiple_corpora",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 64,
+    "line_end": 72,
+    "signature": "test_retrieve_merges_multiple_corpora()",
+    "docstring": null
+  },
+  {
+    "name": "test_retrieve_sorts_by_score_descending",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 76,
+    "line_end": 83,
+    "signature": "test_retrieve_sorts_by_score_descending()",
+    "docstring": null
+  },
+  {
+    "name": "test_retrieve_deduplicates_identical_text",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 87,
+    "line_end": 94,
+    "signature": "test_retrieve_deduplicates_identical_text()",
+    "docstring": null
+  },
+  {
+    "name": "test_retrieve_respects_top_k",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 98,
+    "line_end": 104,
+    "signature": "test_retrieve_respects_top_k()",
+    "docstring": null
+  },
+  {
+    "name": "test_retrieve_falls_back_gracefully_when_rag_unavailable",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 108,
+    "line_end": 111,
+    "signature": "test_retrieve_falls_back_gracefully_when_rag_unavailable()",
+    "docstring": null
+  },
+  {
+    "name": "test_deduplicate_removes_duplicates",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 114,
+    "line_end": 124,
+    "signature": "test_deduplicate_removes_duplicates()",
+    "docstring": null
+  },
+  {
+    "name": "test_retrieved_context_defaults",
+    "kind": "function",
+    "file": "tests/memory/test_cross_corpus.py",
+    "line_start": 127,
+    "line_end": 129,
+    "signature": "test_retrieved_context_defaults()",
+    "docstring": null
+  },
+  {
+    "name": "tests.memory.test_memory_bank",
+    "kind": "module",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_make_mock_module",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 27,
+    "line_end": 32,
+    "signature": "_make_mock_module()",
+    "docstring": "Return a fully-faked vertexai.preview.memory_bank module."
+  },
+  {
+    "name": "_make_memory",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 35,
+    "line_end": 36,
+    "signature": "_make_memory(fact)",
+    "docstring": null
+  },
+  {
+    "name": "TestGenerateMemories",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 41,
+    "line_end": 89,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestGenerateMemories.test_success_calls_bank_generate",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 43,
+    "line_end": 55,
+    "signature": "test_success_calls_bank_generate(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGenerateMemories.test_success_with_agent_name_in_conversation",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 57,
+    "line_end": 68,
+    "signature": "test_success_with_agent_name_in_conversation(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGenerateMemories.test_exception_is_swallowed",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 70,
+    "line_end": 80,
+    "signature": "test_exception_is_swallowed(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGenerateMemories.test_bank_is_lazily_initialised",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 82,
+    "line_end": 89,
+    "signature": "test_bank_is_lazily_initialised(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestFetchMemories",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 94,
+    "line_end": 141,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestFetchMemories.test_returns_fact_strings",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 96,
+    "line_end": 104,
+    "signature": "test_returns_fact_strings(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestFetchMemories.test_returns_empty_list_on_error",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 106,
+    "line_end": 112,
+    "signature": "test_returns_empty_list_on_error(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestFetchMemories.test_passes_top_k_to_sdk",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 114,
+    "line_end": 122,
+    "signature": "test_passes_top_k_to_sdk(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestFetchMemories.test_memories_attribute_missing_returns_empty",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 124,
+    "line_end": 131,
+    "signature": "test_memories_attribute_missing_returns_empty(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 133,
+    "line_end": 141,
+    "signature": "test_memory_without_fact_attr_falls_back_to_str(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestListRevisions",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 146,
+    "line_end": 183,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestListRevisions.test_returns_list_of_dicts",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 148,
+    "line_end": 158,
+    "signature": "test_returns_list_of_dicts(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestListRevisions.test_returns_empty_list_on_error",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 160,
+    "line_end": 166,
+    "signature": "test_returns_empty_list_on_error(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestListRevisions.test_revisions_attribute_missing_returns_empty",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 168,
+    "line_end": 174,
+    "signature": "test_revisions_attribute_missing_returns_empty(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestListRevisions.test_missing_fields_default_gracefully",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 176,
+    "line_end": 183,
+    "signature": "test_missing_fields_default_gracefully(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestFormatForPrompt",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 188,
+    "line_end": 231,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestFormatForPrompt.test_returns_formatted_string_with_header",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 190,
+    "line_end": 200,
+    "signature": "test_returns_formatted_string_with_header(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestFormatForPrompt.test_returns_empty_string_when_no_memories",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 202,
+    "line_end": 208,
+    "signature": "test_returns_empty_string_when_no_memories(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestFormatForPrompt.test_returns_empty_string_when_fetch_fails",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 210,
+    "line_end": 216,
+    "signature": "test_returns_empty_string_when_fetch_fails(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestFormatForPrompt.test_respects_max_tokens_budget",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 218,
+    "line_end": 231,
+    "signature": "test_respects_max_tokens_budget(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildMemoryBank",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 236,
+    "line_end": 288,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestBuildMemoryBank.test_returns_none_when_resource_name_not_set",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 238,
+    "line_end": 251,
+    "signature": "test_returns_none_when_resource_name_not_set(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildMemoryBank.test_returns_none_when_resource_name_is_empty_string",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 253,
+    "line_end": 262,
+    "signature": "test_returns_none_when_resource_name_is_empty_string(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildMemoryBank.test_returns_hermes_memory_bank_when_configured",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 264,
+    "line_end": 278,
+    "signature": "test_returns_hermes_memory_bank_when_configured(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildMemoryBank.test_returns_none_on_exception",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 280,
+    "line_end": 288,
+    "signature": "test_returns_none_on_exception(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemoryBank",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 293,
+    "line_end": 362,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemoryBank.test_creates_and_returns_resource_name",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 295,
+    "line_end": 303,
+    "signature": "test_creates_and_returns_resource_name(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemoryBank.test_handles_already_exists_by_listing",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 305,
+    "line_end": 315,
+    "signature": "test_handles_already_exists_by_listing(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemoryBank.test_handles_conflict_keyword_by_listing",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 317,
+    "line_end": 328,
+    "signature": "test_handles_conflict_keyword_by_listing(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemoryBank.test_reraises_non_conflict_exceptions",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 330,
+    "line_end": 335,
+    "signature": "test_reraises_non_conflict_exceptions(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 337,
+    "line_end": 349,
+    "signature": "test_skips_non_matching_display_name_in_list(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemoryBank.test_uses_custom_display_name",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 351,
+    "line_end": 362,
+    "signature": "test_uses_custom_display_name(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGenerateMemoriesAsync",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 367,
+    "line_end": 375,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestGenerateMemoriesAsync.test_passes_wait_for_completion_false",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 369,
+    "line_end": 375,
+    "signature": "test_passes_wait_for_completion_false(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestIngestEvents",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 380,
+    "line_end": 415,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestIngestEvents.test_calls_bank_ingest_events",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 382,
+    "line_end": 397,
+    "signature": "test_calls_bank_ingest_events(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestIngestEvents.test_falls_back_to_dict_when_no_conversation_event_class",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 399,
+    "line_end": 406,
+    "signature": "test_falls_back_to_dict_when_no_conversation_event_class(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestIngestEvents.test_exception_is_swallowed",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 408,
+    "line_end": 415,
+    "signature": "test_exception_is_swallowed(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestPurgeMemories",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 420,
+    "line_end": 457,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestPurgeMemories.test_calls_purge_with_force_true",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 422,
+    "line_end": 431,
+    "signature": "test_calls_purge_with_force_true(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestPurgeMemories.test_dry_run_passes_force_false",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 433,
+    "line_end": 441,
+    "signature": "test_dry_run_passes_force_false(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestPurgeMemories.test_returns_zero_on_exception",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 443,
+    "line_end": 449,
+    "signature": "test_returns_zero_on_exception(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestPurgeMemories.test_purge_count_attribute_missing_returns_zero",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 451,
+    "line_end": 457,
+    "signature": "test_purge_count_attribute_missing_returns_zero(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteMemory",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 462,
+    "line_end": 480,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteMemory.test_calls_memories_delete",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 464,
+    "line_end": 471,
+    "signature": "test_calls_memories_delete(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteMemory.test_returns_false_on_exception",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 473,
+    "line_end": 480,
+    "signature": "test_returns_false_on_exception(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemory",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 485,
+    "line_end": 507,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemory.test_calls_memories_create_and_returns_name",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 487,
+    "line_end": 498,
+    "signature": "test_calls_memories_create_and_returns_name(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestCreateMemory.test_returns_none_on_exception",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 500,
+    "line_end": 507,
+    "signature": "test_returns_none_on_exception(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestUpdateMemory",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 512,
+    "line_end": 536,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestUpdateMemory.test_calls_memories_update",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 514,
+    "line_end": 527,
+    "signature": "test_calls_memories_update(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestUpdateMemory.test_returns_false_on_exception",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 529,
+    "line_end": 536,
+    "signature": "test_returns_false_on_exception(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestRetrieveProfiles",
+    "kind": "class",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 541,
+    "line_end": 571,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestRetrieveProfiles.test_returns_profiles_with_facts",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 543,
+    "line_end": 555,
+    "signature": "test_returns_profiles_with_facts(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestRetrieveProfiles.test_returns_empty_on_exception",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 557,
+    "line_end": 563,
+    "signature": "test_returns_empty_on_exception(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestRetrieveProfiles.test_profiles_attribute_missing_returns_empty",
+    "kind": "function",
+    "file": "tests/memory/test_memory_bank.py",
+    "line_start": 565,
+    "line_end": 571,
+    "signature": "test_profiles_attribute_missing_returns_empty(self)",
+    "docstring": null
+  },
+  {
+    "name": "tests.memory.test_skill_loader",
+    "kind": "module",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_write",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 14,
+    "line_end": 17,
+    "signature": "_write(tmp_path, filename, content)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir",
+    "kind": "class",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 76,
+    "line_end": 157,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_loads_valid_skill",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 77,
+    "line_end": 85,
+    "signature": "test_loads_valid_skill(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_extracts_procedure_steps",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 87,
+    "line_end": 95,
+    "signature": "test_extracts_procedure_steps(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_empty_procedure_when_no_steps_section",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 97,
+    "line_end": 102,
+    "signature": "test_empty_procedure_when_no_steps_section(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_skips_template_md",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 104,
+    "line_end": 108,
+    "signature": "test_skips_template_md(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_skips_no_frontmatter_files",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 110,
+    "line_end": 114,
+    "signature": "test_skips_no_frontmatter_files(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_skips_missing_required_fields_with_warning",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 116,
+    "line_end": 123,
+    "signature": "test_skips_missing_required_fields_with_warning(self, tmp_path, caplog)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_skips_invalid_yaml_with_warning",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 125,
+    "line_end": 131,
+    "signature": "test_skips_invalid_yaml_with_warning(self, tmp_path, caplog)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_returns_empty_for_nonexistent_dir",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 133,
+    "line_end": 136,
+    "signature": "test_returns_empty_for_nonexistent_dir(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_loads_multiple_skills",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 138,
+    "line_end": 143,
+    "signature": "test_loads_multiple_skills(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_recurses_into_subdirectories",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 145,
+    "line_end": 151,
+    "signature": "test_recurses_into_subdirectories(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestLoadSkillsFromDir.test_domain_inferred_from_agent_name",
+    "kind": "function",
+    "file": "tests/memory/test_skill_loader.py",
+    "line_start": 153,
+    "line_end": 157,
+    "signature": "test_domain_inferred_from_agent_name(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "tests.memory.test_user_profile",
+    "kind": "module",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_make_doc",
+    "kind": "function",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 13,
+    "line_end": 17,
+    "signature": "_make_doc(exists, data)",
+    "docstring": null
+  },
+  {
+    "name": "TestUserProfileModel",
+    "kind": "class",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 20,
+    "line_end": 45,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestUserProfileModel.test_to_prompt_summary_full",
+    "kind": "function",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 21,
+    "line_end": 34,
+    "signature": "test_to_prompt_summary_full(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestUserProfileModel.test_to_prompt_summary_minimal",
+    "kind": "function",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 36,
+    "line_end": 40,
+    "signature": "test_to_prompt_summary_minimal(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestUserProfileModel.test_token_estimate_positive",
+    "kind": "function",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 42,
+    "line_end": 45,
+    "signature": "test_token_estimate_positive(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetOrCreateProfile",
+    "kind": "class",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 48,
+    "line_end": 87,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestGetOrCreateProfile.test_returns_existing_profile",
+    "kind": "function",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 50,
+    "line_end": 63,
+    "signature": "test_returns_existing_profile(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetOrCreateProfile.test_creates_minimal_profile_when_not_found",
+    "kind": "function",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 66,
+    "line_end": 78,
+    "signature": "test_creates_minimal_profile_when_not_found(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetOrCreateProfile.test_returns_minimal_profile_on_firestore_error",
+    "kind": "function",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 81,
+    "line_end": 87,
+    "signature": "test_returns_minimal_profile_on_firestore_error(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestUpdateProfile",
+    "kind": "class",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 90,
+    "line_end": 111,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestUpdateProfile.test_calls_firestore_set_with_merge",
+    "kind": "function",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 92,
+    "line_end": 104,
+    "signature": "test_calls_firestore_set_with_merge(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestUpdateProfile.test_does_not_raise_on_firestore_error",
+    "kind": "function",
+    "file": "tests/memory/test_user_profile.py",
+    "line_start": 107,
+    "line_end": 111,
+    "signature": "test_does_not_raise_on_firestore_error(self)",
+    "docstring": null
+  },
+  {
+    "name": "tests.registry.test_agent_registry",
+    "kind": "module",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "make_record",
+    "kind": "function",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 16,
+    "line_end": 24,
+    "signature": "make_record(name)",
+    "docstring": null
+  },
+  {
+    "name": "test_register_agent_returns_resource_id",
+    "kind": "function",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 33,
+    "line_end": 38,
+    "signature": "test_register_agent_returns_resource_id()",
+    "docstring": null
+  },
+  {
+    "name": "test_list_agents_returns_registered",
+    "kind": "function",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 42,
+    "line_end": 48,
+    "signature": "test_list_agents_returns_registered()",
+    "docstring": null
+  },
+  {
+    "name": "test_get_agent_found",
+    "kind": "function",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 52,
+    "line_end": 59,
+    "signature": "test_get_agent_found()",
+    "docstring": null
+  },
+  {
+    "name": "test_get_agent_not_found",
+    "kind": "function",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 63,
+    "line_end": 67,
+    "signature": "test_get_agent_not_found()",
+    "docstring": null
+  },
+  {
+    "name": "test_register_fallback_when_vertex_unavailable",
+    "kind": "function",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 71,
+    "line_end": 78,
+    "signature": "test_register_fallback_when_vertex_unavailable()",
+    "docstring": "When Vertex AI import fails, registry should fall back gracefully."
+  },
+  {
+    "name": "test_agent_record_defaults",
+    "kind": "function",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 81,
+    "line_end": 86,
+    "signature": "test_agent_record_defaults()",
+    "docstring": null
+  },
+  {
+    "name": "test_build_registry_returns_instance",
+    "kind": "function",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 89,
+    "line_end": 92,
+    "signature": "test_build_registry_returns_instance()",
+    "docstring": null
+  },
+  {
+    "name": "test_multiple_agents_registered_and_listed",
+    "kind": "function",
+    "file": "tests/registry/test_agent_registry.py",
+    "line_start": 96,
+    "line_end": 105,
+    "signature": "test_multiple_agents_registered_and_listed()",
+    "docstring": null
+  },
+  {
+    "name": "tests.test_teardown_wizard",
+    "kind": "module",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_make_env",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 23,
+    "line_end": 26,
+    "signature": "_make_env(tmp_path, contents)",
+    "docstring": null
+  },
+  {
+    "name": "TestReadEnv",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 31,
+    "line_end": 49,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestReadEnv.test_reads_key_value_pairs",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 32,
+    "line_end": 35,
+    "signature": "test_reads_key_value_pairs(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestReadEnv.test_skips_comments_and_blanks",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 37,
+    "line_end": 40,
+    "signature": "test_skips_comments_and_blanks(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestReadEnv.test_strips_quotes",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 42,
+    "line_end": 45,
+    "signature": "test_strips_quotes(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestReadEnv.test_returns_empty_when_file_missing",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 47,
+    "line_end": 49,
+    "signature": "test_returns_empty_when_file_missing(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteCloudRun",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 54,
+    "line_end": 70,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteCloudRun.test_deletes_service_when_found",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 55,
+    "line_end": 62,
+    "signature": "test_deletes_service_when_found(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteCloudRun.test_skips_when_service_not_found",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 64,
+    "line_end": 70,
+    "signature": "test_skips_when_service_not_found(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteReasoningEngine",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 75,
+    "line_end": 93,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteReasoningEngine.test_skips_when_empty",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 76,
+    "line_end": 79,
+    "signature": "test_skips_when_empty(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteReasoningEngine.test_deletes_valid_resource_name",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 81,
+    "line_end": 87,
+    "signature": "test_deletes_valid_resource_name(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteReasoningEngine.test_warns_on_bad_resource_name_format",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 89,
+    "line_end": 93,
+    "signature": "test_warns_on_bad_resource_name_format(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteMemoryBank",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 98,
+    "line_end": 132,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteMemoryBank.test_skips_when_empty",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 99,
+    "line_end": 100,
+    "signature": "test_skips_when_empty(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteMemoryBank.test_calls_sdk_delete",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 102,
+    "line_end": 119,
+    "signature": "test_calls_sdk_delete(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteMemoryBank.test_falls_back_to_gcloud_on_import_error",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 121,
+    "line_end": 132,
+    "signature": "test_falls_back_to_gcloud_on_import_error(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteGcsBucket",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 137,
+    "line_end": 153,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteGcsBucket.test_skips_when_empty",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 138,
+    "line_end": 141,
+    "signature": "test_skips_when_empty(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteGcsBucket.test_adds_gs_prefix_if_missing",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 143,
+    "line_end": 147,
+    "signature": "test_adds_gs_prefix_if_missing(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteGcsBucket.test_uses_existing_gs_prefix",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 149,
+    "line_end": 153,
+    "signature": "test_uses_existing_gs_prefix(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteServiceAccount",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 158,
+    "line_end": 170,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteServiceAccount.test_deletes_when_sa_exists",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 159,
+    "line_end": 164,
+    "signature": "test_deletes_when_sa_exists(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteServiceAccount.test_skips_when_sa_not_found",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 166,
+    "line_end": 170,
+    "signature": "test_skips_when_sa_not_found(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteFirestore",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 175,
+    "line_end": 189,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteFirestore.test_deletes_default_db_when_found",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 176,
+    "line_end": 182,
+    "signature": "test_deletes_default_db_when_found(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteFirestore.test_skips_when_no_default_db",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 184,
+    "line_end": 189,
+    "signature": "test_skips_when_no_default_db(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteSchedulerJobs",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 194,
+    "line_end": 215,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteSchedulerJobs.test_deletes_hermes_jobs",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 195,
+    "line_end": 207,
+    "signature": "test_deletes_hermes_jobs(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDeleteSchedulerJobs.test_skips_when_no_hermes_jobs",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 209,
+    "line_end": 215,
+    "signature": "test_skips_when_no_hermes_jobs(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestWipeEnvFile",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 220,
+    "line_end": 234,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestWipeEnvFile.test_deletes_env_when_confirmed",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 221,
+    "line_end": 225,
+    "signature": "test_deletes_env_when_confirmed(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestWipeEnvFile.test_keeps_env_when_declined",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 227,
+    "line_end": 231,
+    "signature": "test_keeps_env_when_declined(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestWipeEnvFile.test_skips_when_no_env_file",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 233,
+    "line_end": 234,
+    "signature": "test_skips_when_no_env_file(self, tmp_path)",
+    "docstring": null
+  },
+  {
+    "name": "TestDisableApis",
+    "kind": "class",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 239,
+    "line_end": 250,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestDisableApis.test_disables_when_confirmed",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 240,
+    "line_end": 244,
+    "signature": "test_disables_when_confirmed(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestDisableApis.test_skips_when_declined",
+    "kind": "function",
+    "file": "tests/test_teardown_wizard.py",
+    "line_start": 246,
+    "line_end": 250,
+    "signature": "test_skips_when_declined(self)",
+    "docstring": null
+  },
+  {
+    "name": "tests.tools.test_mcp_connector",
+    "kind": "module",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestMakeFilesystemMcpToolset",
+    "kind": "class",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 23,
+    "line_end": 74,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestMakeFilesystemMcpToolset.test_returns_toolset_when_adk_available",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 24,
+    "line_end": 41,
+    "signature": "test_returns_toolset_when_adk_available(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestMakeFilesystemMcpToolset.test_returns_none_when_adk_not_available",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 43,
+    "line_end": 54,
+    "signature": "test_returns_none_when_adk_not_available(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestMakeFilesystemMcpToolset.test_npx_args_include_path",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 56,
+    "line_end": 74,
+    "signature": "test_npx_args_include_path(self)",
+    "docstring": null
+  },
+  {
+    "name": "_simulate_import_error",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 77,
+    "line_end": 78,
+    "signature": "_simulate_import_error()",
+    "docstring": null
+  },
+  {
+    "name": "TestMakeSseMcpToolset",
+    "kind": "class",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 83,
+    "line_end": 123,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestMakeSseMcpToolset.test_returns_toolset_with_auth_header",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 84,
+    "line_end": 102,
+    "signature": "test_returns_toolset_with_auth_header(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestMakeSseMcpToolset.test_no_auth_header_when_token_is_none",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 104,
+    "line_end": 118,
+    "signature": "test_no_auth_header_when_token_is_none(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestMakeSseMcpToolset.test_returns_none_when_adk_not_available",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 120,
+    "line_end": 123,
+    "signature": "test_returns_none_when_adk_not_available(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetConfiguredMcpTools",
+    "kind": "class",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 128,
+    "line_end": 182,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestGetConfiguredMcpTools._make_settings",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 129,
+    "line_end": 134,
+    "signature": "_make_settings(self, fs_path, sse_url, sse_token)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetConfiguredMcpTools.test_returns_empty_list_when_nothing_configured",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 136,
+    "line_end": 139,
+    "signature": "test_returns_empty_list_when_nothing_configured(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetConfiguredMcpTools.test_returns_one_toolset_for_filesystem",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 141,
+    "line_end": 146,
+    "signature": "test_returns_one_toolset_for_filesystem(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetConfiguredMcpTools.test_returns_one_toolset_for_sse",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 148,
+    "line_end": 153,
+    "signature": "test_returns_one_toolset_for_sse(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetConfiguredMcpTools.test_returns_two_toolsets_when_both_configured",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 155,
+    "line_end": 166,
+    "signature": "test_returns_two_toolsets_when_both_configured(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestGetConfiguredMcpTools.test_skips_toolset_when_factory_returns_none",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 168,
+    "line_end": 176,
+    "signature": "test_skips_toolset_when_factory_returns_none(self)",
+    "docstring": "If an import fails inside the factory, result is None and should be skipped."
+  },
+  {
+    "name": "TestGetConfiguredMcpTools.test_passes_auth_token_to_sse_factory",
+    "kind": "function",
+    "file": "tests/tools/test_mcp_connector.py",
+    "line_start": 178,
+    "line_end": 182,
+    "signature": "test_passes_auth_token_to_sse_factory(self)",
+    "docstring": null
+  },
+  {
+    "name": "tests.tools.test_model_armor",
+    "kind": "module",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestParse",
+    "kind": "class",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 19,
+    "line_end": 73,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestParse.test_empty_response_is_allowed",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 20,
+    "line_end": 23,
+    "signature": "test_empty_response_is_allowed(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestParse.test_no_match_is_allowed",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 25,
+    "line_end": 33,
+    "signature": "test_no_match_is_allowed(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestParse.test_match_found_is_blocked",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 35,
+    "line_end": 49,
+    "signature": "test_match_found_is_blocked(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestParse.test_multiple_filters_all_listed",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 51,
+    "line_end": 62,
+    "signature": "test_multiple_filters_all_listed(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestParse.test_match_found_no_individual_filters_gives_generic_reason",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 64,
+    "line_end": 73,
+    "signature": "test_match_found_no_individual_filters_gives_generic_reason(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestScreenPrompt",
+    "kind": "class",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 78,
+    "line_end": 165,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestScreenPrompt.test_disabled_when_template_id_blank",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 80,
+    "line_end": 85,
+    "signature": "test_disabled_when_template_id_blank(self)",
+    "docstring": "When MODEL_ARMOR_TEMPLATE_ID is empty, prompt is always allowed."
+  },
+  {
+    "name": "TestScreenPrompt.test_allowed_prompt_returns_not_blocked",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 88,
+    "line_end": 103,
+    "signature": "test_allowed_prompt_returns_not_blocked(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestScreenPrompt.test_blocked_prompt_returns_blocked",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 106,
+    "line_end": 124,
+    "signature": "test_blocked_prompt_returns_blocked(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestScreenPrompt.test_timeout_allows_through",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 127,
+    "line_end": 145,
+    "signature": "test_timeout_allows_through(self)",
+    "docstring": "A timeout must never block a legitimate user — allow-through."
+  },
+  {
+    "name": "TestScreenPrompt.test_404_template_not_found_allows_through",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 148,
+    "line_end": 165,
+    "signature": "test_404_template_not_found_allows_through(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestScreenResponse",
+    "kind": "class",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 170,
+    "line_end": 197,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestScreenResponse.test_disabled_when_template_blank",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 172,
+    "line_end": 176,
+    "signature": "test_disabled_when_template_blank(self)",
+    "docstring": null
+  },
+  {
+    "name": "TestScreenResponse.test_pii_in_response_is_blocked",
+    "kind": "function",
+    "file": "tests/tools/test_model_armor.py",
+    "line_start": 179,
+    "line_end": 197,
+    "signature": "test_pii_in_response_is_blocked(self)",
+    "docstring": null
+  },
+  {
+    "name": "tools.__init__",
+    "kind": "module",
+    "file": "tools/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "tools.bigquery_tool",
+    "kind": "module",
+    "file": "tools/bigquery_tool.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_bq_client",
+    "kind": "function",
+    "file": "tools/bigquery_tool.py",
+    "line_start": 24,
+    "line_end": 26,
+    "signature": "_get_bq_client(project_id)",
+    "docstring": "Return a cached BigQuery client. Created once per project_id per process."
+  },
+  {
+    "name": "_run_query",
+    "kind": "function",
+    "file": "tools/bigquery_tool.py",
+    "line_start": 37,
+    "line_end": 72,
+    "signature": "_run_query(project_id, query, params)",
+    "docstring": "Execute a read-only BigQuery GoogleSQL query and return up to MAX_ROWS rows.\n\nArgs:\n    project_id: GCP project ID.\n    query: GoogleSQL SELECT statement.\n    params: Optional dict of query parameters {name: value}.\n\nReturns:\n    dict with keys: rows (list[dict]), total_rows (int), schema (list[str]).\n    On error, returns {\"error\": \"<message>\"}."
+  },
+  {
+    "name": "_infer_bq_type",
+    "kind": "function",
+    "file": "tools/bigquery_tool.py",
+    "line_start": 75,
+    "line_end": 82,
+    "signature": "_infer_bq_type(value)",
+    "docstring": null
+  },
+  {
+    "name": "make_bigquery_tool",
+    "kind": "function",
+    "file": "tools/bigquery_tool.py",
+    "line_start": 85,
+    "line_end": 101,
+    "signature": "make_bigquery_tool(settings)",
+    "docstring": null
+  },
+  {
+    "name": "run_bigquery_query",
+    "kind": "function",
+    "file": "tools/bigquery_tool.py",
+    "line_start": 104,
+    "line_end": 116,
+    "signature": "run_bigquery_query(query, params)",
+    "docstring": "Module-level BigQuery query function for direct tool use (e.g. TaskAgent).\n\nArgs:\n    query: A GoogleSQL SELECT statement.\n    params: Optional dict mapping parameter names to values.\n\nReturns:\n    A dict with 'rows', 'total_rows', 'schema', or 'error' on failure."
+  },
+  {
+    "name": "tools.calendar_tool",
+    "kind": "module",
+    "file": "tools/calendar_tool.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_calendar_service",
+    "kind": "function",
+    "file": "tools/calendar_tool.py",
+    "line_start": 30,
+    "line_end": 40,
+    "signature": "_calendar_service(impersonate_email)",
+    "docstring": "Return a cached Calendar API service for the given impersonated user."
+  },
+  {
+    "name": "_get_service",
+    "kind": "function",
+    "file": "tools/calendar_tool.py",
+    "line_start": 43,
+    "line_end": 50,
+    "signature": "_get_service()",
+    "docstring": null
+  },
+  {
+    "name": "create_calendar_event",
+    "kind": "function",
+    "file": "tools/calendar_tool.py",
+    "line_start": 56,
+    "line_end": 108,
+    "signature": "create_calendar_event(summary, start_datetime, end_datetime, attendees, description, location, timezone)",
+    "docstring": "Create a Google Calendar event and invite attendees.\n\nArgs:\n    summary: Event title.\n    start_datetime: Start time in ISO 8601 format: \"2025-08-15T10:00:00\".\n    end_datetime: End time in ISO 8601 format:   \"2025-08-15T11:00:00\".\n    attendees: Comma-separated list of attendee email addresses.\n    description: Optional description / agenda for the event.\n    location: Optional meeting location or video link.\n    timezone: IANA timezone for the event. Defaults to \"UTC\".\n        Examples: \"America/New_York\", \"Asia/Bangkok\", \"Europe/London\"\n\nReturns:\n    dict with keys: status, event_id, event_link, message"
+  },
+  {
+    "name": "list_calendar_events",
+    "kind": "function",
+    "file": "tools/calendar_tool.py",
+    "line_start": 111,
+    "line_end": 152,
+    "signature": "list_calendar_events(start_date, end_date, max_results)",
+    "docstring": "List calendar events in a date range.\n\nArgs:\n    start_date: Start of range in ISO 8601 date format: \"2025-08-01\".\n    end_date: End of range in ISO 8601 date format: \"2025-08-31\".\n    max_results: Maximum number of events to return (1-50). Defaults to 10.\n\nReturns:\n    dict with key \"events\": list of {id, summary, start, end, attendees, location}"
+  },
+  {
+    "name": "check_availability",
+    "kind": "function",
+    "file": "tools/calendar_tool.py",
+    "line_start": 155,
+    "line_end": 196,
+    "signature": "check_availability(attendees, start_datetime, end_datetime, timezone)",
+    "docstring": "Check whether a set of attendees are free during a time slot.\n\nArgs:\n    attendees: Comma-separated list of attendee email addresses.\n    start_datetime: Proposed start time: \"2025-08-15T10:00:00\".\n    end_datetime: Proposed end time: \"2025-08-15T11:00:00\".\n    timezone: IANA timezone for the window. Defaults to \"UTC\".\n\nReturns:\n    dict with key \"availability\": list of {email, busy_periods, is_free}"
+  },
+  {
+    "name": "tools.drive_tool",
+    "kind": "module",
+    "file": "tools/drive_tool.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_drive_service",
+    "kind": "function",
+    "file": "tools/drive_tool.py",
+    "line_start": 40,
+    "line_end": 50,
+    "signature": "_drive_service(impersonate_email)",
+    "docstring": "Return a cached Drive API service for the given impersonated user."
+  },
+  {
+    "name": "_get_service",
+    "kind": "function",
+    "file": "tools/drive_tool.py",
+    "line_start": 53,
+    "line_end": 60,
+    "signature": "_get_service()",
+    "docstring": null
+  },
+  {
+    "name": "search_drive_files",
+    "kind": "function",
+    "file": "tools/drive_tool.py",
+    "line_start": 66,
+    "line_end": 106,
+    "signature": "search_drive_files(query, max_results)",
+    "docstring": "Search for files in Google Drive.\n\nArgs:\n    query: Full-text or metadata query using Drive query syntax.\n        Examples:\n          \"name contains 'Q3 report'\"\n          \"mimeType='application/vnd.google-apps.document'\"\n          \"fullText contains 'onboarding' and trashed=false\"\n          \"'team-folder-id' in parents\"\n    max_results: Maximum number of results to return (1-50). Defaults to 10.\n\nReturns:\n    dict with key \"files\": list of {id, name, mime_type, modified_time, web_link}"
+  },
+  {
+    "name": "read_drive_file",
+    "kind": "function",
+    "file": "tools/drive_tool.py",
+    "line_start": 109,
+    "line_end": 159,
+    "signature": "read_drive_file(file_id)",
+    "docstring": "Read the text content of a Google Drive file.\n\nSupports Google Docs, Sheets (as CSV), Slides (as text), and plain-text files.\nReturns the first 8,000 characters of content.\n\nArgs:\n    file_id: The Drive file ID (from search_drive_files results).\n\nReturns:\n    dict with keys: id, name, mime_type, content (text), truncated (bool)"
+  },
+  {
+    "name": "list_drive_folder",
+    "kind": "function",
+    "file": "tools/drive_tool.py",
+    "line_start": 162,
+    "line_end": 197,
+    "signature": "list_drive_folder(folder_id, max_results)",
+    "docstring": "List the files inside a Google Drive folder.\n\nArgs:\n    folder_id: The Drive folder ID. Use \"root\" for My Drive.\n    max_results: Maximum number of files to return (1-50). Defaults to 20.\n\nReturns:\n    dict with key \"files\": list of {id, name, mime_type, modified_time, web_link}"
+  },
+  {
+    "name": "tools.gmail_tool",
+    "kind": "module",
+    "file": "tools/gmail_tool.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_gmail_service",
+    "kind": "function",
+    "file": "tools/gmail_tool.py",
+    "line_start": 41,
+    "line_end": 51,
+    "signature": "_gmail_service(impersonate_email)",
+    "docstring": "Return a cached Gmail API service for the given impersonated user."
+  },
+  {
+    "name": "_get_service",
+    "kind": "function",
+    "file": "tools/gmail_tool.py",
+    "line_start": 54,
+    "line_end": 61,
+    "signature": "_get_service()",
+    "docstring": null
+  },
+  {
+    "name": "send_email",
+    "kind": "function",
+    "file": "tools/gmail_tool.py",
+    "line_start": 67,
+    "line_end": 107,
+    "signature": "send_email(to, subject, body, cc, body_type)",
+    "docstring": "Send an email on behalf of the configured Workspace admin user.\n\nArgs:\n    to: Recipient email address (or comma-separated list).\n    subject: Email subject line.\n    body: Email body text.\n    cc: Optional CC addresses (comma-separated).\n    body_type: \"plain\" or \"html\". Defaults to \"plain\".\n\nReturns:\n    dict with keys: status, message_id, message"
+  },
+  {
+    "name": "search_emails",
+    "kind": "function",
+    "file": "tools/gmail_tool.py",
+    "line_start": 110,
+    "line_end": 151,
+    "signature": "search_emails(query, max_results)",
+    "docstring": "Search emails in the Gmail inbox.\n\nArgs:\n    query: Gmail search query string (same syntax as Gmail search bar).\n        Examples:\n          \"from:boss@company.com subject:report\"\n          \"is:unread label:inbox newer_than:3d\"\n          \"has:attachment filename:pdf\"\n    max_results: Maximum number of emails to return (1-50). Defaults to 10.\n\nReturns:\n    dict with key \"emails\": list of {id, from, to, subject, date, snippet}"
+  },
+  {
+    "name": "get_email",
+    "kind": "function",
+    "file": "tools/gmail_tool.py",
+    "line_start": 154,
+    "line_end": 208,
+    "signature": "get_email(message_id)",
+    "docstring": "Read the full content of a specific email by its ID.\n\nArgs:\n    message_id: The Gmail message ID (from search_emails results).\n\nReturns:\n    dict with keys: id, from, to, subject, date, body, attachments"
+  },
+  {
+    "name": "tools.mcp_connector",
+    "kind": "module",
+    "file": "tools/mcp_connector.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "make_filesystem_mcp_toolset",
+    "kind": "function",
+    "file": "tools/mcp_connector.py",
+    "line_start": 34,
+    "line_end": 61,
+    "signature": "make_filesystem_mcp_toolset(path)",
+    "docstring": "Return an ADK MCPToolset backed by the official MCP filesystem server.\n\nThe server is launched as a subprocess via npx on first use.\nRequires Node.js / npx installed on the host.\n\nArgs:\n    path: Absolute directory the agent is allowed to read/write.\n\nReturns:\n    MCPToolset instance or None if ADK MCP support is unavailable."
+  },
+  {
+    "name": "make_sse_mcp_toolset",
+    "kind": "function",
+    "file": "tools/mcp_connector.py",
+    "line_start": 64,
+    "line_end": 93,
+    "signature": "make_sse_mcp_toolset(server_url, auth_token)",
+    "docstring": "Return an ADK MCPToolset connected to a remote SSE MCP server.\n\nArgs:\n    server_url:  Full URL of the MCP SSE endpoint.\n    auth_token:  Optional Bearer token sent in every request header.\n\nReturns:\n    MCPToolset instance or None if ADK MCP support is unavailable."
+  },
+  {
+    "name": "get_configured_mcp_tools",
+    "kind": "function",
+    "file": "tools/mcp_connector.py",
+    "line_start": 96,
+    "line_end": 123,
+    "signature": "get_configured_mcp_tools(settings)",
+    "docstring": "Build and return all MCP toolsets that are configured in settings.\n\nEach toolset is a single object that ADK expands into individual\nFunctionTools at agent-build time, so pass the list directly to\nLlmAgent(tools=[...]).\n\nReturns an empty list when no MCP servers are configured."
+  },
+  {
+    "name": "tools.model_armor",
+    "kind": "module",
+    "file": "tools/model_armor.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "ArmorResult",
+    "kind": "class",
+    "file": "tools/model_armor.py",
+    "line_start": 42,
+    "line_end": 45,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_access_token",
+    "kind": "function",
+    "file": "tools/model_armor.py",
+    "line_start": 48,
+    "line_end": 53,
+    "signature": "_get_access_token()",
+    "docstring": null
+  },
+  {
+    "name": "_call_armor",
+    "kind": "function",
+    "file": "tools/model_armor.py",
+    "line_start": 56,
+    "line_end": 98,
+    "signature": "_call_armor(operation, payload)",
+    "docstring": "POST to a Model Armor sanitize operation.\nReturns {} (allow-through) if the template is not configured, the\nservice is unreachable, or any transient error occurs."
+  },
+  {
+    "name": "_parse",
+    "kind": "function",
+    "file": "tools/model_armor.py",
+    "line_start": 101,
+    "line_end": 119,
+    "signature": "_parse(response)",
+    "docstring": null
+  },
+  {
+    "name": "screen_prompt",
+    "kind": "function",
+    "file": "tools/model_armor.py",
+    "line_start": 122,
+    "line_end": 131,
+    "signature": "screen_prompt(text)",
+    "docstring": "Screen a user prompt before sending to the agent.\nCatches prompt injections, jailbreaks, and PII in the user's message."
+  },
+  {
+    "name": "screen_response",
+    "kind": "function",
+    "file": "tools/model_armor.py",
+    "line_start": 134,
+    "line_end": 143,
+    "signature": "screen_response(text)",
+    "docstring": "Screen a model response before returning it to the user.\nCatches accidental PII leakage or toxic content in agent output."
+  },
+  {
+    "name": "tools.scheduler_tool",
+    "kind": "module",
+    "file": "tools/scheduler_tool.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_scheduler_client",
+    "kind": "function",
+    "file": "tools/scheduler_tool.py",
+    "line_start": 37,
+    "line_end": 39,
+    "signature": "_get_scheduler_client()",
+    "docstring": null
+  },
+  {
+    "name": "schedule_agent_task",
+    "kind": "function",
+    "file": "tools/scheduler_tool.py",
+    "line_start": 45,
+    "line_end": 157,
+    "signature": "schedule_agent_task(task_description, schedule, job_name, timezone, description)",
+    "docstring": "Schedule this agent to run a task automatically at a future time or on a\nrecurring schedule.\n\nArgs:\n    task_description: The task the agent should perform when triggered.\n        Example: \"Send a weekly sales report to the team.\"\n    schedule: A cron expression OR a one-time RFC3339 datetime string.\n        Cron examples:  \"0 9 * * 1\"  (every Monday at 9 AM)\n                        \"*/15 * * * *\" (every 15 minutes)\n                        \"0 8 * * *\"   (every day at 8 AM)\n        One-time: use \"cron\" with a specific pattern for one-shot runs;\n                  for truly one-off, create a job and delete it after it fires.\n    job_name: A short lowercase identifier for this job.\n        Example: \"weekly-report\" or \"health-check-15m\"\n    timezone: IANA timezone for the schedule. Defaults to \"UTC\".\n        Examples: \"America/New_York\", \"Asia/Tokyo\", \"Europe/London\"\n    description: Optional human-readable description of why this job exists.\n\nReturns:\n    dict with keys:\n        - job_name: full resource name of the created/updated job\n        - schedule: the cron expression used\n        - status: \"created\" | \"updated\" | \"error\"\n        - message: human-readable result"
+  },
+  {
+    "name": "delete_scheduled_task",
+    "kind": "function",
+    "file": "tools/scheduler_tool.py",
+    "line_start": 160,
+    "line_end": 190,
+    "signature": "delete_scheduled_task(job_name)",
+    "docstring": "Delete a previously scheduled agent task.\n\nArgs:\n    job_name: The short job name used when creating the schedule (e.g. \"weekly-report\").\n\nReturns:\n    dict with keys:\n        - status: \"deleted\" | \"not_found\" | \"error\"\n        - message: human-readable result"
+  },
+  {
+    "name": "list_scheduled_tasks",
+    "kind": "function",
+    "file": "tools/scheduler_tool.py",
+    "line_start": 193,
+    "line_end": 217,
+    "signature": "list_scheduled_tasks()",
+    "docstring": "List all agent-created Cloud Scheduler jobs for the current project.\n\nReturns:\n    dict with key \"jobs\": list of {name, schedule, description, state, next_run}"
+  },
+  {
+    "name": "tools.search_tool",
+    "kind": "module",
+    "file": "tools/search_tool.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "make_search_tool",
+    "kind": "function",
+    "file": "tools/search_tool.py",
+    "line_start": 16,
+    "line_end": 58,
+    "signature": "make_search_tool(settings)",
+    "docstring": null
+  },
+  {
+    "name": "search_knowledge_base",
+    "kind": "function",
+    "file": "tools/search_tool.py",
+    "line_start": 61,
+    "line_end": 91,
+    "signature": "search_knowledge_base(query, top_k)",
+    "docstring": "Module-level knowledge base search for direct tool use (e.g. TaskAgent).\n\nArgs:\n    query: Natural language search query.\n    top_k: Maximum number of results to return.\n\nReturns:\n    List of dicts with 'text' and 'score' keys."
+  },
+  {
+    "name": "tools.storage_tool",
+    "kind": "module",
+    "file": "tools/storage_tool.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_get_gcs_client",
+    "kind": "function",
+    "file": "tools/storage_tool.py",
+    "line_start": 23,
+    "line_end": 25,
+    "signature": "_get_gcs_client()",
+    "docstring": "Return a cached GCS client. Created once per process."
+  },
+  {
+    "name": "_safe_path",
+    "kind": "function",
+    "file": "tools/storage_tool.py",
+    "line_start": 31,
+    "line_end": 35,
+    "signature": "_safe_path(path)",
+    "docstring": "Return the path if safe, else None."
+  },
+  {
+    "name": "_read_object",
+    "kind": "function",
+    "file": "tools/storage_tool.py",
+    "line_start": 38,
+    "line_end": 51,
+    "signature": "_read_object(bucket_name, path)",
+    "docstring": null
+  },
+  {
+    "name": "_write_object",
+    "kind": "function",
+    "file": "tools/storage_tool.py",
+    "line_start": 54,
+    "line_end": 71,
+    "signature": "_write_object(bucket_name, path, content)",
+    "docstring": null
+  },
+  {
+    "name": "_list_objects",
+    "kind": "function",
+    "file": "tools/storage_tool.py",
+    "line_start": 74,
+    "line_end": 83,
+    "signature": "_list_objects(bucket_name, prefix)",
+    "docstring": null
+  },
+  {
+    "name": "make_storage_tool",
+    "kind": "function",
+    "file": "tools/storage_tool.py",
+    "line_start": 86,
+    "line_end": 116,
+    "signature": "make_storage_tool(settings)",
+    "docstring": null
+  },
+  {
+    "name": "read_gcs_file",
+    "kind": "function",
+    "file": "tools/storage_tool.py",
+    "line_start": 119,
+    "line_end": 130,
+    "signature": "read_gcs_file(bucket, path)",
+    "docstring": "Module-level GCS read for direct tool use (e.g. TaskAgent).\n\nArgs:\n    bucket: GCS bucket name.\n    path: Object path within the bucket.\n\nReturns:\n    Dict with 'content' or 'error'."
+  },
+  {
+    "name": "write_gcs_file",
+    "kind": "function",
+    "file": "tools/storage_tool.py",
+    "line_start": 133,
+    "line_end": 145,
+    "signature": "write_gcs_file(bucket, path, content)",
+    "docstring": "Module-level GCS write for direct tool use (e.g. TaskAgent).\n\nArgs:\n    bucket: GCS bucket name.\n    path: Object path within the bucket.\n    content: String content to write.\n\nReturns:\n    Dict with 'uri' or 'error'."
+  },
+  {
+    "name": "ChatPage",
+    "kind": "function",
+    "file": "ui/src/app/chat/page.tsx",
+    "line_start": 10,
+    "line_end": null,
+    "signature": "ChatPage()",
+    "docstring": null
+  },
+  {
+    "name": "loadSessions",
+    "kind": "function",
+    "file": "ui/src/app/chat/page.tsx",
+    "line_start": 33,
+    "line_end": null,
+    "signature": "loadSessions()",
+    "docstring": null
+  },
+  {
+    "name": "handleSend",
+    "kind": "function",
+    "file": "ui/src/app/chat/page.tsx",
+    "line_start": 39,
+    "line_end": null,
+    "signature": "handleSend()",
+    "docstring": null
+  },
+  {
+    "name": "handleClearMemory",
+    "kind": "function",
+    "file": "ui/src/app/chat/page.tsx",
+    "line_start": 80,
+    "line_end": null,
+    "signature": "handleClearMemory()",
+    "docstring": null
+  },
+  {
+    "name": "RootLayout",
+    "kind": "function",
+    "file": "ui/src/app/layout.tsx",
+    "line_start": 10,
+    "line_end": null,
+    "signature": "RootLayout({ children }: { children: React.ReactNode })",
+    "docstring": null
+  },
+  {
+    "name": "LoginPage",
+    "kind": "function",
+    "file": "ui/src/app/page.tsx",
+    "line_start": 7,
+    "line_end": null,
+    "signature": "LoginPage()",
+    "docstring": null
+  },
+  {
+    "name": "Providers",
+    "kind": "function",
+    "file": "ui/src/app/providers.tsx",
+    "line_start": 6,
+    "line_end": null,
+    "signature": "Providers({ children }: { children: ReactNode })",
+    "docstring": null
+  },
+  {
+    "name": "MessageBubble",
+    "kind": "function",
+    "file": "ui/src/components/MessageBubble.tsx",
+    "line_start": 8,
+    "line_end": null,
+    "signature": "MessageBubble({ message }: { message: Message })",
+    "docstring": null
+  },
+  {
+    "name": "streamChat",
+    "kind": "function",
+    "file": "ui/src/lib/api.ts",
+    "line_start": 17,
+    "line_end": null,
+    "signature": "streamChat({\n  message,\n  idToken,\n  sessionId,\n  onChunk,\n  onDone,\n  onError,\n}: StreamChatOptions)",
+    "docstring": null
+  },
+  {
+    "name": "fetchSessions",
+    "kind": "function",
+    "file": "ui/src/lib/api.ts",
+    "line_start": 68,
+    "line_end": null,
+    "signature": "fetchSessions(userId: string,\n  idToken: string,)",
+    "docstring": null
+  },
+  {
+    "name": "clearMemories",
+    "kind": "function",
+    "file": "ui/src/lib/api.ts",
+    "line_start": 82,
+    "line_end": null,
+    "signature": "clearMemories(userId: string, idToken: string)",
+    "docstring": null
+  },
+  {
+    "name": "StreamChatOptions",
+    "kind": "interface",
+    "file": "ui/src/lib/api.ts",
+    "line_start": 9,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Message",
+    "kind": "interface",
+    "file": "ui/src/types/chat.ts",
+    "line_start": 3,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "ChatSession",
+    "kind": "interface",
+    "file": "ui/src/types/chat.ts",
+    "line_start": 10,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  }
+]

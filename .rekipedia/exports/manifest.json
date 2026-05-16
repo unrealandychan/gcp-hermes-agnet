@@ -1,0 +1,135 @@
+{
+  "run_id": "6781f2a1-c7fe-46a8-949a-97896760334f",
+  "generated_at": "2026-05-16T04:12:57.337752+00:00",
+  "file_count": 145,
+  "symbol_count": 714,
+  "relationship_count": 3597,
+  "nav_order": [
+    "index",
+    "repository-structure",
+    "installation-and-setup",
+    "configuration",
+    "architecture-data-flow",
+    "agents-overview",
+    "architecture-overview",
+    "gateway-overview",
+    "connectors-overview",
+    "registry-overview",
+    "memory-overview",
+    "tools-overview",
+    "cli-reference",
+    "python-api",
+    "rest-api",
+    "algorithms",
+    "testing",
+    "ci-cd",
+    "technical-debt",
+    "contributing",
+    "deployment",
+    "integrations"
+  ],
+  "pages": [
+    {
+      "slug": "index",
+      "title": "Overview"
+    },
+    {
+      "slug": "repository-structure",
+      "title": "Repository Map"
+    },
+    {
+      "slug": "installation-and-setup",
+      "title": "Getting Started: Install and Bootstrap"
+    },
+    {
+      "slug": "configuration",
+      "title": "Repository Configuration Surfaces"
+    },
+    {
+      "slug": "architecture-data-flow",
+      "title": "Runtime and Data Movement"
+    },
+    {
+      "slug": "agents-overview",
+      "title": "Agents Subsystem Overview"
+    },
+    {
+      "slug": "architecture-overview",
+      "title": "Architecture Overview"
+    },
+    {
+      "slug": "gateway-overview",
+      "title": "Gateway Subsystem End-to-End"
+    },
+    {
+      "slug": "connectors-overview",
+      "title": "Connector Integrations as Webhook Adapters"
+    },
+    {
+      "slug": "registry-overview",
+      "title": "Registry Package Overview"
+    },
+    {
+      "slug": "memory-overview",
+      "title": "Memory Subsystem Architecture"
+    },
+    {
+      "slug": "tools-overview",
+      "title": "Tool Layer and Agent Capability Injection"
+    },
+    {
+      "slug": "cli-reference",
+      "title": "Command-Line Entry Points Reference"
+    },
+    {
+      "slug": "python-api",
+      "title": "Public Python API Reference"
+    },
+    {
+      "slug": "rest-api",
+      "title": "Gateway and Webhook Network API Reference"
+    },
+    {
+      "slug": "algorithms",
+      "title": "Internal Algorithms and Decision Logic"
+    },
+    {
+      "slug": "testing",
+      "title": "Testing Strategy and Execution Guide"
+    },
+    {
+      "slug": "ci-cd",
+      "title": "Automation and Build Pipeline"
+    },
+    {
+      "slug": "technical-debt",
+      "title": "Maintenance Risk Review"
+    },
+    {
+      "slug": "contributing",
+      "title": "Contributing Guide"
+    },
+    {
+      "slug": "deployment",
+      "title": "Deployment Lifecycle and Environment Provisioning"
+    },
+    {
+      "slug": "integrations",
+      "title": "External Integrations and Third-Party Services"
+    }
+  ],
+  "diagrams": [
+    "module-graph",
+    "class-hierarchy"
+  ],
+  "risks": [],
+  "build_commands": [
+    "uv build",
+    "npm run build  # next build",
+    "npm start  # next start"
+  ],
+  "test_commands": [
+    "pytest",
+    "python -m pytest tests/ -q --tb=short"
+  ]
+}
