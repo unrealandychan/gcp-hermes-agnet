@@ -29,6 +29,9 @@ class Settings(BaseSettings):
 
     # Auth
     google_client_id: str = ""
+    # Set DISABLE_AUTH=true in .env to skip Google ID-token validation locally.
+    # NEVER enable this in production — it opens every endpoint to anonymous access.
+    disable_auth: bool = False
 
     # Tool Service URLs
     bigquery_tool_url: str = "http://localhost:8081"

@@ -39,20 +39,35 @@ _http_client = httpx.AsyncClient(
 # 50K entries × ~500 bytes ≈ 25 MB worst case.
 _token_cache: TTLCache = TTLCache(maxsize=50_000, ttl=300)
 
-_bearer = HTTPBearer(auto_error=True)
-
-
 async def verify_google_token(
-    credentials: Annotated[HTTPAuthorizationCredentials, Security(_bearer)],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Security(HTTPBearer(auto_error=False))],
 ) -> dict:
     """
     Validate a Google ID token and return the decoded claims.
 
     Raises HTTP 401 on invalid/expired token.
     Cached for 5 minutes to avoid a Google round-trip on every request.
+
+    When DISABLE_AUTH=true (local dev only), skips all validation and returns
+    a synthetic "local-dev" user so every endpoint works without a token.
     """
-    token = credentials.credentials
     settings = get_settings()
+
+    # ── Local dev bypass ───────────────────────────────────────────────────────
+    if settings.disable_auth:
+        logger.warning(
+            "⚠️  Auth disabled (DISABLE_AUTH=true) — accepting all requests as local-dev user. "
+            "NEVER use this in production."
+        )
+        return {"sub": "local-dev", "email": "dev@localhost", "iss": "local"}
+
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing Bearer token.",
+        )
+
+    token = credentials.credentials
 
     # ── Cache look-up (store hash, not raw token) ──────────────────────────────
     cache_key = hashlib.sha256(token.encode()).hexdigest()
