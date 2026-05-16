@@ -214,8 +214,6 @@ def delete_gcs_bucket(bucket: str) -> None:
     bucket_name = bucket_uri.removeprefix("gs://")
     step(f"Deleting GCS bucket (all objects + bucket): {bucket_uri} …")
     try:
-        from google.cloud import storage
-        from google.api_core.exceptions import NotFound
         client = _gcs_storage.Client()
         b = client.bucket(bucket_name)
         blobs = list(client.list_blobs(bucket_name))
