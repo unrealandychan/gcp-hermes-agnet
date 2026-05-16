@@ -231,6 +231,7 @@ _REQUIRED_APIS = [
     "modelarmor.googleapis.com",
     "cloudtrace.googleapis.com",
     "cloudresourcemanager.googleapis.com",
+    "vectorsearch.googleapis.com",
 ]
 
 _SA_ROLES = [
