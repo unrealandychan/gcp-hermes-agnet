@@ -143,16 +143,20 @@ class TestDeleteGcsBucket:
     def test_adds_gs_prefix_if_missing(self):
         mock_client = MagicMock()
         mock_client.list_blobs.return_value = []
-        with patch("teardown_wizard._gcs_storage") as mock_storage:
-            mock_storage.Client.return_value = mock_client
+        mock_storage = MagicMock()
+        mock_storage.Client.return_value = mock_client
+        with patch.object(tw, "_gcs_storage", mock_storage), \
+             patch.object(tw, "_GcsNotFound", Exception):
             tw.delete_gcs_bucket("my-bucket")
             mock_client.bucket.assert_called_once_with("my-bucket")
 
     def test_uses_existing_gs_prefix(self):
         mock_client = MagicMock()
         mock_client.list_blobs.return_value = []
-        with patch("teardown_wizard._gcs_storage") as mock_storage:
-            mock_storage.Client.return_value = mock_client
+        mock_storage = MagicMock()
+        mock_storage.Client.return_value = mock_client
+        with patch.object(tw, "_gcs_storage", mock_storage), \
+             patch.object(tw, "_GcsNotFound", Exception):
             tw.delete_gcs_bucket("gs://my-bucket")
             mock_client.bucket.assert_called_once_with("my-bucket")
 
