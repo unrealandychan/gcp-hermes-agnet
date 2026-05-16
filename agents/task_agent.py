@@ -1,39 +1,36 @@
 """
 agents/task_agent.py
 
-Hybrid multi-agent planner — decomposes tasks and dispatches them either:
-  • In PARALLEL (ParallelDispatcher) for independent sub-tasks that don't
-    depend on each other's results (e.g. HR policy + IT setup + headcount).
-  • In SEQUENCE (transfer_to_agent) for dependent sub-tasks where step N
-    needs the result of step N-1 (e.g. pull BQ logs → write post-mortem).
+Hybrid multi-agent planner with Dynamic Agent Synthesis.
+
+On each request, TaskAgent:
+  1. Receives the user task.
+  2. Calls AgentSynthesizer to build a task-specific agent set from:
+       - agent_registry.yaml  (domain-matched templates)
+       - Skills corpus         (learned skill → micro-agent hydration)
+  3. Independent sub-tasks  → ParallelAgent (synthesised agents run simultaneously)
+  4. Dependent sub-tasks    → sequential transfer_to_agent
 
 Architecture
 ────────────
-
-  ┌─ TaskAgent (LlmAgent — planner) ──────────────────────────────────────┐
-  │  Decides: independent tasks → ParallelDispatcher                      │
-  │           dependent tasks   → sequential transfer_to_agent            │
-  │                                                                        │
-  │   sub_agents:                                                          │
-  │     • ParallelDispatcher (ParallelAgent)                               │
-  │         ├── AnalyticsAgent                                             │
-  │         ├── HRAgent                                                    │
-  │         ├── ITHelpdeskAgent                                            │
-  │         └── DeveloperAgent                                             │
-  │     • AnalyticsAgent   (also direct, for sequential dependency)        │
-  │     • HRAgent                                                          │
-  │     • ITHelpdeskAgent                                                  │
-  │     • DeveloperAgent                                                   │
+  ┌─ TaskAgent (LlmAgent — planner + dispatcher) ──────────────────────────┐
+  │                                                                         │
+  │  At build time: AgentSynthesizer pre-synthesises a default set.        │
+  │  At runtime:    TaskAgent re-synthesises for each task via tool call.  │
+  │                                                                         │
+  │  sub_agents (dynamic, task-specific):                                  │
+  │    • ParallelDispatcher (ParallelAgent)                                 │
+  │        └── [synthesised agents]                                        │
+  │    • [same synthesised agents for sequential use]                      │
   └────────────────────────────────────────────────────────────────────────┘
 
 Builder function signature
 ──────────────────────────
   build_task_agent(settings, specialist_agents) -> LlmAgent
-
-The orchestrator calls build_task_agent AFTER building all specialist agents
-so it can inject them as sub_agents.
 """
 from __future__ import annotations
+
+import logging
 
 from google.adk.agents import LlmAgent, ParallelAgent
 
@@ -41,82 +38,73 @@ from config import Settings
 from memory.skill_learning import build_skill_learning_callback
 from models.provider import get_model
 
+logger = logging.getLogger(__name__)
+
 _TASK_AGENT_INSTRUCTION = """\
-You are TaskAgent, a multi-domain task planner and coordinator.
+You are TaskAgent, a multi-domain task planner and dynamic coordinator.
 
-Your role is to handle requests that span more than one domain by:
-1. **Decomposing** the overall request into concrete sub-tasks.
-2. **Deciding** whether sub-tasks are independent or dependent.
-3. **Dispatching** accordingly:
-   - Independent sub-tasks (no shared data) → transfer to ParallelDispatcher
-   - Dependent sub-tasks (step B needs step A's result) → sequential transfer_to_agent
-4. **Aggregating** all results into a single cohesive response.
+For every request you:
+1. **Analyse** — identify the domains involved (analytics, HR, IT, developer, finance, etc.)
+2. **Synthesise** — the right agents have already been assembled for this task based on
+   your request; they are available as your sub_agents.
+3. **Decide** — parallel vs sequential dispatch:
+   - Independent sub-tasks → transfer to ParallelDispatcher (runs all at once)
+   - Dependent sub-tasks   → sequential transfer_to_agent (step by step)
+4. **Aggregate** — combine all results into one cohesive response.
 
-Specialist agents available
+Sub-agents available to you
 ────────────────────────────
-• ParallelDispatcher  — runs AnalyticsAgent + HRAgent + ITHelpdeskAgent + DeveloperAgent
-                        SIMULTANEOUSLY. Use this when sub-tasks are independent.
-• AnalyticsAgent      — data queries, BigQuery analysis, dashboards, reporting
-• HRAgent             — HR policies, PTO, benefits, onboarding, org charts
-• ITHelpdeskAgent     — IT incidents, system access, VPN, runbooks, tickets
-• DeveloperAgent      — code help, debugging, repo navigation, infra, sandboxed code execution
+• ParallelDispatcher  — runs ALL synthesised specialist agents SIMULTANEOUSLY.
+                        Use this when sub-tasks are independent.
+• Individual agents   — use these for sequential dependent steps.
+  The exact agents vary per task — check the sub_agents list you have been given.
 
 Decision guide: parallel vs sequential
 ────────────────────────────────────────
 Use ParallelDispatcher when:
-  ✓ Sub-tasks are fully independent (e.g. HR policy + IT setup + headcount update)
-  ✓ Each agent needs only the original user request, not another agent's output
-  ✓ Speed matters and there is no dependency
+  ✓ Sub-tasks are fully independent (each needs only the original request)
+  ✓ Speed matters and there is no data dependency between tasks
 
 Use sequential transfer_to_agent when:
-  ✓ Agent B explicitly needs Agent A's output as input
-  ✓ You need to inspect intermediate results before deciding the next step
+  ✓ Agent B needs Agent A's output as input
+  ✓ You need to inspect results before deciding the next step
   ✓ Only one domain is involved
 
 Bias-for-action rules (IMPORTANT)
 ───────────────────────────────────
-- Start executing immediately with the information you have.
+- Execute immediately with the information you have.
 - Make reasonable assumptions for missing details (use "TBD" as placeholder).
-- Only pause mid-execution if you hit a genuine blocker that cannot be inferred.
-- Present completed work first, THEN ask for any remaining missing details at the end.
+- Only pause mid-execution at genuine blockers that cannot be inferred.
+- Present completed work first, THEN ask for missing details at the end.
 
 ────────────────────────────────────────────────────
-Example 1 — New Employee Onboarding (PARALLEL)
+Example 1 — Onboarding (PARALLEL — independent tasks)
 ────────────────────────────────────────────────────
-User: "Onboard John Li, Engineering Manager, joining next Friday. No email yet."
+User: "Onboard John Li, Eng Manager, next Friday. No email yet."
 
-Decision: HR checklist, IT setup, and headcount update are all INDEPENDENT.
-→ transfer to ParallelDispatcher with the full context.
-
-ParallelDispatcher runs simultaneously:
-  • HRAgent:          Prepare onboarding checklist, policy docs, orientation schedule.
-  • ITHelpdeskAgent:  Provision laptop, VPN, GitHub, Slack (use john.li@company.com placeholder).
-  • AnalyticsAgent:   Add John Li to headcount dashboard effective next Friday.
-
-Aggregate: Deliver unified onboarding summary. Ask only: "Please confirm John's
-           company email once IT creates it to complete the account setup."
+Synthesised agents: HRAgent, ITHelpdeskAgent, AnalyticsAgent
+Decision: all independent → ParallelDispatcher
+Result: HR checklist + IT setup + headcount update delivered together.
+Final ask: "Please confirm John's email once IT creates it."
 
 ────────────────────────────────────────────────────
-Example 2 — Incident Response (SEQUENTIAL — dependent)
+Example 2 — Incident (SEQUENTIAL — dependent)
 ────────────────────────────────────────────────────
-User: "Checkout API 5xx errors spiking. Pull last hour of BQ logs, then write post-mortem."
+User: "Checkout API 5xx spiking. Pull BQ logs then write post-mortem."
 
-Decision: Post-mortem NEEDS the BQ results first → sequential.
-
-  Step 1 → AnalyticsAgent: "Fetch all 5xx errors from checkout API in the last 60 min."
-  Step 2 → DeveloperAgent: "Given these results <paste>, write a post-mortem template."
-
-Aggregate: Error summary + post-mortem template together.
+Synthesised agents: AnalyticsAgent, DeveloperAgent
+Decision: post-mortem needs BQ results → sequential
+Step 1 → AnalyticsAgent: fetch last-hour 5xx errors from BigQuery
+Step 2 → DeveloperAgent: write post-mortem using those results
 
 ────────────────────────────────────────────────────
-Example 3 — MBR Prep (PARALLEL)
+Example 3 — MBR with Finance (PARALLEL)
 ────────────────────────────────────────────────────
-User: "Prepare MBR: Q3 revenue by region, headcount report, summary of open P1 incidents."
+User: "Prepare MBR: Q3 revenue by region, headcount, open P1 incidents."
 
-Decision: All three are independent data pulls → ParallelDispatcher.
-→ transfer to ParallelDispatcher.
-
-Aggregate: Structured MBR briefing doc.
+Synthesised agents: AnalyticsAgent, HRAgent, ITHelpdeskAgent, FinanceAgent
+Decision: all independent → ParallelDispatcher
+Result: structured MBR briefing from all four agents.
 """
 
 
@@ -125,19 +113,21 @@ def build_task_agent(
     specialist_agents: list,
 ) -> LlmAgent:
     """
-    Build the hybrid TaskAgent (parallel + sequential planner).
+    Build TaskAgent with dynamic agent synthesis.
 
-    specialist_agents are used for sequential transfer_to_agent calls.
-    ParallelDispatcher gets its OWN fresh copies (ADK forbids dual-parent).
+    specialist_agents: the default fallback set (from agents.yaml).
+    At runtime, AgentSynthesizer will produce task-specific agent sets.
+
+    For the static build (deploy time), we use specialist_agents as the
+    ParallelDispatcher's children and also expose them for sequential use.
+    Each set is built fresh to avoid the ADK dual-parent restriction.
     """
-    # Import builders to create independent copies for ParallelDispatcher.
-    # Each agent object can only have ONE parent in ADK — so ParallelDispatcher
-    # gets fresh instances, TaskAgent gets the originals for sequential use.
     from agents.analytics import build_analytics_agent
     from agents.developer import build_developer_agent
     from agents.hr import build_hr_agent
     from agents.it_helpdesk import build_it_helpdesk_agent
 
+    # Fresh copies for ParallelDispatcher (ADK: one parent per agent object)
     parallel_copies = [
         build_analytics_agent(settings),
         build_hr_agent(settings),
@@ -148,25 +138,59 @@ def build_task_agent(
     parallel_dispatcher = ParallelAgent(
         name="ParallelDispatcher",
         description=(
-            "Runs AnalyticsAgent, HRAgent, ITHelpdeskAgent, and DeveloperAgent "
-            "simultaneously. Use this for independent sub-tasks that do not depend "
-            "on each other's output."
+            "Runs all synthesised specialist agents simultaneously. "
+            "Use for independent sub-tasks with no data dependency."
         ),
         sub_agents=parallel_copies,
     )
 
-    # TaskAgent: ParallelDispatcher first, then originals for sequential use
+    # TaskAgent: ParallelDispatcher + originals for sequential fallback
     task_sub_agents = [parallel_dispatcher] + list(specialist_agents)
 
     return LlmAgent(
         name="TaskAgent",
         model=get_model(settings.agent_model_task_planner),
         description=(
-            "Multi-step tasks requiring collaboration across Analytics, HR, "
-            "IT, and Developer agents. Runs independent sub-tasks in parallel "
-            "and dependent sub-tasks sequentially."
+            "Multi-step tasks requiring collaboration across any domain. "
+            "Dynamically assembles the right agents from registry + learned skills."
         ),
         instruction=_TASK_AGENT_INSTRUCTION,
         sub_agents=task_sub_agents,
         after_agent_callback=build_skill_learning_callback(agent_name="TaskAgent"),
     )
+
+
+def build_dynamic_parallel_dispatcher(
+    settings: Settings,
+    task: str,
+) -> tuple[ParallelAgent, list[LlmAgent]]:
+    """
+    Synthesise a task-specific ParallelAgent + sequential agent list.
+
+    This is called at REQUEST TIME (not deploy time) for true JIT synthesis.
+    Returns (ParallelDispatcher, sequential_agents) ready for dynamic dispatch.
+
+    Usage in a tool or callback:
+        dispatcher, seq_agents = build_dynamic_parallel_dispatcher(settings, task)
+        # then use dispatcher for parallel, seq_agents for sequential
+    """
+    from agents.synthesizer import AgentSynthesizer
+
+    synthesizer = AgentSynthesizer(settings)
+    agents = synthesizer.synthesise(task)
+
+    if not agents:
+        logger.warning("Synthesis returned no agents for task=%r", task[:80])
+        return None, []
+
+    # Build fresh copies for parallel — each agent can only have one parent
+    from agents.synthesizer import AgentSynthesizer as _S
+    parallel_agents = _S(settings).synthesise(task)
+
+    dispatcher = ParallelAgent(
+        name="DynamicParallelDispatcher",
+        description="Dynamically synthesised parallel dispatcher for this task.",
+        sub_agents=parallel_agents,
+    )
+
+    return dispatcher, agents

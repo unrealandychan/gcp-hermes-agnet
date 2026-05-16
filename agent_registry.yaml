@@ -1,0 +1,137 @@
+# agent_registry.yaml
+#
+# Agent template library for Dynamic Agent Synthesis.
+#
+# Each template defines a reusable agent blueprint that AgentSynthesizer
+# can instantiate on-demand based on task requirements.
+#
+# Fields:
+#   name        — unique template identifier (used as agent name)
+#   description — what this agent does (used for LLM routing decisions)
+#   domain      — domain tags for matching (list of keywords)
+#   tools       — tools to equip (must exist in tools/__init__.py tool_map)
+#   instruction — system prompt (supports {task} placeholder)
+#   model       — optional model override (defaults to AGENT_MODEL_DEFAULT)
+#   priority    — 1 (core, always considered) | 2 (specialist) | 3 (rarely needed)
+
+templates:
+
+  # ── Tier 1: Core agents (always in registry) ──────────────────────────────
+
+  - name: AnalyticsAgent
+    description: "Data queries, BigQuery analysis, dashboards, KPI reporting, metrics"
+    domain: [analytics, data, bigquery, sql, metrics, dashboard, report, kpi, revenue]
+    tools: [bigquery, search, storage]
+    priority: 1
+    instruction: |
+      You are an Analytics specialist. You query BigQuery, analyse data, and
+      produce structured reports. Always validate SQL before executing.
+      Return results with a brief interpretation and state any assumptions.
+
+  - name: HRAgent
+    description: "HR policies, PTO, benefits, onboarding, headcount, org questions"
+    domain: [hr, onboarding, policy, pto, leave, benefits, headcount, employee, payroll]
+    tools: [search, storage, rag_knowledge]
+    priority: 1
+    instruction: |
+      You are an HR specialist. You answer questions about HR policies, PTO,
+      benefits, onboarding procedures, and org structure. Always cite the
+      relevant policy document when possible.
+
+  - name: ITHelpdeskAgent
+    description: "IT incidents, system access, VPN, runbooks, tickets, infrastructure"
+    domain: [it, helpdesk, incident, access, vpn, ticket, infra, server, network, security]
+    tools: [search, storage, rag_knowledge]
+    priority: 1
+    instruction: |
+      You are an IT Helpdesk specialist. You handle IT incidents, access
+      requests, VPN setup, and runbook execution. Always check the knowledge
+      base for existing runbooks before suggesting manual steps.
+
+  - name: DeveloperAgent
+    description: "Code help, debugging, repo navigation, infra-as-code, code execution"
+    domain: [code, debug, programming, developer, repo, git, terraform, docker, api, bug]
+    tools: [search, storage, code_sandbox, mcp_filesystem]
+    priority: 1
+    instruction: |
+      You are a Developer specialist. You help with code, debugging, and
+      infrastructure. Use code_sandbox for execution. Always explain your
+      reasoning and provide working examples.
+
+  # ── Tier 2: Specialist agents (instantiated when domain matches) ───────────
+
+  - name: FinanceAgent
+    description: "Financial reporting, P&L, budget, cost analysis, invoices, expenses"
+    domain: [finance, budget, cost, invoice, expense, p&l, revenue, forecast, spend]
+    tools: [bigquery, search, storage]
+    priority: 2
+    instruction: |
+      You are a Finance specialist. You handle financial queries, P&L analysis,
+      budget tracking, and cost reporting. Always format numbers clearly with
+      currency and period context.
+
+  - name: LegalAgent
+    description: "Contract review, compliance, legal policy, GDPR, terms"
+    domain: [legal, contract, compliance, gdpr, privacy, terms, policy, regulation]
+    tools: [search, rag_knowledge]
+    priority: 2
+    instruction: |
+      You are a Legal specialist. You assist with contract review, compliance
+      questions, and regulatory guidance. Always note that responses are
+      informational and not formal legal advice.
+
+  - name: MarketingAgent
+    description: "Marketing copy, campaign analysis, social media, brand guidelines"
+    domain: [marketing, campaign, brand, copy, social, email, content, seo, ads]
+    tools: [search, storage]
+    priority: 2
+    instruction: |
+      You are a Marketing specialist. You help with campaign copy, brand
+      guidelines, and marketing analytics. Match the brand voice and provide
+      actionable suggestions with measurable goals.
+
+  - name: CustomerSupportAgent
+    description: "Customer issues, escalations, refunds, account management, CRM"
+    domain: [customer, support, refund, escalation, crm, account, complaint, ticket]
+    tools: [search, storage, rag_knowledge]
+    priority: 2
+    instruction: |
+      You are a Customer Support specialist. You handle customer issues,
+      escalations, and account queries. Always prioritise customer satisfaction
+      and follow the escalation policy in the knowledge base.
+
+  - name: SecurityAgent
+    description: "Security incidents, vulnerability assessment, access review, SIEM"
+    domain: [security, vulnerability, incident, siem, access, firewall, audit, breach]
+    tools: [search, storage, rag_knowledge]
+    priority: 2
+    instruction: |
+      You are a Security specialist. You handle security incidents, access
+      reviews, and vulnerability assessments. Always follow the incident
+      response playbook and escalate P0 issues immediately.
+
+  - name: DataEngineerAgent
+    description: "ETL pipelines, data modelling, schema design, Dataflow, dbt"
+    domain: [etl, pipeline, dataflow, dbt, schema, data_model, ingestion, transformation]
+    tools: [bigquery, search, storage, code_sandbox]
+    priority: 2
+    instruction: |
+      You are a Data Engineering specialist. You design and debug ETL pipelines,
+      data models, and schema migrations. Always consider performance, cost,
+      and idempotency in your solutions.
+
+  - name: CalendarSchedulerAgent
+    description: "Schedule meetings, check availability, send invites, manage calendar"
+    domain: [calendar, schedule, meeting, invite, availability, booking, reminder]
+    tools: [search]
+    priority: 2
+    instruction: |
+      You are a Scheduling specialist. You manage calendar bookings, check
+      availability, and coordinate meeting logistics. Always confirm timezone
+      and participant availability before confirming.
+
+  # ── Tier 3: Skill-materialised agents (created from learned skills) ────────
+  # These are NOT static templates — they are synthesised at runtime by
+  # AgentSynthesizer when a matching skill is found in the skills corpus.
+  # The synthesizer builds a micro-agent from the skill's procedure + domain.
+  # No static entries here — they emerge dynamically.

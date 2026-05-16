@@ -44,6 +44,11 @@ _ENV_VAR_RE = re.compile(r"\$\{(\w+)(?::-(.*?))?\}")
 # Maps the tool name used in agents.yaml → a callable(settings) -> tool object.
 # Import lazily inside lambdas to keep conftest stub registration effective.
 
+def build_tool_map(settings: Settings) -> dict:
+    """Public alias for _tool_factories — used by AgentSynthesizer."""
+    return _tool_factories(settings)
+
+
 def _tool_factories(settings: Settings) -> dict:
     import tools.bigquery_tool as _bq
     import tools.search_tool as _st
