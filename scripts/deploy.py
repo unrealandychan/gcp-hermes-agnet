@@ -30,20 +30,23 @@ logger = logging.getLogger(__name__)
 
 def _ensure_bucket(bucket: str, project: str, location: str) -> None:
     """Create the GCS staging bucket if it does not exist."""
-    import subprocess
-    result = subprocess.run(
-        ["gsutil", "ls", "-b", bucket],
-        capture_output=True,
-    )
-    if result.returncode == 0:
+    from google.cloud import storage
+    from google.api_core.exceptions import Conflict
+
+    bucket_name = bucket.removeprefix("gs://")
+    client = storage.Client(project=project)
+    try:
+        client.get_bucket(bucket_name)
         logger.info("Staging bucket already exists: %s", bucket)
-        return
-    logger.info("Creating staging bucket %s in %s …", bucket, location)
-    subprocess.run(
-        ["gsutil", "mb", f"-p={project}", f"-l={location}", bucket],
-        check=True,
-    )
-    logger.info("Staging bucket created: %s", bucket)
+    except Exception:
+        logger.info("Creating staging bucket %s in %s …", bucket, location)
+        try:
+            new_bucket = client.bucket(bucket_name)
+            new_bucket.storage_class = "STANDARD"
+            client.create_bucket(new_bucket, location=location, project=project)
+            logger.info("Staging bucket created: %s", bucket)
+        except Conflict:
+            logger.info("Staging bucket already exists (race): %s", bucket)
 
 
 def main() -> None:
@@ -110,6 +113,16 @@ def main() -> None:
     deploy_config = {
         "display_name": "Hermes Enterprise Agent",
         "description": "Multi-domain enterprise agent with self-learning capabilities.",
+        # Pass env vars into the Reasoning Engine snapshot so it can find
+        # the correct RAG corpora at runtime (without these, it falls back
+        # to us-central1 defaults and raises PermissionDenied).
+        "env_vars": {
+            "GCP_PROJECT_ID":           settings.gcp_project_id,
+            "GCP_LOCATION":             settings.gcp_location,
+            "KNOWLEDGE_CORPUS_NAME":    settings.knowledge_corpus_name,
+            "SKILLS_CORPUS_NAME":       settings.skills_corpus_name,
+            "MEMORY_BANK_RESOURCE_NAME": settings.memory_bank_resource_name,
+        },
     }
 
     if args.update:
