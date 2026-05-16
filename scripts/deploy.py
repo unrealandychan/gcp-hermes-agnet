@@ -39,34 +39,46 @@ def main() -> None:
 
     adk_app = build_adk_app()
 
+    # Wrap the ADK app in agent_engines.AdkApp (required since google-adk >= 1.x)
+    wrapped_app = agent_engines.AdkApp(
+        agent=adk_app,
+        enable_tracing=True,
+    )
+
+    requirements = [
+        "google-cloud-aiplatform[agent_engines,adk]>=1.112",
+        "google-cloud-bigquery>=3.25.0",
+        "google-cloud-storage>=2.18.0",
+        "fastapi>=0.115.0",
+        "pydantic>=2.7.0",
+        "pydantic-settings>=2.3.0",
+        "httpx>=0.27.0",
+        "tenacity>=8.3.0",
+    ]
+
     deploy_config = {
+        "display_name": "Hermes Enterprise Agent",
+        "description": "Multi-domain enterprise agent with self-learning capabilities.",
         "staging_bucket": settings.gcp_staging_bucket,
         "min_replicas": 1,
         "max_replicas": 50,
-        "display_name": "Hermes Enterprise Agent",
-        "description": "Multi-domain enterprise agent with self-learning capabilities.",
     }
 
     if args.update:
         logger.info("Updating existing engine: %s", args.update)
-        engine = agent_engines.get(args.update)
-        engine.update(agent=adk_app, **deploy_config)
+        engine = agent_engines.update(
+            resource_name=args.update,
+            agent_engine=wrapped_app,
+            requirements=requirements,
+            **deploy_config,
+        )
         resource_name = engine.resource_name
     else:
         logger.info("Creating new Reasoning Engine in project=%s location=%s …",
                     settings.gcp_project_id, settings.gcp_location)
         engine = agent_engines.create(
-            agent=adk_app,
-            requirements=[
-                "google-cloud-aiplatform[agent_engines,adk]>=1.112",
-                "google-cloud-bigquery>=3.25.0",
-                "google-cloud-storage>=2.18.0",
-                "fastapi>=0.115.0",
-                "pydantic>=2.7.0",
-                "pydantic-settings>=2.3.0",
-                "httpx>=0.27.0",
-                "tenacity>=8.3.0",
-            ],
+            agent_engine=wrapped_app,
+            requirements=requirements,
             **deploy_config,
         )
         resource_name = engine.resource_name
