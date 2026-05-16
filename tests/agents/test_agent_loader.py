@@ -15,7 +15,7 @@ import pytest
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
-def _mock_settings(model: str = "gemini-2.0-flash"):
+def _mock_settings(model: str = "gemini-2.5-flash"):
     s = MagicMock()
     s.agent_model_orchestrator = model
     s.agent_model_analytics = model
@@ -46,7 +46,7 @@ MINIMAL_YAML = """\
     agents:
       - name: TestAgent
         description: "A test agent"
-        model: gemini-2.0-flash
+        model: gemini-2.5-flash
         tools: [search]
     """
 
@@ -54,12 +54,12 @@ TWO_AGENTS_YAML = """\
     agents:
       - name: AgentA
         description: "First agent"
-        model: gemini-2.0-flash
+        model: gemini-2.5-flash
         tools: []
 
       - name: AgentB
         description: "Second agent"
-        model: gemini-2.0-flash
+        model: gemini-2.5-flash
         tools: []
     """
 
@@ -74,7 +74,7 @@ ENV_VAR_YAML = """\
 MISSING_NAME_YAML = """\
     agents:
       - description: "No name field"
-        model: gemini-2.0-flash
+        model: gemini-2.5-flash
         tools: []
     """
 
@@ -82,7 +82,7 @@ UNKNOWN_TOOL_YAML = """\
     agents:
       - name: ToolAgent
         description: "Has unknown tool"
-        model: gemini-2.0-flash
+        model: gemini-2.5-flash
         tools: [nonexistent_tool]
     """
 
@@ -92,7 +92,7 @@ INVALID_YAML = """\
 
 
 _COMMON_PATCHES = [
-    patch("models.provider.get_model", return_value="gemini-2.0-flash"),
+    patch("models.provider.get_model", return_value="gemini-2.5-flash"),
     patch("tools.bigquery_tool.make_bigquery_tool", return_value=MagicMock(name="bq")),
     patch("tools.search_tool.make_search_tool", return_value=MagicMock(name="search")),
     patch("tools.storage_tool.make_storage_tool", return_value=MagicMock(name="storage")),
@@ -184,7 +184,7 @@ class TestBuildAgentsFromYaml:
             agents:
               - name: AnalyticsAgent
                 description: "Analytics"
-                model: gemini-2.0-flash
+                model: gemini-2.5-flash
                 tools: [bigquery, search]
             """
         path = _write_yaml(tmp_path, yaml_content)

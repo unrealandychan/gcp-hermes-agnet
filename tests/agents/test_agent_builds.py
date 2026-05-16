@@ -15,7 +15,7 @@ from unittest.mock import MagicMock, patch
 
 
 def _mock_settings(
-    model: str = "gemini-2.0-flash",
+    model: str = "gemini-2.5-flash",
     *,
     mcp_filesystem_path: str = "",
     mcp_sse_server_url: str = "",
@@ -43,7 +43,7 @@ def _mock_settings(
 def _patch_all():
     """Return a fresh dict of patch objects — call start/stop per test."""
     return [
-        patch("models.provider.get_model", return_value="gemini-2.0-flash"),
+        patch("models.provider.get_model", return_value="gemini-2.5-flash"),
         patch("tools.bigquery_tool.make_bigquery_tool", return_value=MagicMock(name="bq")),
         patch("tools.search_tool.make_search_tool", return_value=MagicMock(name="search")),
         patch("tools.storage_tool.make_storage_tool", return_value=MagicMock(name="storage")),

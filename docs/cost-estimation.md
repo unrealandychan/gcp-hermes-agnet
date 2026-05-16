@@ -12,13 +12,13 @@ The platform supports hot-swapping to any model per agent via a single `.env` ch
 
 | Agent | Default Model | Role |
 |---|---|---|
-| Orchestrator | `gemini-2.0-flash` | Routes requests to sub-agents |
-| AnalyticsAgent | `gemini-2.0-flash` | BigQuery / reporting |
-| ITHelpdeskAgent | `gemini-2.0-flash` | IT incidents / runbooks |
-| HRAgent | `gemini-2.0-flash` | HR policies / PTO |
-| DeveloperAgent | `gemini-2.0-flash` | Code help / architecture |
-| PlannerAgent (LoopAgent) | `gemini-2.0-flash` | Long-running task planning |
-| ExecutorAgent (LoopAgent) | `gemini-2.0-flash` | Long-running task execution |
+| Orchestrator | `gemini-2.5-flash` | Routes requests to sub-agents |
+| AnalyticsAgent | `gemini-2.5-flash` | BigQuery / reporting |
+| ITHelpdeskAgent | `gemini-2.5-flash` | IT incidents / runbooks |
+| HRAgent | `gemini-2.5-flash` | HR policies / PTO |
+| DeveloperAgent | `gemini-2.5-flash` | Code help / architecture |
+| PlannerAgent (LoopAgent) | `gemini-2.5-flash` | Long-running task planning |
+| ExecutorAgent (LoopAgent) | `gemini-2.5-flash` | Long-running task execution |
 | **SkillExtractor** | **`gemini-2.5-flash-lite`** | Background skill extraction — cheapest model |
 
 ---
@@ -30,7 +30,7 @@ The platform supports hot-swapping to any model per agent via a single `.env` ch
 | Model | Input | Output | Best for |
 |---|---|---|---|
 | `gemini-2.5-flash-lite` | $0.10 | $0.40 | Background tasks, high volume |
-| `gemini-2.0-flash` | $0.15 | $0.60 | Default — best price/performance |
+| `gemini-2.5-flash` | $0.15 | $0.60 | Default — best price/performance |
 | `gemini-2.5-flash` | $0.30 | $2.50 | Better reasoning, more nuanced |
 | `gemini-2.5-pro` | $1.25 | $10.00 | Complex multi-step reasoning |
 
@@ -141,8 +141,8 @@ AGENT_MODEL_ORCHESTRATOR=gemini-2.5-flash-lite
 AGENT_MODEL_SKILL_EXTRACTOR=gemini-2.5-flash-lite
 
 # Standard knowledge retrieval
-AGENT_MODEL_HR=gemini-2.0-flash
-AGENT_MODEL_IT_HELPDESK=gemini-2.0-flash
+AGENT_MODEL_HR=gemini-2.5-flash
+AGENT_MODEL_IT_HELPDESK=gemini-2.5-flash
 
 # Heavy reasoning
 AGENT_MODEL_ANALYTICS=gemini-2.5-flash
@@ -221,7 +221,7 @@ agent = LlmAgent(
 
 | Provider | Format | Required env var |
 |---|---|---|
-| Gemini (Vertex AI) | `gemini-2.0-flash` | GCP ADC / service account |
+| Gemini (Vertex AI) | `gemini-2.5-flash` | GCP ADC / service account |
 | OpenAI | `openai/gpt-4o` | `OPENAI_API_KEY` |
 | Anthropic (direct) | `anthropic/claude-sonnet-4-5` | `ANTHROPIC_API_KEY` |
 | Azure OpenAI | `azure/<deployment>` | `AZURE_API_KEY`, `AZURE_API_BASE`, `AZURE_API_VERSION` |

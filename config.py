@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     # Azure, Bedrock, Ollama, etc.).
     #
     # Examples:
-    #   gemini-2.0-flash              → Gemini on Vertex AI (default)
+    #   gemini-2.5-flash              → Gemini on Vertex AI (default)
     #   gemini-2.5-flash              → Latest Gemini Flash
     #   gemini-2.5-flash-lite         → Cheapest Gemini (good for background tasks)
     #   openai/gpt-4o                 → OpenAI GPT-4o via LiteLLM

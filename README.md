@@ -99,7 +99,7 @@ Edit `agents.yaml` and append your agent:
 agents:
   - name: FinanceAgent
     description: "Financial reporting, P&L queries, budget forecasting"
-    model: ${AGENT_MODEL_FINANCE:-gemini-2.0-flash}
+    model: ${AGENT_MODEL_FINANCE:-gemini-2.5-flash}
     tools: [bigquery, search]
 ```
 
@@ -125,7 +125,7 @@ You can change the model for any agent independently via `.env` — no code chan
 
 | Provider | Model format | Example |
 |---|---|---|
-| **Gemini (Vertex AI)** — default | `gemini-<version>` | `gemini-2.0-flash` |
+| **Gemini (Vertex AI)** — default | `gemini-<version>` | `gemini-2.5-flash` |
 | **OpenAI** | `openai/<model>` | `openai/gpt-4o` |
 | **Anthropic Claude** | `anthropic/<model>` | `anthropic/claude-sonnet-4-5` |
 | **Azure OpenAI** | `azure/<deployment>` | `azure/my-gpt4o` |
@@ -145,7 +145,7 @@ AGENT_MODEL_DEVELOPER=anthropic/claude-sonnet-4-5
 ANTHROPIC_API_KEY=sk-ant-...
 
 # Keep everything else on Gemini
-AGENT_MODEL_ORCHESTRATOR=gemini-2.0-flash
+AGENT_MODEL_ORCHESTRATOR=gemini-2.5-flash
 AGENT_MODEL_SKILL_EXTRACTOR=gemini-2.5-flash-lite  # already the cheapest default
 ```
 

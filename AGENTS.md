@@ -63,7 +63,7 @@ The preferred approach: **edit `agents.yaml` only** — no Python required.
 agents:
   - name: FinanceAgent
     description: "Financial reporting, P&L queries, budget forecasting"
-    model: ${AGENT_MODEL_FINANCE:-gemini-2.0-flash}
+    model: ${AGENT_MODEL_FINANCE:-gemini-2.5-flash}
     tools: [bigquery, search, storage]
 ```
 
