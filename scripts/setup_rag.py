@@ -1,18 +1,24 @@
 """
 scripts/setup_rag.py
 
-One-time setup script: creates the two RAG corpora needed by Hermes.
+One-time setup script: creates the RAG corpora needed by Hermes.
 
   1. hermes-knowledge-corpus  — enterprise documents (runbooks, policies, schemas)
   2. hermes-skills-corpus     — self-generated agent skills
+  3. hermes-memory-bank       — per-user long-term memory (MemoryBankService)
 
 Usage:
-    python scripts/setup_rag.py
+    python scripts/setup_rag.py                         # uses GCP_LOCATION from .env
+    python scripts/setup_rag.py --region asia-southeast1  # override region
 
 Outputs the corpus resource names — add them to your .env file.
+
+IMPORTANT: Run this in the SAME region as your Reasoning Engine.
+Cross-region RAG calls will fail with PermissionDenied.
 """
 from __future__ import annotations
 
+import argparse
 import logging
 
 import vertexai
@@ -41,8 +47,20 @@ def create_corpus(display_name: str, description: str) -> str:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Create Hermes RAG corpora")
+    parser.add_argument(
+        "--region",
+        default=None,
+        help="GCP region (overrides GCP_LOCATION in .env). "
+             "Must match your Reasoning Engine region.",
+    )
+    args = parser.parse_args()
+
     settings = get_settings()
-    vertexai.init(project=settings.gcp_project_id, location=settings.gcp_location)
+    region = args.region or settings.gcp_location
+
+    logger.info("Creating RAG corpora in region: %s", region)
+    vertexai.init(project=settings.gcp_project_id, location=region)
 
     knowledge_name = create_corpus(
         display_name="hermes-knowledge-corpus",
@@ -52,11 +70,19 @@ def main() -> None:
         display_name="hermes-skills-corpus",
         description="Self-generated agent skills and learned procedures.",
     )
+    memory_name = create_corpus(
+        display_name="hermes-memory-bank",
+        description="Per-user long-term memory for Hermes MemoryBankService.",
+    )
 
     print("\n── Add these to your .env file ──────────────────────────────")
+    print(f"GCP_LOCATION={region}")
     print(f"KNOWLEDGE_CORPUS_NAME={knowledge_name}")
     print(f"SKILLS_CORPUS_NAME={skills_name}")
-    print("─────────────────────────────────────────────────────────────\n")
+    print(f"MEMORY_BANK_RESOURCE_NAME={memory_name}")
+    print("─────────────────────────────────────────────────────────────")
+    print("\n⚠️  After updating .env, redeploy the Reasoning Engine:")
+    print("   python scripts/deploy.py --update <REASONING_ENGINE_RESOURCE_NAME>\n")
 
 
 if __name__ == "__main__":
