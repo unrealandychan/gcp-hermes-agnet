@@ -213,5 +213,5 @@ def _build_generic(cfg: dict, settings: Settings, tool_map: dict) -> LlmAgent:
         name=name,
         model=get_model(model_name),
         description=description,
-        tools=tools or None,
+        tools=tools if tools else [],
     )

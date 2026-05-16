@@ -33,24 +33,23 @@ Rules:
 
 
 def build_orchestrator(settings: Settings) -> LlmAgent:
-    # Build all agents from YAML — TaskAgent is included in the YAML but will
-    # be rebuilt below with specialist agents injected, so we separate it out.
+    # Build all agents from YAML — TaskAgent placeholder is in YAML but rebuilt below
     all_agents = build_agents_from_yaml(settings)
 
-    # Partition: specialists vs. the placeholder TaskAgent from YAML
+    # Specialists go under TaskAgent only — they cannot have two parents
     specialist_agents = [a for a in all_agents if a.name != "TaskAgent"]
 
-    # Build TaskAgent with the specialists injected as sub_agents
+    # Build TaskAgent with specialists injected as its sub_agents
     task_agent = build_task_agent(settings, specialist_agents)
 
-    # Final sub-agent list for the orchestrator
-    sub_agents = specialist_agents + [task_agent]
-
+    # Orchestrator only sees TaskAgent — specialists are TaskAgent's children
+    # For single-domain requests, Orchestrator delegates to TaskAgent which
+    # passes through to the right specialist.
     return LlmAgent(
         name="Orchestrator",
         model=get_model(settings.agent_model_orchestrator),
         description="Main entry point that routes requests to specialist agents.",
         instruction=_ORCHESTRATOR_INSTRUCTION,
-        sub_agents=sub_agents,
+        sub_agents=[task_agent],
         tools=[],
     )
