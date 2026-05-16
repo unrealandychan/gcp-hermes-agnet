@@ -4,14 +4,22 @@ memory/skill_learning.py
 Builds the after_agent_callback used by each vertical agent.
 
 On every successful agent turn:
-1. Extract the final agent response text.
-2. Fire-and-forget: dispatch skill extraction as a background asyncio.Task so
-   the user response is never delayed by the LLM sub-agent or RAG upload.
-3. Persist the conversation turn to VertexAI Memory Bank for long-term recall.
+1. Extract the final agent response from session.events (last event with
+   author == agent_name and is_final_response()).
+2. Fire-and-forget: dispatch skill extraction as a background asyncio.Task.
+3. Persist the conversation turn to VertexAiMemoryBank.
 
-Scale note: skill extraction itself runs a full LlmAgent + RAG upload (~2-5 s).
-  Decoupling it from the response path via asyncio.create_task keeps p99 latency
-  unaffected at any user count.
+ADK after_agent_callback signature (verified from ADK source):
+    async def callback(*, callback_context: CallbackContext) -> None
+
+CallbackContext provides:
+    .user_content   — the user's Content object (parts with .text)
+    .session        — Session object with .events list and .user_id
+    .agent_name     — name of the agent that just completed
+    .state          — session state dict
+
+Agent response is recovered from session.events: the last Event where
+    event.author == agent_name and event.is_final_response() == True.
 """
 from __future__ import annotations
 
@@ -26,39 +34,41 @@ def build_skill_learning_callback(agent_name: str):
     """
     Return an after_agent_callback coroutine bound to `agent_name`.
 
-    ADK signature: async (callback_context) -> None
+    ADK verified signature: async (*, callback_context) -> None
     """
 
-    async def skill_learning_callback(callback_context: Any) -> None:
-        """
-        After-agent hook: extract skills and persist memory.
-
-        callback_context provides:
-          - .user_content  : the user's message
-          - .agent_response: the agent's final response
-          - .session       : current ADK session (has session_id, user_id, app_name)
-        """
+    async def skill_learning_callback(*, callback_context: Any) -> None:
         try:
-            # ── 1. Collect text from the interaction ───────────────────────────
+            # ── 1. Extract user text from CallbackContext.user_content ─────────
             user_text = _extract_text(callback_context.user_content)
-            agent_text = _extract_text(
-                getattr(callback_context, "agent_response", None)
+
+            # ── 2. Extract agent text from session.events ─────────────────────
+            # CallbackContext has no agent_response field — the agent's final
+            # reply lives in session.events as the last Event authored by this
+            # agent where is_final_response() is True.
+            agent_text = _extract_agent_response(
+                callback_context.session, agent_name
+            )
+
+            logger.debug(
+                "skill_learning_callback fired: agent=%s user=%r agent=%r",
+                agent_name,
+                user_text[:80] if user_text else None,
+                agent_text[:80] if agent_text else None,
             )
 
             if not user_text or not agent_text:
+                logger.debug(
+                    "skill_learning_callback: skipping — empty user_text or agent_text"
+                )
                 return
 
-            # ── 2. Fire-and-forget skill extraction ────────────────────────────
-            # asyncio.create_task schedules _learn_in_background without awaiting it,
-            # so the user response returns immediately while learning happens in the
-            # background on the same event loop.
+            # ── 3. Fire-and-forget skill extraction ───────────────────────────
             asyncio.create_task(
                 _learn_in_background(agent_name, user_text, agent_text)
             )
 
-            # ── 3. Persist to VertexAiMemoryBank (official native API) ─────────
-            # Fire-and-forget alongside skill extraction so the response path
-            # is never blocked by memory writes.
+            # ── 4. Fire-and-forget memory persistence ─────────────────────────
             asyncio.create_task(
                 _persist_to_memory_bank(
                     agent_name=agent_name,
@@ -74,6 +84,32 @@ def build_skill_learning_callback(agent_name: str):
     return skill_learning_callback
 
 
+def _extract_agent_response(session: Any, agent_name: str) -> str:
+    """
+    Walk session.events in reverse to find the last final response from agent_name.
+
+    Event fields (verified):
+        .author            — str, name of the agent/model that produced this event
+        .is_final_response() — bool method
+        .content           — Optional[Content] with .parts list
+    """
+    events = getattr(session, "events", None) or []
+    for event in reversed(events):
+        author = getattr(event, "author", None)
+        if author != agent_name:
+            continue
+        try:
+            is_final = event.is_final_response()
+        except Exception:
+            is_final = False
+        if not is_final:
+            continue
+        text = _extract_text(getattr(event, "content", None))
+        if text:
+            return text
+    return ""
+
+
 async def _persist_to_memory_bank(
     agent_name: str,
     user_text: str,
@@ -86,8 +122,9 @@ async def _persist_to_memory_bank(
         bank = build_memory_bank()
         if bank is None:
             return
-        session = callback_context.session
-        user_id = getattr(session, "user_id", "anonymous")
+        user_id = getattr(callback_context, "user_id", None) or getattr(
+            callback_context.session, "user_id", "anonymous"
+        )
         await bank.generate_memories(
             user_id=user_id,
             user_text=user_text,
@@ -96,7 +133,6 @@ async def _persist_to_memory_bank(
         )
     except Exception:  # noqa: BLE001
         logger.exception("MemoryBank persistence failed — no memory written.")
-
 
 
 async def _learn_in_background(
@@ -125,10 +161,9 @@ def _extract_text(content: Any) -> str:
         return ""
     if isinstance(content, str):
         return content
-    # ADK Content has .parts list
     parts = getattr(content, "parts", None)
     if parts:
         return " ".join(
             getattr(part, "text", "") for part in parts if hasattr(part, "text")
-        )
+        ).strip()
     return str(content)

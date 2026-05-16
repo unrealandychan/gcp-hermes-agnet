@@ -41,6 +41,14 @@ class _FakeLoopAgent:
         self.name = name
 
 
+class _FakeParallelAgent:
+    """Lightweight stand-in for google.adk.agents.ParallelAgent."""
+    def __init__(self, *, name="", description="", sub_agents=None, **_kw):
+        self.name = name
+        self.description = description
+        self.sub_agents = list(sub_agents or [])
+
+
 # ── google.auth ────────────────────────────────────────────────────────────────
 _google_auth = _make_module("google.auth", default=MagicMock())
 _google_auth_transport = _make_module("google.auth.transport")
@@ -53,6 +61,7 @@ _adk_agents = _make_module(
     "google.adk.agents",
     LlmAgent=_FakeLlmAgent,
     LoopAgent=_FakeLoopAgent,
+    ParallelAgent=_FakeParallelAgent,
 )
 _adk_tools = _make_module(
     "google.adk.tools",
