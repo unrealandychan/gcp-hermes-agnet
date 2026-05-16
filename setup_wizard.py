@@ -304,24 +304,34 @@ def bootstrap_gcp(cfg: dict[str, str]) -> None:
 
     # ── Reasoning Engine SA ──────────────────────────────────────────────────
     # The Reasoning Engine runtime uses a Google-managed SA that needs
-    # aiplatform.user to access RAG corpora.
-    step("Granting aiplatform.user to Reasoning Engine runtime SA")
+    # permissions to access RAG corpora, BigQuery, and other services.
+    step("Granting roles to Reasoning Engine runtime SA")
+    _RE_SA_ROLES = [
+        "roles/aiplatform.user",
+        "roles/bigquery.dataViewer",
+        "roles/bigquery.jobUser",
+        "roles/storage.objectViewer",
+        "roles/secretmanager.secretAccessor",
+        "roles/logging.logWriter",
+        "roles/datastore.user",
+    ]
     try:
         project_number = gcloud(
             "projects", "describe", project,
             "--format=value(projectNumber)",
         ).strip()
         re_sa = f"service-{project_number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
-        gcloud(
-            "projects", "add-iam-policy-binding", project,
-            f"--member=serviceAccount:{re_sa}",
-            "--role=roles/aiplatform.user",
-            "--condition=None",
-            "--quiet",
-        )
-        ok(f"Granted roles/aiplatform.user to {re_sa}")
+        for role in _RE_SA_ROLES:
+            gcloud(
+                "projects", "add-iam-policy-binding", project,
+                f"--member=serviceAccount:{re_sa}",
+                f"--role={role}",
+                "--condition=None",
+                "--quiet",
+            )
+        ok(f"Granted {len(_RE_SA_ROLES)} roles to {re_sa}")
     except Exception as exc:  # noqa: BLE001
-        warn(f"Could not grant Reasoning Engine SA role: {exc}")
+        warn(f"Could not grant Reasoning Engine SA roles: {exc}")
         warn("Run manually: gcloud projects add-iam-policy-binding ... roles/aiplatform.user")
 
     # ── Firestore ────────────────────────────────────────────────────────────
