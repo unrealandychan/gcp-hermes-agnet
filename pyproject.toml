@@ -1,7 +1,43 @@
 [project]
 name = "hermes-gcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "This package provides a set of tools and utilities for working with Google Cloud Platform (GCP) services. It includes functions for authentication, managing resources, and interacting with various GCP APIs."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+	"google-cloud-aiplatform[agent_engines,adk]>=1.112",
+	"google-adk>=0.5.0",
+	"litellm>=1.40.0",
+	"openai>=1.35.0",
+	"anthropic>=0.30.0",
+	"google-cloud-bigquery>=3.25.0",
+	"google-cloud-storage>=2.18.0",
+	"google-cloud-secret-manager>=2.20.0",
+	"google-cloud-logging>=3.10.0",
+	"google-cloud-firestore>=2.16.0",
+	"google-cloud-scheduler>=2.13.0",
+	"google-api-python-client>=2.130.0",
+	"google-auth>=2.29.0",
+	"google-auth-httplib2>=0.2.0",
+	"fastapi>=0.115.0",
+	"uvicorn[standard]>=0.30.0",
+	"pydantic>=2.7.0",
+	"pydantic-settings>=2.3.0",
+	"sse-starlette>=2.1.0",
+	"python-jose[cryptography]>=3.3.0",
+	"httpx>=0.27.0",
+	"slack-sdk>=3.27.0",
+	"slowapi>=0.1.9",
+	"cachetools>=5.3.0",
+	"opentelemetry-sdk>=1.24.0",
+	"opentelemetry-exporter-gcp-trace>=1.6.0",
+	"opentelemetry-instrumentation-fastapi>=0.45b0",
+	"mcp>=1.0.0",
+	"python-dotenv>=1.0.0",
+	"structlog>=24.2.0",
+	"tenacity>=8.3.0",
+	"uuid6>=2024.1.12",
+	"pytest>=8.0.0",
+	"pytest-asyncio>=0.23.0",
+	"pytest-mock>=3.14.0",
+]
