@@ -54,6 +54,33 @@ tests/
 
 ---
 
+## Multi-Agent Collaboration
+
+TaskAgent is a multi-domain planner that decomposes requests spanning several
+domains and delegates each sub-task to the appropriate specialist agent.
+
+```
+Orchestrator
+  └── TaskAgent (planner)
+        ├── AnalyticsAgent   — BigQuery, data, dashboards
+        ├── HRAgent          — policies, PTO, onboarding
+        ├── ITHelpdeskAgent  — incidents, access, runbooks
+        └── DeveloperAgent   — code, debugging, infra
+```
+
+TaskAgent is built **after** all specialist agents by `agents/orchestrator.py`,
+which injects the specialists as `sub_agents`.  Do **not** register TaskAgent
+in `agents/loader.py _CUSTOM_BUILDERS` — it is handled separately.
+
+To add a new specialist to the collaboration:
+1. Add it to `agents.yaml` (or create a custom builder + register it).
+2. That's it — `orchestrator.py` automatically includes every non-TaskAgent
+   agent in the `specialist_agents` list passed to `build_task_agent`.
+
+Full documentation: `docs/multi-agent-collaboration.md`
+
+---
+
 ## How to Add a New Sub-Agent
 
 The preferred approach: **edit `agents.yaml` only** — no Python required.

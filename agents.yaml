@@ -25,9 +25,9 @@ agents:
     tools: [search, storage, code_sandbox, mcp_filesystem, mcp_sse]
 
   - name: TaskAgent
-    description: "Multi-step task planning and execution across other agents"
+    description: "Multi-step tasks requiring collaboration across Analytics, HR, IT, and Developer agents"
     model: ${AGENT_MODEL_TASK_PLANNER:-gemini-2.5-flash}
-    tools: [search]
+    tools: []
 
   # ── Add your custom agents below ──────────────────────────────────────────
   # Example:

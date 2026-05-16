@@ -109,14 +109,15 @@ def _custom_builders() -> dict[str, Callable[[Settings], LlmAgent]]:
     from agents.developer import build_developer_agent
     from agents.hr import build_hr_agent
     from agents.it_helpdesk import build_it_helpdesk_agent
-    from agents.task_agent import build_task_agent
 
     return {
         "AnalyticsAgent": build_analytics_agent,
         "ITHelpdeskAgent": build_it_helpdesk_agent,
         "HRAgent": build_hr_agent,
         "DeveloperAgent": build_developer_agent,
-        "TaskAgent": build_task_agent,
+        # TaskAgent is intentionally omitted here.  It is built by
+        # agents/orchestrator.py AFTER all specialist agents are available
+        # so that the specialists can be injected as its sub_agents.
     }
 
 

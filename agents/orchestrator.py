@@ -9,10 +9,14 @@ No routing code needed: ADK generates transfer_to_agent() calls automatically.
 
 Sub-agents are loaded dynamically from agents.yaml via AgentLoader.
 To add a new agent, edit agents.yaml — no Python changes required.
+
+TaskAgent is built separately after all specialist agents are loaded so that
+the specialist agents can be injected as its sub_agents.
 """
 from google.adk.agents import LlmAgent
 
 from agents.loader import build_agents_from_yaml
+from agents.task_agent import build_task_agent
 from config import Settings
 from models.provider import get_model
 
@@ -29,7 +33,18 @@ Rules:
 
 
 def build_orchestrator(settings: Settings) -> LlmAgent:
-    sub_agents = build_agents_from_yaml(settings)
+    # Build all agents from YAML — TaskAgent is included in the YAML but will
+    # be rebuilt below with specialist agents injected, so we separate it out.
+    all_agents = build_agents_from_yaml(settings)
+
+    # Partition: specialists vs. the placeholder TaskAgent from YAML
+    specialist_agents = [a for a in all_agents if a.name != "TaskAgent"]
+
+    # Build TaskAgent with the specialists injected as sub_agents
+    task_agent = build_task_agent(settings, specialist_agents)
+
+    # Final sub-agent list for the orchestrator
+    sub_agents = specialist_agents + [task_agent]
 
     return LlmAgent(
         name="Orchestrator",
