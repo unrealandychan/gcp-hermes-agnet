@@ -204,14 +204,22 @@ def delete_gcs_bucket(bucket: str) -> None:
         skip("GCP_STAGING_BUCKET not set in .env")
         return
     bucket_uri = bucket if bucket.startswith("gs://") else f"gs://{bucket}"
+    bucket_name = bucket_uri.removeprefix("gs://")
     step(f"Deleting GCS bucket (all objects + bucket): {bucket_uri} …")
-    # -m parallel delete all objects first
-    gsutil("-m", "rm", "-r", bucket_uri)
-    result = gsutil("rb", bucket_uri)
-    if result is not None:
+    try:
+        from google.cloud import storage
+        from google.api_core.exceptions import NotFound
+        client = storage.Client()
+        b = client.bucket(bucket_name)
+        blobs = list(client.list_blobs(bucket_name))
+        if blobs:
+            b.delete_blobs(blobs)
+        b.delete()
         ok(f"Bucket deleted: {bucket_uri}")
-    else:
+    except NotFound:
         warn(f"Bucket may not exist or already deleted: {bucket_uri}")
+    except Exception as exc:  # noqa: BLE001
+        warn(f"Could not delete bucket {bucket_uri}: {exc}")
 
 
 def delete_firestore(project: str) -> None:
