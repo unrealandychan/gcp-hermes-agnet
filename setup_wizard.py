@@ -184,7 +184,7 @@ def gather_config(env_path: Path) -> dict[str, str]:
     existing_region = read_env_value(env_path, "GCP_LOCATION") or ""
     region = ask(
         "GCP Region",
-        default=existing_region or "us-central1",
+        default=existing_region or "asia-southeast1",
     )
 
     print(textwrap.dedent(f"""

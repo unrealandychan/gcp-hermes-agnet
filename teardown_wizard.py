@@ -359,7 +359,7 @@ def main() -> None:
         err("Project ID is required. Aborting.")
         sys.exit(1)
 
-    region = env.get("GCP_LOCATION", "us-central1").strip()
+    region = env.get("GCP_LOCATION", "asia-southeast1").strip()
 
     # ── Resolve resource names ─────────────────────────────────────────────────
     reasoning_engine = env.get("REASONING_ENGINE_RESOURCE_NAME", "")

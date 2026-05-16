@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     # GCP Core
     gcp_project_id: str = "hermes-agent-prod"
-    gcp_location: str = "us-central1"
+    gcp_location: str = "asia-southeast1"
     gcp_staging_bucket: str = "gs://hermes-agent-artifacts"
 
     # Agent Runtime
@@ -85,7 +85,7 @@ class Settings(BaseSettings):
     # Example: https://hermes-gateway-abc123-uc.a.run.app
     gateway_url: str = ""
     # GCP location for Cloud Scheduler jobs — must match Cloud Run region.
-    scheduler_location: str = "us-central1"
+    scheduler_location: str = "asia-southeast1"
     # Service account email used for OIDC token on scheduler → gateway calls.
     # Must be the same SA running the Cloud Run service (or a dedicated one).
     scheduler_service_account: str = ""
