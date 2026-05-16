@@ -135,7 +135,7 @@ def get_settings():
     except Exception:  # noqa: BLE001
         class _FakeSettings:  # noqa: B024
             gcp_project_id = os.environ.get("GCP_PROJECT_ID", "hermes-agent-prod")
-            gcp_location = os.environ.get("GCP_LOCATION", "us-central1")
+            gcp_location = os.environ.get("GCP_LOCATION", "asia-southeast1")
             knowledge_corpus_name = os.environ.get("KNOWLEDGE_CORPUS_NAME", "")
             skills_corpus_name = os.environ.get("SKILLS_CORPUS_NAME", "")
         return _FakeSettings()
