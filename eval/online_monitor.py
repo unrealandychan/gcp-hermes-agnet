@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import datetime
 import os
+from config import get_settings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -57,7 +58,10 @@ async def log_quality_score(
 
 def build_online_monitor() -> MonitorConfig | None:
     """Returns a MonitorConfig if GCP_PROJECT_ID is set, else None."""
-    project_id = os.environ.get("GCP_PROJECT_ID")
-    if not project_id:
+    try:
+        settings = get_settings()
+        if not settings.gcp_project_id:
+            return None
+        return MonitorConfig(project_id=settings.gcp_project_id)
+    except Exception:  # noqa: BLE001
         return None
-    return MonitorConfig(project_id=project_id)

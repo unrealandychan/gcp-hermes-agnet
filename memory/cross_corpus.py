@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass, field
 from typing import Any
@@ -60,7 +61,7 @@ def _deduplicate(contexts: list[RetrievedContext]) -> list[RetrievedContext]:
     return unique
 
 
-def retrieve_cross_corpus(
+async def retrieve_cross_corpus(
     query: str,
     corpora: list[Any],
     top_k: int = 5,
@@ -79,8 +80,10 @@ def retrieve_cross_corpus(
         return []
 
     all_results: list[RetrievedContext] = []
-    for corpus in corpora:
-        all_results.extend(_query_corpus(corpus, query, top_k))
+    tasks = [asyncio.to_thread(_query_corpus, corpus, query, top_k) for corpus in corpora]
+    results_list = await asyncio.gather(*tasks)
+    for results in results_list:
+        all_results.extend(results)
 
     # Sort descending by score
     all_results.sort(key=lambda c: c.score, reverse=True)

@@ -15,6 +15,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from eval.metrics import EvalMetrics, score_response
 from eval.online_monitor import build_online_monitor
+from unittest.mock import patch, MagicMock
 
 
 # ── score_response tests ──────────────────────────────────────────────────────
@@ -76,15 +77,19 @@ def test_empty_keywords_gives_full_groundedness():
 
 # ── online_monitor tests ──────────────────────────────────────────────────────
 
-def test_build_online_monitor_returns_none_when_no_project(monkeypatch):
-    monkeypatch.delenv("GCP_PROJECT_ID", raising=False)
-    result = build_online_monitor()
+def test_build_online_monitor_returns_none_when_no_project():
+    mock_settings = MagicMock()
+    mock_settings.gcp_project_id = ""
+    with patch("eval.online_monitor.get_settings", return_value=mock_settings):
+        result = build_online_monitor()
     assert result is None
 
 
-def test_build_online_monitor_returns_config_when_project_set(monkeypatch):
-    monkeypatch.setenv("GCP_PROJECT_ID", "my-test-project")
-    result = build_online_monitor()
+def test_build_online_monitor_returns_config_when_project_set():
+    mock_settings = MagicMock()
+    mock_settings.gcp_project_id = "my-test-project"
+    with patch("eval.online_monitor.get_settings", return_value=mock_settings):
+        result = build_online_monitor()
     assert result is not None
     assert result.project_id == "my-test-project"
     assert result.dataset_id == "hermes_eval"

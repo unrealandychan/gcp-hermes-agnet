@@ -42,6 +42,7 @@ from gateway.auth import CurrentUser
 from gateway import tasks as task_store
 from gateway.observability import agent_span, instrument_fastapi, setup_tracing
 from tools.model_armor import screen_prompt
+from governance.policy_engine import PolicyEngine, PolicyResult, build_policy_engine
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,7 @@ limiter = Limiter(key_func=get_remote_address)
 # ── App lifecycle ──────────────────────────────────────────────────────────────
 
 _runner: Runner | None = None
+_policy_engine: PolicyEngine | None = None
 
 
 @asynccontextmanager
@@ -79,6 +81,12 @@ async def lifespan(app: FastAPI):
         session_service=session_service,
     )
     logger.info("Hermes gateway started. App: %s", app_name)
+    global _policy_engine  # noqa: PLW0603
+    _policy_engine = build_policy_engine()
+    if _policy_engine:
+        logger.info("PolicyEngine loaded %d rules.", len(_policy_engine.rules))
+    else:
+        logger.warning("PolicyEngine unavailable — governance checks disabled.")
     yield
     logger.info("Hermes gateway shutting down.")
 
@@ -159,6 +167,15 @@ async def chat(
             detail=f"Message blocked by safety policy: {armor.reason}",
         )
 
+    # ── Governance: check prompt against semantic policies ─────────────────────
+    if _policy_engine:
+        prompt_policy = _policy_engine.check_prompt("Orchestrator", body.message)
+        if prompt_policy.action == "block":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Request blocked by governance policy: {prompt_policy.reason}",
+            )
+
     # Re-use existing session or create a new one
     session_id = body.session_id
     if not session_id:
@@ -195,6 +212,15 @@ async def _stream_agent(
                         text = "".join(
                             getattr(p, "text", "") for p in event.content.parts
                         )
+                    # ── Governance: check response ─────────────────────────────
+                    if _policy_engine:
+                        resp_policy = _policy_engine.check_response("Orchestrator", text)
+                        if resp_policy.action == "block":
+                            text = "[Response blocked by governance policy]"
+                            logger.warning(
+                                "Response blocked by policy %s for user %s",
+                                resp_policy.violated_policy_id, user_id,
+                            )
                     yield _sse(ChatEvent(type="text", content=text, session_id=session_id))
 
             yield _sse(ChatEvent(type="done", session_id=session_id))

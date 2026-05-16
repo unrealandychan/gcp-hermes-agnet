@@ -44,63 +44,70 @@ def patched_rag(chunks_per_corpus: list[list[tuple[str, float]]]):
 # ---------------------------------------------------------------------------
 
 
-def test_retrieve_returns_empty_for_no_corpora():
-    result = retrieve_cross_corpus("query", corpora=[])
+@pytest.mark.asyncio
+async def test_retrieve_returns_empty_for_no_corpora():
+    result = await retrieve_cross_corpus("query", corpora=[])
     assert result == []
 
 
-def test_retrieve_single_corpus_returns_results():
+@pytest.mark.asyncio
+async def test_retrieve_single_corpus_returns_results():
     mock_rag = patched_rag([[("chunk A", 0.9), ("chunk B", 0.7)]])
     with patch("memory.cross_corpus.rag", mock_rag), patch("memory.cross_corpus._RAG_AVAILABLE", True):
-        results = retrieve_cross_corpus("test query", corpora=["corpus1"], top_k=5)
+        results = await retrieve_cross_corpus("test query", corpora=["corpus1"], top_k=5)
     assert len(results) == 2
     assert results[0].text == "chunk A"
     assert results[0].score == 0.9
 
 
-def test_retrieve_merges_multiple_corpora():
+@pytest.mark.asyncio
+async def test_retrieve_merges_multiple_corpora():
     mock_rag = patched_rag(
         [[("A", 0.8)], [("B", 0.6)]],
     )
     with patch("memory.cross_corpus.rag", mock_rag), patch("memory.cross_corpus._RAG_AVAILABLE", True):
-        results = retrieve_cross_corpus("query", corpora=["c1", "c2"], top_k=10)
+        results = await retrieve_cross_corpus("query", corpora=["c1", "c2"], top_k=10)
     texts = [r.text for r in results]
     assert "A" in texts
     assert "B" in texts
 
 
-def test_retrieve_sorts_by_score_descending():
+@pytest.mark.asyncio
+async def test_retrieve_sorts_by_score_descending():
     mock_rag = patched_rag(
         [[("low", 0.3), ("high", 0.95)], [("mid", 0.6)]],
     )
     with patch("memory.cross_corpus.rag", mock_rag), patch("memory.cross_corpus._RAG_AVAILABLE", True):
-        results = retrieve_cross_corpus("query", corpora=["c1", "c2"], top_k=10)
+        results = await retrieve_cross_corpus("query", corpora=["c1", "c2"], top_k=10)
     scores = [r.score for r in results]
     assert scores == sorted(scores, reverse=True)
 
 
-def test_retrieve_deduplicates_identical_text():
+@pytest.mark.asyncio
+async def test_retrieve_deduplicates_identical_text():
     mock_rag = patched_rag(
         [[("same text", 0.8)], [("same text", 0.7)]],
     )
     with patch("memory.cross_corpus.rag", mock_rag), patch("memory.cross_corpus._RAG_AVAILABLE", True):
-        results = retrieve_cross_corpus("query", corpora=["c1", "c2"], top_k=10)
+        results = await retrieve_cross_corpus("query", corpora=["c1", "c2"], top_k=10)
     texts = [r.text for r in results]
     assert texts.count("same text") == 1
 
 
-def test_retrieve_respects_top_k():
+@pytest.mark.asyncio
+async def test_retrieve_respects_top_k():
     mock_rag = patched_rag(
         [[("a", 0.9), ("b", 0.8), ("c", 0.7), ("d", 0.6)]],
     )
     with patch("memory.cross_corpus.rag", mock_rag), patch("memory.cross_corpus._RAG_AVAILABLE", True):
-        results = retrieve_cross_corpus("query", corpora=["c1"], top_k=2)
+        results = await retrieve_cross_corpus("query", corpora=["c1"], top_k=2)
     assert len(results) == 2
 
 
-def test_retrieve_falls_back_gracefully_when_rag_unavailable():
+@pytest.mark.asyncio
+async def test_retrieve_falls_back_gracefully_when_rag_unavailable():
     with patch("memory.cross_corpus._RAG_AVAILABLE", False), patch("memory.cross_corpus.rag", None):
-        results = retrieve_cross_corpus("query", corpora=["corpus1", "corpus2"])
+        results = await retrieve_cross_corpus("query", corpora=["corpus1", "corpus2"])
     assert results == []
 
 
