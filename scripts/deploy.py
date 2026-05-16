@@ -28,12 +28,39 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
 
+def _ensure_bucket(bucket: str, project: str, location: str) -> None:
+    """Create the GCS staging bucket if it does not exist."""
+    import subprocess
+    result = subprocess.run(
+        ["gsutil", "ls", "-b", bucket],
+        capture_output=True,
+    )
+    if result.returncode == 0:
+        logger.info("Staging bucket already exists: %s", bucket)
+        return
+    logger.info("Creating staging bucket %s in %s …", bucket, location)
+    subprocess.run(
+        ["gsutil", "mb", f"-p={project}", f"-l={location}", bucket],
+        check=True,
+    )
+    logger.info("Staging bucket created: %s", bucket)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Deploy Hermes to Agent Runtime.")
     parser.add_argument("--update", metavar="RESOURCE_NAME", help="Update existing engine.")
     args = parser.parse_args()
 
     settings = get_settings()
+
+    # Ensure staging bucket exists before vertexai.init — SDK auto-creates
+    # in wrong project if bucket is missing, causing 404 NotFound.
+    _ensure_bucket(
+        settings.gcp_staging_bucket,
+        settings.gcp_project_id,
+        settings.gcp_location,
+    )
+
     vertexai.init(
         project=settings.gcp_project_id,
         location=settings.gcp_location,
