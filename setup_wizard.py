@@ -113,7 +113,11 @@ def read_env_value(path: Path, key: str) -> str:
     for line in path.read_text().splitlines():
         line = line.strip()
         if line.startswith(key + "="):
-            return line[len(key) + 1:].strip()
+            value = line[len(key) + 1:].strip()
+            # Strip inline comments and ignore placeholder values
+            if "#" in value:
+                value = value[:value.index("#")].strip()
+            return value
     return ""
 
 
