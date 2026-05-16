@@ -21,7 +21,7 @@ import logging
 import vertexai
 from vertexai import agent_engines
 
-from agents import build_adk_app
+from agents import build_agent, build_adk_app
 from config import get_settings
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -40,11 +40,14 @@ def main() -> None:
         staging_bucket=settings.gcp_staging_bucket,
     )
 
-    adk_app = build_adk_app()
+    # build_agent() returns the raw ADK BaseAgent (orchestrator).
+    # agent_engines.AdkApp wraps it exactly once — the deploy-time wrapper.
+    # Do NOT use build_adk_app() here; that returns AdkApp already and
+    # passing AdkApp(agent=AdkApp(...)) causes Pydantic ValidationError at runtime.
+    raw_agent = build_agent()
 
-    # Wrap the ADK app in agent_engines.AdkApp (required since google-adk >= 1.x)
     wrapped_app = agent_engines.AdkApp(
-        agent=adk_app,
+        agent=raw_agent,
         enable_tracing=True,
     )
 
