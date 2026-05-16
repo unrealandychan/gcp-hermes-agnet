@@ -1,8 +1,25 @@
 # Hermes — Enterprise Agent Platform on GCP
 
+[![CI](https://github.com/unrealandychan/gcp-hermes-agnet/actions/workflows/ci.yml/badge.svg)](https://github.com/unrealandychan/gcp-hermes-agnet/actions/workflows/ci.yml)
+
 A production-grade, self-learning multi-agent system built on Google's Agent Development Kit (ADK) and Vertex AI Agent Runtime.
 
 > **Target scale:** 10 000 concurrent users · Up to 1-hour autonomous tasks · Multi-platform (Web, Telegram, Slack, Teams)
+
+---
+
+## What's New
+
+See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for the full changelog.
+
+**Latest additions:**
+- 🧠 **Memory Bank** — full CRUD via 8 native VertexAiMemoryBank methods (generate, ingest_events, fetch, retrieve_profiles, purge, create, update, delete)
+- 🛡️ **PolicyEngine** wired into every `/chat` — prompt + response governance (block/redact)
+- 🔀 **Cross-Corpus RAG** — async parallel retrieval across multiple Vertex AI RAG corpora
+- 🗑️ **Teardown wizard** — delete all PoC GCP resources in one command
+- ✅ **219 tests**, all passing — CI on GitHub Actions (Python 3.11 + 3.12)
+- 🧩 `agents.yaml` — add new agents without touching Python
+- 📚 `skills/` — write skills as Markdown files, no code required
 
 ---
 
@@ -12,24 +29,63 @@ This PoC implements all key capabilities from the [Google Cloud Enterprise Agent
 
 | Feature | Implementation | Status |
 |---|---|---|
-| **Grounded Google Search** | All 5 agents have `google_search` built-in | ✅ |
-| **Code Execution Sandbox** | `DeveloperAgent` — `BuiltInCodeExecutionTool` (Vertex AI managed sandbox) | ✅ |
-| **Model Armor** | `tools/model_armor.py` — every `/chat` prompt screened for injection, PII, toxicity | ✅ |
-| **MCP (Model Context Protocol)** | `tools/mcp_connector.py` — filesystem (stdio) + remote SSE servers | ✅ |
-| **Agent Observability (Cloud Trace)** | `gateway/observability.py` — OpenTelemetry + Cloud Trace span per request | ✅ |
+| **Grounded Google Search** | All agents have `google_search` built-in | ✅ |
+| **Code Execution Sandbox** | `DeveloperAgent` — `BuiltInCodeExecutionTool` | ✅ |
+| **Model Armor** | `tools/model_armor.py` — every `/chat` prompt screened | ✅ |
+| **MCP (Model Context Protocol)** | `tools/mcp_connector.py` | ✅ |
+| **Agent Observability (Cloud Trace)** | `gateway/observability.py` | ✅ |
+| **VertexAiMemoryBank (long-term memory)** | `memory/memory_bank.py` — generate, ingest, fetch, purge, create, update, delete, retrieve_profiles | ✅ |
+| **Agent Evaluation Service** | `eval/metrics.py`, `eval/run_eval.py`, `eval/online_monitor.py` | ✅ |
+| **Semantic Governance Policies** | `governance/policy_engine.py` wired into /chat prompt+response | ✅ |
+| **Agent Registry** | `registry/agent_registry.py`, `scripts/register_agents.py` | ✅ |
+| **Agent Gateway** | `gateway/agent_gateway.py` — governed routing with fallback | ✅ |
+| **Cross-Corpus RAG** | `memory/cross_corpus.py` — async parallel multi-corpus retrieval | ✅ |
 
 ---
 
-## What's New
+## Architecture
 
-See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for the full changelog.
-
-**Latest additions:**
-- 📋 `AGENTS.md` — onboarding guide for AI assistants and human contributors
-- 🧩 `agents.yaml` — add new agents without touching Python
-- 📚 `skills/` — write skills as Markdown files, no code required
-- 🧠 Memory split: user profile (who) vs. skills (what), with context budget guard
-- ✅ 90 tests, all passing
+```
+                   ┌──────────────────────────────────────────┐
+  Clients          │  Web Chat (Next.js)                       │
+                   │  Telegram Bot  /webhooks/telegram          │
+                   │  Slack Bot     /webhooks/slack             │
+                   │  Teams Bot     /webhooks/teams             │
+                   └──────────────┬───────────────────────────┘
+                                  │ HTTPS / SSE
+                   ┌──────────────▼───────────────────────────┐
+  API Gateway      │  FastAPI + Cloud Run                      │
+  (gateway/)       │  • Google OAuth2 JWT validation           │
+                   │  • Rate limiting (slowapi)                │
+                   │  • Model Armor prompt screening           │
+                   │  • PolicyEngine (prompt+response)         │
+                   │  • Cloud Trace spans (OpenTelemetry)      │
+                   │  • SSE streaming  POST /chat              │
+                   │  • Memory CRUD    GET/POST/DELETE /memories│
+                   │  • Long tasks     POST /tasks             │
+                   └──────────────┬───────────────────────────┘
+                                  │ VertexAiSessionService
+                   ┌──────────────▼───────────────────────────┐
+  Agent Runtime    │  Reasoning Engine (Vertex AI)             │
+  (agents/)        │                                           │
+                   │  Orchestrator (LlmAgent + Search)         │
+                   │  ├── AnalyticsAgent  → BQ, RAG, Search   │
+                   │  ├── ITHelpdeskAgent → RAG, GCS, Search  │
+                   │  ├── HRAgent         → RAG, Search       │
+                   │  ├── DeveloperAgent  → RAG, Search,      │
+                   │  │                     Code Sandbox      │
+                   │  └── TaskAgent (LoopAgent, ≤1 h)         │
+                   └──────────────┬───────────────────────────┘
+                                  │
+                   ┌──────────────▼───────────────────────────┐
+  Self-Learning    │  SkillExtractor  (LlmAgent)               │
+  (memory/)        │  Skill Store     (Vertex AI RAG)          │
+                   │  Memory Bank     (VertexAiMemoryBank)     │
+                   │  • generate/ingest (fire-and-forget)      │
+                   │  • fetch / retrieve_profiles              │
+                   │  • purge / create / update / delete       │
+                   └──────────────────────────────────────────┘
+```
 
 ---
 
@@ -57,47 +113,6 @@ Skills are loaded into the RAG corpus automatically on gateway startup.
 ### For custom agent logic
 
 See `AGENTS.md` for step-by-step instructions on adding Python builders.
-
----
-
-## Architecture
-
-```
-                   ┌──────────────────────────────────────┐
-  Clients          │  Web Chat (Next.js)                   │
-                   │  Telegram Bot  /webhooks/telegram      │
-                   │  Slack Bot     /webhooks/slack          │
-                   │  Teams Bot     /webhooks/teams          │
-                   └──────────────┬───────────────────────┘
-                                  │ HTTPS / SSE
-                   ┌──────────────▼───────────────────────┐
-  API Gateway      │  FastAPI + Cloud Run                  │
-  (gateway/)       │  • Google OAuth2 JWT validation       │
-                   │  • Rate limiting (slowapi)            │
-                   │  • Model Armor prompt screening       │
-                   │  • Cloud Trace spans (OpenTelemetry)  │
-                   │  • SSE streaming  POST /chat          │
-                   │  • Long tasks     POST /tasks         │
-                   └──────────────┬───────────────────────┘
-                                  │ VertexAiSessionService
-                   ┌──────────────▼───────────────────────┐
-  Agent Runtime    │  Reasoning Engine (Vertex AI)         │
-  (agents/)        │                                       │
-                   │  Orchestrator (LlmAgent + Search)     │
-                   │  ├── AnalyticsAgent  → BQ, RAG, Search│
-                   │  ├── ITHelpdeskAgent → RAG, GCS, Search│
-                   │  ├── HRAgent         → RAG, Search    │
-                   │  ├── DeveloperAgent  → RAG, Search,   │
-                   │  │                     Code Sandbox   │
-                   │  └── TaskAgent (LoopAgent, ≤1 h)      │
-                   └──────────────┬───────────────────────┘
-                                  │
-                   ┌──────────────▼───────────────────────┐
-  Self-Learning    │  SkillExtractor  (LlmAgent)           │
-  (memory/)        │  Skill Store     (Vertex AI RAG)      │
-                   │  Memory Bank     (VertexAiMemoryBank) │
-                   └──────────────────────────────────────┘
-```
 
 ---
 
@@ -226,7 +241,7 @@ Open [http://localhost:3000](http://localhost:3000), sign in with Google, and st
 
 ---
 
-### Step 8 — Deploy gateway to Cloud Run
+### Deploy gateway to Cloud Run
 
 ```bash
 PROJECT_ID=$(gcloud config get-value project)
@@ -384,7 +399,7 @@ Message the bot in Teams — Hermes replies via the Bot Framework REST API.
 # Temporarily comment out `await _verify_teams_token(...)` in connectors/teams.py
 curl -X POST http://localhost:8080/webhooks/teams \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer MOCK" \
+  -H "Authorization: Bearer ***" \
   -d '{
     "type": "message",
     "text": "Summarise the HR leave policy",
@@ -488,6 +503,52 @@ After every agent interaction:
 
 ---
 
+## Memory API
+
+The `/memories` endpoints expose the full VertexAiMemoryBank CRUD surface:
+
+### GET /memories/{user_id}
+
+Retrieve a user's memories and structured profile.
+
+```bash
+curl "$GATEWAY/memories/$USER_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Response:
+
+```json
+{
+  "memories": ["User prefers Python", "Team is EMEA"],
+  "profiles": [{"scope": {"user_id": "u123"}, "facts": ["Prefers Python"]}]
+}
+```
+
+### POST /memories/{user_id}
+
+Directly write a memory fact (memory-as-a-tool pattern — agent decides what to remember):
+
+```bash
+curl -X POST "$GATEWAY/memories/$USER_ID" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"fact": "User is based in Hong Kong"}'
+```
+
+### DELETE /memories/{user_id}
+
+Purge all long-term memories for the user:
+
+```bash
+curl -X DELETE "$GATEWAY/memories/$USER_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+All memory endpoints enforce owner-only access — users can only read/write/delete their own memories.
+
+---
+
 ## Project Structure
 
 ```
@@ -498,57 +559,56 @@ hermes-gcp/
 │   ├── it_helpdesk.py
 │   ├── hr.py
 │   ├── developer.py
-│   └── task_agent.py      # LoopAgent — long-running ReAct tasks (≤1 h)
-├── models/
-│   ├── __init__.py
-│   └── provider.py        # LLM provider factory (Gemini, OpenAI, Claude, Azure, Ollama…)
-├── connectors/
-│   ├── runner.py          # Shared non-streaming agent runner
-│   ├── telegram.py        # POST /webhooks/telegram
-│   ├── slack.py           # POST /webhooks/slack
-│   └── teams.py           # POST /webhooks/teams
+│   ├── task_agent.py      # LoopAgent — ReAct loop, up to 1 hour
+│   ├── loader.py          # Config-driven AgentLoader from agents.yaml
+│   └── __init__.py
 ├── gateway/
-│   ├── main.py            # FastAPI — /chat, /tasks, /sessions, /memories
-│   ├── auth.py            # Google OAuth2 JWT validation + TTL cache
-│   └── tasks.py           # Long-running task registry + GCS persistence
-├── tools/
-│   ├── bigquery_tool.py
-│   ├── storage_tool.py
-│   ├── search_tool.py
-│   ├── model_armor.py      # Model Armor prompt/response screening
-│   └── mcp_connector.py    # MCP toolset factory (filesystem + SSE)
+│   ├── main.py            # FastAPI — /chat, /memories, /tasks, /sessions
+│   ├── auth.py            # Google OAuth2 JWT validation
+│   ├── observability.py   # OpenTelemetry + Cloud Trace
+│   ├── agent_gateway.py   # Governed routing via Agent Gateway
+│   └── tasks.py           # Long-running task store
 ├── memory/
-│   ├── skill_models.py
-│   ├── skill_extractor.py
-│   ├── skill_store.py
-│   └── skill_learning.py
-├── tests/
-│   ├── conftest.py
-│   ├── tools/
-│   │   ├── test_model_armor.py
-│   │   └── test_mcp_connector.py
-│   ├── gateway/
-│   │   ├── test_observability.py
-│   │   └── test_main_chat.py
-│   └── agents/
-│       └── test_agent_builds.py
-├── docs/
-│   └── cost-estimation.md # LLM pricing + monthly cost estimates
-├── ui/                    # Next.js 14 Web Chat UI
-│   └── src/
-│       ├── app/
-│       ├── components/
-│       ├── lib/api.ts     # SSE streaming client
-│       └── types/
+│   ├── memory_bank.py     # VertexAiMemoryBank wrapper (8 methods)
+│   ├── cross_corpus.py    # Async parallel multi-corpus RAG
+│   ├── skill_loader.py    # Load skills/*.md into RAG
+│   ├── skill_learning.py  # After-agent callback — extract + persist skills
+│   ├── user_profile.py    # Firestore-backed user profile
+│   └── context_budget.py  # Token-budget memory injection
+├── governance/
+│   ├── policy_engine.py   # Semantic governance — check_prompt / check_response
+│   └── policies.yaml      # Declarative policy rules
+├── eval/
+│   ├── metrics.py         # Offline EvalMetrics scoring
+│   ├── run_eval.py        # CLI eval runner
+│   ├── online_monitor.py  # Async BigQuery quality logging
+│   └── evalsets/          # 15 test cases (Analytics, IT, HR)
+├── registry/
+│   └── agent_registry.py  # Vertex AI Agent Registry wrapper
+├── tools/
+│   ├── model_armor.py     # Prompt/response safety screening
+│   ├── mcp_connector.py   # MCP (stdio + SSE)
+│   ├── bigquery_tool.py
+│   ├── search_tool.py
+│   └── storage_tool.py
+├── connectors/
+│   ├── telegram.py
+│   ├── slack.py
+│   └── teams.py
 ├── scripts/
-│   ├── deploy.py          # Deploy to Vertex AI Agent Runtime
-│   └── setup_rag.py       # Create RAG corpora
-├── infra/
-│   ├── setup.sh           # GCP bootstrap
-│   └── clouddeploy.yaml   # Cloud Run config
-├── Dockerfile.gateway
-├── requirements.txt
-└── .env.example
+│   └── register_agents.py # Sync agents.yaml → Agent Registry
+├── skills/
+│   ├── TEMPLATE.md
+│   └── examples/          # Seed skills
+├── tests/                 # 219 tests, all offline (no GCP creds needed)
+├── .github/
+│   └── workflows/
+│       └── ci.yml         # pytest on Python 3.11 + 3.12
+├── agents.yaml            # Config-driven agent registry
+├── config.py              # Pydantic settings
+├── setup_wizard.py        # One-command GCP setup
+├── teardown_wizard.py     # One-command PoC teardown
+└── AGENTS.md              # Onboarding guide for AI assistants
 ```
 
 ---
@@ -557,13 +617,16 @@ hermes-gcp/
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `POST` | `/chat` | Bearer | SSE streaming chat |
+| `POST` | `/chat` | Bearer | SSE streaming chat (PolicyEngine: prompt+response) |
 | `GET` | `/sessions/{user_id}` | Bearer | List active sessions |
-| `DELETE` | `/memories/{user_id}` | Bearer | Clear long-term memory |
+| `GET` | `/memories/{user_id}` | Bearer | List memories + structured profile |
+| `POST` | `/memories/{user_id}` | Bearer | Write a memory fact (memory-as-a-tool) |
+| `DELETE` | `/memories/{user_id}` | Bearer | Purge all long-term memories |
 | `POST` | `/tasks` | Bearer | Submit long-running task |
 | `GET` | `/tasks` | Bearer | List your tasks |
 | `GET` | `/tasks/{task_id}` | Bearer | Poll task status + result |
 | `DELETE` | `/tasks/{task_id}` | Bearer | Cancel a task |
+| `POST` | `/scheduler/trigger` | Bearer | Manually trigger a scheduled job |
 | `POST` | `/webhooks/telegram` | Secret header | Telegram Bot webhook |
 | `POST` | `/webhooks/slack` | HMAC-SHA256 | Slack Events API webhook |
 | `POST` | `/webhooks/teams` | Bearer JWT | Teams Bot Framework webhook |
@@ -574,7 +637,7 @@ Interactive docs: `GET /docs` (Swagger UI).
 
 ## Testing
 
-Tests run fully offline — no GCP credentials or network calls required. All external services (Model Armor, ADK, Cloud Trace) are mocked.
+Tests run fully offline — no GCP credentials or network calls required. All external services (Model Armor, ADK, Cloud Trace, Memory Bank) are mocked.
 
 ### Install test dependencies
 
@@ -597,6 +660,11 @@ pytest tests/gateway/test_main_chat.py -v
 pytest tests/agents/test_agent_builds.py -v
 ```
 
+### CI
+
+GitHub Actions runs `pytest` on **Python 3.11 and 3.12** on every push and PR to `main`.
+See `.github/workflows/ci.yml`.
+
 ### Test coverage by module
 
 | Module | Test file | Coverage areas |
@@ -604,8 +672,12 @@ pytest tests/agents/test_agent_builds.py -v
 | `tools/model_armor.py` | `tests/tools/test_model_armor.py` | `_parse`, `screen_prompt`, `screen_response`, timeout/404/disabled |
 | `tools/mcp_connector.py` | `tests/tools/test_mcp_connector.py` | filesystem toolset, SSE toolset, `get_configured_mcp_tools`, auth header, ImportError fallback |
 | `gateway/observability.py` | `tests/gateway/test_observability.py` | `_NoopTracer`, `_NoopSpan`, `get_tracer`, `setup_tracing` (with/without packages), `instrument_fastapi`, `agent_span` |
-| `gateway/main.py` `/chat` | `tests/gateway/test_main_chat.py` | Model Armor block → 400, allowed prompt → 200, no runner → 503, session auth |
-| `agents/` | `tests/agents/test_agent_builds.py` | All 5 agent builder functions — correct name, tools list, sub-agents |
+| `gateway/main.py` `/chat` | `tests/gateway/test_main_chat.py` | Model Armor block → 400, PolicyEngine block → 400, allowed prompt → 200, no runner → 503, session auth |
+| `agents/` | `tests/agents/test_agent_builds.py` | All agent builder functions — correct name, tools list, sub-agents |
+| `memory/memory_bank.py` | `tests/memory/test_memory_bank.py` | generate, ingest_events, fetch, retrieve_profiles, purge, create, update, delete, graceful degradation |
+| `memory/cross_corpus.py` | `tests/memory/test_cross_corpus.py` | async parallel retrieval, asyncio.gather + asyncio.to_thread |
+| `governance/policy_engine.py` | `tests/governance/test_policy_engine.py` | check_prompt (block), check_response (redact), policy loading |
+| `eval/` | `tests/eval/` | metrics scoring, online monitor BigQuery logging, get_settings() usage |
 
 ---
 
@@ -624,4 +696,4 @@ Configured for 10 000 concurrent users:
 - Auth token cache: `TTLCache(maxsize=50_000, ttl=300)` — avoids re-validating the same JWT on every request.
 - GCP client singletons: `@lru_cache` on BigQuery and GCS clients — one instance per process.
 - Rate limit: 20 chat requests/min per IP via `slowapi`, 5 task submissions/min.
-
+- Memory Bank initialized in gateway lifespan — graceful degradation if `MEMORY_BANK_RESOURCE_NAME` not set.
