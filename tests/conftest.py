@@ -13,7 +13,7 @@ from __future__ import annotations
 import os
 import sys
 import types
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 # ── Make sure project root is importable ───────────────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -249,8 +249,3 @@ _register_all()
 
 # ── Pre-import project modules so patch() can resolve dotted targets ───────────
 # These imports run successfully because all heavy deps are now stubbed above.
-import models.provider  # noqa: E402
-import tools.bigquery_tool  # noqa: E402
-import tools.search_tool  # noqa: E402
-import tools.storage_tool  # noqa: E402
-import memory.skill_learning  # noqa: E402

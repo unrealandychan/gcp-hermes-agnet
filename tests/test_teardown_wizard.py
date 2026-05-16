@@ -10,9 +10,8 @@ import json
 import sys
 from pathlib import Path
 from subprocess import CalledProcessError
-from unittest.mock import MagicMock, call, mock_open, patch
+from unittest.mock import MagicMock, patch
 
-import pytest
 
 # Add project root to path so teardown_wizard is importable
 sys.path.insert(0, str(Path(__file__).parent.parent))

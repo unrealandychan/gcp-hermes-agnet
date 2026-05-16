@@ -18,7 +18,6 @@ Web UI using Server-Sent Events (SSE).
 """
 from __future__ import annotations
 
-import asyncio
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -44,7 +43,7 @@ from gateway.auth import CurrentUser
 from gateway import tasks as task_store
 from gateway.observability import agent_span, instrument_fastapi, setup_tracing
 from tools.model_armor import screen_prompt
-from governance.policy_engine import PolicyEngine, PolicyResult, build_policy_engine
+from governance.policy_engine import PolicyEngine, build_policy_engine
 from memory.memory_bank import HermesMemoryBank, build_memory_bank
 
 logger = logging.getLogger(__name__)
@@ -463,7 +462,6 @@ def _verify_scheduler_oidc_token(token: str) -> None:
     Verify a Google OIDC token and confirm it was issued for our service account.
     Raises HTTPException 401/403 on failure.
     """
-    from cachetools import TTLCache  # noqa: PLC0415
     from google.auth.transport import requests as google_requests  # noqa: PLC0415
     from google.oauth2 import id_token  # noqa: PLC0415
 

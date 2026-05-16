@@ -30,9 +30,6 @@ SAFETY:
 from __future__ import annotations
 
 import json
-import os
-import re
-import shutil
 import sys
 from pathlib import Path
 from subprocess import CalledProcessError, run as _run
@@ -144,7 +141,7 @@ def delete_reasoning_engine(resource_name: str) -> None:
             )
             ok(f"Reasoning Engine deleted: {engine_id}")
         else:
-            warn(f"Unexpected resource name format — trying direct delete")
+            warn("Unexpected resource name format — trying direct delete")
             gcloud("ai", "reasoning-engines", "delete", resource_name, "--quiet", check=False)
     except CalledProcessError as e:
         warn(f"Could not delete Reasoning Engine: {e.stderr or e}")
@@ -307,7 +304,7 @@ _REQUIRED_APIS = [
 
 def disable_apis(project: str) -> None:
     header("GCP APIs (optional)")
-    print(f"\n  APIs that were enabled by setup_wizard:\n")
+    print("\n  APIs that were enabled by setup_wizard:\n")
     for api in _REQUIRED_APIS:
         print(f"    - {api}")
     print()

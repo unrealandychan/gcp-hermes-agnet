@@ -7,10 +7,8 @@ All network calls are mocked — no real HTTP or GCP required.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 
 from gateway.agent_gateway import (
     AgentGatewayClient,

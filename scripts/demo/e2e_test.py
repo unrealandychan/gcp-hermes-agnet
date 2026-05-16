@@ -31,8 +31,8 @@ import os
 import subprocess
 import sys
 import time
-from dataclasses import dataclass, field
-from typing import Any, AsyncIterator
+from dataclasses import dataclass
+from typing import Any
 
 import httpx
 

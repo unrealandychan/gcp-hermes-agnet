@@ -17,7 +17,6 @@ behaviour) so local dev and CI require no extra setup.
 """
 from __future__ import annotations
 
-import asyncio
 import logging
 from dataclasses import dataclass, field
 from typing import Any, AsyncIterator

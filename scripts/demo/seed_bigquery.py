@@ -303,11 +303,11 @@ def main() -> None:
     seed_table(client, "pto_requests",      PTO_SCHEMA,       PTO_REQUESTS)
     seed_table(client, "project_tracker",   PROJECTS_SCHEMA,  PROJECTS)
 
-    print(f"\nDone! Query your data:\n")
+    print("\nDone! Query your data:\n")
     print(f"  SELECT * FROM `{client.project}.{DATASET}.employees` LIMIT 5;")
-    print(f"  SELECT department, COUNT(*) as headcount")
+    print("  SELECT department, COUNT(*) as headcount")
     print(f"    FROM `{client.project}.{DATASET}.employees`")
-    print(f"    GROUP BY department ORDER BY headcount DESC;")
+    print("    GROUP BY department ORDER BY headcount DESC;")
     print()
 
 

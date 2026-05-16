@@ -8,10 +8,8 @@ or Node.js installed.
 """
 from __future__ import annotations
 
-import logging
 from unittest.mock import MagicMock, patch
 
-import pytest
 
 from tools.mcp_connector import (
     get_configured_mcp_tools,
@@ -50,7 +48,6 @@ class TestMakeFilesystemMcpToolset:
             pass  # tested inline below
 
         # Simulate ImportError directly
-        import importlib, sys
         # Block the import
         with patch.dict("sys.modules", {"google.adk.tools.mcp_tool": None}):
             result = make_filesystem_mcp_toolset("/data/shared")

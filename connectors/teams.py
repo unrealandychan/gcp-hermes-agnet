@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import logging
 import time
-from functools import lru_cache
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request, status

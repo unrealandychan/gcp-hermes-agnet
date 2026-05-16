@@ -1,8 +1,6 @@
 """Unit tests for eval metrics — fully offline."""
 from __future__ import annotations
 
-import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -13,7 +11,7 @@ import pytest
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from eval.metrics import EvalMetrics, score_response
+from eval.metrics import score_response
 from eval.online_monitor import build_online_monitor
 from unittest.mock import patch, MagicMock
 

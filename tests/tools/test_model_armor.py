@@ -9,10 +9,9 @@ offline with no GCP credentials required.
 from __future__ import annotations
 
 import pytest
-import pytest_asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from tools.model_armor import ArmorResult, _parse, screen_prompt, screen_response
+from tools.model_armor import _parse, screen_prompt, screen_response
 
 
 # ── _parse ─────────────────────────────────────────────────────────────────────
@@ -147,7 +146,6 @@ class TestScreenPrompt:
 
     @pytest.mark.asyncio
     async def test_404_template_not_found_allows_through(self):
-        import httpx
         with (
             patch("tools.model_armor.get_settings") as mock_settings,
             patch("asyncio.to_thread", new=AsyncMock(return_value="fake-token")),

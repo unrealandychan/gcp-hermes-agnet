@@ -34,7 +34,6 @@ class HermesAgentRegistry:
     def _vertex_register(self, record: AgentRecord) -> str:
         """Synchronous Vertex AI register call (run in thread)."""
         try:
-            from vertexai.preview import reasoning_engines  # type: ignore
 
             # The real SDK call would be something like:
             # reasoning_engines.AgentRegistry.register(...)

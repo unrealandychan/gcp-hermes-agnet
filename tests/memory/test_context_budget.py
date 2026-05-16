@@ -5,7 +5,6 @@ Unit tests for memory.context_budget — fully offline, no GCP required.
 """
 from __future__ import annotations
 
-import pytest
 
 
 def _make_skill(skill_id: str, trigger: str = "some trigger", steps: int = 3):
