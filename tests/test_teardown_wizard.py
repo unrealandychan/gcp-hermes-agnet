@@ -136,21 +136,25 @@ class TestDeleteMemoryBank:
 
 class TestDeleteGcsBucket:
     def test_skips_when_empty(self):
-        with patch("teardown_wizard.gsutil") as mock_gsutil:
+        with patch("teardown_wizard._gcs_storage") as mock_storage:
             tw.delete_gcs_bucket("")
-            mock_gsutil.assert_not_called()
+            mock_storage.Client.assert_not_called()
 
     def test_adds_gs_prefix_if_missing(self):
-        with patch("teardown_wizard.gsutil") as mock_gsutil:
+        mock_client = MagicMock()
+        mock_client.list_blobs.return_value = []
+        with patch("teardown_wizard._gcs_storage") as mock_storage:
+            mock_storage.Client.return_value = mock_client
             tw.delete_gcs_bucket("my-bucket")
-            rm_call = mock_gsutil.call_args_list[0]
-            assert "gs://my-bucket" in rm_call.args
+            mock_client.bucket.assert_called_once_with("my-bucket")
 
     def test_uses_existing_gs_prefix(self):
-        with patch("teardown_wizard.gsutil") as mock_gsutil:
+        mock_client = MagicMock()
+        mock_client.list_blobs.return_value = []
+        with patch("teardown_wizard._gcs_storage") as mock_storage:
+            mock_storage.Client.return_value = mock_client
             tw.delete_gcs_bucket("gs://my-bucket")
-            rm_call = mock_gsutil.call_args_list[0]
-            assert "gs://my-bucket" in rm_call.args
+            mock_client.bucket.assert_called_once_with("my-bucket")
 
 
 # ── delete_service_account ─────────────────────────────────────────────────────
