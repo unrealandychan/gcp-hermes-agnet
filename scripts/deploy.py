@@ -20,7 +20,6 @@ import logging
 
 import vertexai
 from vertexai import agent_engines
-from vertexai.preview.reasoning_engines import AdkApp
 
 from agents import build_adk_app
 from config import get_settings
@@ -35,7 +34,11 @@ def main() -> None:
     args = parser.parse_args()
 
     settings = get_settings()
-    vertexai.init(project=settings.gcp_project_id, location=settings.gcp_location)
+    vertexai.init(
+        project=settings.gcp_project_id,
+        location=settings.gcp_location,
+        staging_bucket=settings.gcp_staging_bucket,
+    )
 
     adk_app = build_adk_app()
 
@@ -59,9 +62,6 @@ def main() -> None:
     deploy_config = {
         "display_name": "Hermes Enterprise Agent",
         "description": "Multi-domain enterprise agent with self-learning capabilities.",
-        "staging_bucket": settings.gcp_staging_bucket,
-        "min_replicas": 1,
-        "max_replicas": 50,
     }
 
     if args.update:
