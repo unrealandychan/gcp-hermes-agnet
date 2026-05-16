@@ -53,13 +53,13 @@ class Settings(BaseSettings):
     #   anthropic/claude-3-5-haiku-20241022 → Cheap Claude option
     #   azure/my-gpt4o-deployment     → Azure OpenAI via LiteLLM
     #   ollama/llama3                 → Local Ollama (dev/testing only)
-    agent_model_orchestrator: str = "gemini-2.0-flash"
-    agent_model_analytics: str = "gemini-2.0-flash"
-    agent_model_it_helpdesk: str = "gemini-2.0-flash"
-    agent_model_hr: str = "gemini-2.0-flash"
-    agent_model_developer: str = "gemini-2.0-flash"
-    agent_model_task_planner: str = "gemini-2.0-flash"
-    agent_model_task_executor: str = "gemini-2.0-flash"
+    agent_model_orchestrator: str = "gemini-2.5-flash"
+    agent_model_analytics: str = "gemini-2.5-flash"
+    agent_model_it_helpdesk: str = "gemini-2.5-flash"
+    agent_model_hr: str = "gemini-2.5-flash"
+    agent_model_developer: str = "gemini-2.5-flash"
+    agent_model_task_planner: str = "gemini-2.5-flash"
+    agent_model_task_executor: str = "gemini-2.5-flash"
     # SkillExtractor runs on every turn — use a lightweight model to cut costs
     agent_model_skill_extractor: str = "gemini-2.5-flash-lite"
 
