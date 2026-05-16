@@ -295,7 +295,7 @@ def bootstrap_gcp(cfg: dict[str, str]) -> None:
             "projects", "add-iam-policy-binding", project,
             f"--member=serviceAccount:{sa_email}",
             f"--role={role}",
-            "--condition=None",
+            "--no-condition",
             "--quiet",
         )
     ok(f"Granted {len(_SA_ROLES)} roles to {sa_email}")
