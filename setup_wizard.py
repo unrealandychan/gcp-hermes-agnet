@@ -347,16 +347,21 @@ def setup_rag(cfg: dict[str, str], env_path: Path) -> None:
         publisher_model="publishers/google/models/text-embedding-004"
     )
 
+    # Switch to Serverless mode first (required for new projects in us-central1)
+    try:
+        rag_cfg_name = f"projects/{cfg['project_id']}/locations/{cfg['region']}/ragEngineConfig"
+        rag.rag_data.update_rag_engine_config(rag_engine_config=rag.RagEngineConfig(
+            name=rag_cfg_name,
+            rag_managed_db_config=rag.RagManagedDbConfig(mode=rag.Serverless()),
+        ))
+    except Exception:  # noqa: BLE001
+        pass  # non-fatal — may already be serverless or API unavailable
+
     def _create(display_name: str, description: str) -> str:
         corpus = rag.create_corpus(
             display_name=display_name,
             description=description,
             embedding_model_config=embedding_config,
-            backend_config=rag.RagCorpusBackendConfig(
-                rag_vector_db_config=rag.RagVectorDbConfig(
-                    rag_managed_db=rag.RagManagedDb(),
-                ),
-            ),
         )
         return corpus.name
 
@@ -473,11 +478,6 @@ def setup_memory_bank(cfg: dict[str, str], env_path: Path) -> None:
                 display_name="hermes-memory-bank",
                 description="Per-user long-term memory for Hermes (RAG corpus fallback).",
                 embedding_model_config=embedding_config,
-                backend_config=rag.RagCorpusBackendConfig(
-                    rag_vector_db_config=rag.RagVectorDbConfig(
-                        rag_managed_db=rag.RagManagedDb(),
-                    ),
-                ),
             )
             write_env(env_path, "MEMORY_BANK_RESOURCE_NAME", corpus.name)
             ok(f"Memory bank corpus created: {corpus.name}")

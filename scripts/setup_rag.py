@@ -32,23 +32,29 @@ logger = logging.getLogger(__name__)
 _EMBEDDING_MODEL = "publishers/google/models/text-embedding-004"
 
 
+def _ensure_serverless_mode(project_id: str, region: str) -> None:
+    """Switch RAG Engine to Serverless mode (required for new projects in us-central1)."""
+    try:
+        rag_engine_config_name = f"projects/{project_id}/locations/{region}/ragEngineConfig"
+        new_config = rag.RagEngineConfig(
+            name=rag_engine_config_name,
+            rag_managed_db_config=rag.RagManagedDbConfig(mode=rag.Serverless()),
+        )
+        rag.rag_data.update_rag_engine_config(rag_engine_config=new_config)
+        logger.info("RAG Engine switched to Serverless mode.")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Could not switch RAG Engine to Serverless mode: %s", exc)
+
+
 def create_corpus(display_name: str, description: str) -> str:
     """Create a RAG corpus and return its resource name."""
     embedding_config = rag.EmbeddingModelConfig(
         publisher_model=_EMBEDDING_MODEL,
     )
-    # Use Unmanaged Spanner (Serverless) mode — required for new projects
-    # in us-central1/us-east1/us-east4 due to capacity restrictions.
-    vector_db_config = rag.RagVectorDbConfig(
-        rag_managed_db=rag.RagManagedDb(),
-    )
     corpus = rag.create_corpus(
         display_name=display_name,
         description=description,
         embedding_model_config=embedding_config,
-        backend_config=rag.RagCorpusBackendConfig(
-            rag_vector_db_config=vector_db_config,
-        ),
     )
     logger.info("Created corpus: %s  →  %s", display_name, corpus.name)
     return corpus.name
@@ -69,6 +75,9 @@ def main() -> None:
 
     logger.info("Creating RAG corpora in region: %s", region)
     vertexai.init(project=settings.gcp_project_id, location=region)
+
+    # Switch to Serverless mode first (required for new projects in us-central1)
+    _ensure_serverless_mode(settings.gcp_project_id, region)
 
     knowledge_name = create_corpus(
         display_name="hermes-knowledge-corpus",
