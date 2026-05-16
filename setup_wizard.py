@@ -230,6 +230,7 @@ _REQUIRED_APIS = [
     "cloudscheduler.googleapis.com",
     "modelarmor.googleapis.com",
     "cloudtrace.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
 ]
 
 _SA_ROLES = [
