@@ -43,7 +43,8 @@ jobs:
             structlog>=24.2.0 \
             tenacity>=8.3.0 \
             opentelemetry-sdk>=1.24.0 \
-            mcp>=1.0.0
+            mcp>=1.0.0 \
+            pyyaml>=6.0
 
           # Stub out heavy GCP / AI SDK packages so imports don't fail
           pip install \
