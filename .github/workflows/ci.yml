@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "feat/**", "fix/**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    name: pytest (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install lightweight test-only deps (skip heavy GCP SDKs via mocks)
+          pip install \
+            pytest>=8.0.0 \
+            pytest-asyncio>=0.23.0 \
+            pytest-mock>=3.14.0 \
+            fastapi>=0.115.0 \
+            pydantic>=2.7.0 \
+            pydantic-settings>=2.3.0 \
+            httpx>=0.27.0 \
+            python-dotenv>=1.0.0 \
+            cachetools>=5.3.0 \
+            slowapi>=0.1.9 \
+            sse-starlette>=2.1.0 \
+            structlog>=24.2.0 \
+            tenacity>=8.3.0 \
+            opentelemetry-sdk>=1.24.0 \
+            mcp>=1.0.0
+
+          # Stub out heavy GCP / AI SDK packages so imports don't fail
+          pip install \
+            google-auth>=2.29.0 \
+            google-api-python-client>=2.130.0 || true
+
+      - name: Create stub packages for unavailable SDKs
+        run: |
+          python - <<'EOF'
+          import sys, types, pathlib
+
+          # Packages that are too heavy / require credentials to install in CI
+          stubs = [
+              "vertexai",
+              "vertexai.preview",
+              "vertexai.preview.memory_bank",
+              "google.cloud.aiplatform",
+              "google.adk",
+              "google.adk.runners",
+              "google.adk.sessions",
+              "google.genai",
+              "google.genai.types",
+              "google.cloud.bigquery",
+              "google.cloud.storage",
+              "google.cloud.secretmanager",
+              "google.cloud.logging",
+              "google.cloud.firestore",
+              "google.cloud.scheduler",
+              "google.cloud.scheduler_v1",
+              "opentelemetry.exporter.gcp_trace",
+              "opentelemetry.instrumentation.fastapi",
+              "litellm",
+              "anthropic",
+              "openai",
+              "slack_sdk",
+              "slack_sdk.web",
+          ]
+
+          site = pathlib.Path(sys.prefix) / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}" / "site-packages"
+          site.mkdir(parents=True, exist_ok=True)
+
+          for name in stubs:
+              top = name.split(".")[0]
+              parts = name.split(".")
+              # Create __init__.py for each level
+              pkg_dir = site
+              for part in parts:
+                  pkg_dir = pkg_dir / part
+                  pkg_dir.mkdir(parents=True, exist_ok=True)
+                  init = pkg_dir / "__init__.py"
+                  if not init.exists():
+                      init.write_text("# CI stub\n")
+
+          print("Stubs created.")
+          EOF
+
+      - name: Run tests
+        run: |
+          python -m pytest tests/ -q --tb=short
+        env:
+          # Minimal env so settings don't fail on missing vars
+          GCP_PROJECT_ID: "ci-test-project"
+          GCP_LOCATION: "us-central1"
+          PYTHONDONTWRITEBYTECODE: "1"
