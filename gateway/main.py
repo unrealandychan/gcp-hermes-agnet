@@ -34,7 +34,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from sse_starlette.sse import EventSourceResponse
 
-from agents import build_adk_app
+from agents import build_agent, build_adk_app
 from config import get_settings
 from connectors.slack import router as slack_router
 from connectors.teams import router as teams_router
@@ -77,9 +77,9 @@ async def lifespan(app: FastAPI):
         location=settings.gcp_location,
     )
     app_name = settings.reasoning_engine_resource_name or "hermes-local"
-    adk_app = build_adk_app()
+    adk_app = build_agent()  # raw ADK Agent — Runner requires BaseAgent, not AdkApp wrapper
     _runner = Runner(
-        agent=adk_app.agent,
+        agent=adk_app,
         app_name=app_name,
         session_service=session_service,
     )
