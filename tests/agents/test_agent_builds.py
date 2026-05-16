@@ -167,8 +167,11 @@ class TestOrchestratorBuild:
         # Sub-agents are loaded from agents.yaml — at least the built-in ones
         assert len(agent.sub_agents) >= 4
 
-    def test_has_google_search_tool(self):
+    def test_has_no_tools(self):
+        # Orchestrator is a pure routing agent — no tools, only sub_agents.
+        # google_search was removed because Vertex AI raises 400 INVALID_ARGUMENT
+        # when any agent mixes search tools with sub_agents or function tools.
         from agents.orchestrator import build_orchestrator
         agent = build_orchestrator(_mock_settings())
-        assert any("google_search" in str(t) for t in (agent.tools or []))
+        assert not agent.tools
 

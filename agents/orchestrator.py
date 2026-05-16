@@ -11,7 +11,6 @@ Sub-agents are loaded dynamically from agents.yaml via AgentLoader.
 To add a new agent, edit agents.yaml — no Python changes required.
 """
 from google.adk.agents import LlmAgent
-from google.adk.tools import google_search
 
 from agents.loader import build_agents_from_yaml
 from config import Settings
@@ -26,8 +25,6 @@ Rules:
 2. If a request spans multiple domains, split it and call each agent.
 3. If the domain is unclear, ask one brief clarifying question.
 4. Never answer domain questions yourself — always delegate.
-5. Use google_search only for general real-world context before routing
-   (e.g. checking if a CVE is public, looking up an error message).
 """
 
 
@@ -40,5 +37,5 @@ def build_orchestrator(settings: Settings) -> LlmAgent:
         description="Main entry point that routes requests to specialist agents.",
         instruction=_ORCHESTRATOR_INSTRUCTION,
         sub_agents=sub_agents,
-        tools=[google_search],
+        tools=[],
     )
