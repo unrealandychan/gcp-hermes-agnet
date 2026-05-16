@@ -302,6 +302,28 @@ def bootstrap_gcp(cfg: dict[str, str]) -> None:
         )
     ok(f"Granted {len(_SA_ROLES)} roles to {sa_email}")
 
+    # ── Reasoning Engine SA ──────────────────────────────────────────────────
+    # The Reasoning Engine runtime uses a Google-managed SA that needs
+    # aiplatform.user to access RAG corpora.
+    step("Granting aiplatform.user to Reasoning Engine runtime SA")
+    try:
+        project_number = gcloud(
+            "projects", "describe", project,
+            "--format=value(projectNumber)",
+        ).strip()
+        re_sa = f"service-{project_number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
+        gcloud(
+            "projects", "add-iam-policy-binding", project,
+            f"--member=serviceAccount:{re_sa}",
+            "--role=roles/aiplatform.user",
+            "--condition=None",
+            "--quiet",
+        )
+        ok(f"Granted roles/aiplatform.user to {re_sa}")
+    except Exception as exc:  # noqa: BLE001
+        warn(f"Could not grant Reasoning Engine SA role: {exc}")
+        warn("Run manually: gcloud projects add-iam-policy-binding ... roles/aiplatform.user")
+
     # ── Firestore ────────────────────────────────────────────────────────────
     step("Creating Firestore database (native mode)")
     dbs_json = gcloud("firestore", "databases", "list", f"--project={project}", "--format=json", check=False)
