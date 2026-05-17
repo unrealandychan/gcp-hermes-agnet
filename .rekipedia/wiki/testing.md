@@ -4,187 +4,182 @@ title: "Testing Strategy and Test Execution"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T05:01:39Z
+created_at: 2026-05-17T12:37:29Z
 rekipedia_version: 0.15.1
 ---
 
 # Testing Strategy and Test Execution
 
+This repository currently exposes a focused test surface around the memory subsystem, with implementation in [`memory/memory_bank.py`](memory/memory_bank.py#L1) and tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1). The available analysis does **not** include any CI configuration files or explicit test command metadata, so this page documents what is observable from the codebase and calls out the gaps where necessary.
+
 ## Testing Philosophy
 
-The test suite is structured around the `memory.memory_bank` module, which provides the application-level [`HermesMemoryBank`](memory/memory_bank.py#L79) facade over Vertex AI Agent Engine memories and its supporting helpers such as [`_get_vertexai_client`](memory/memory_bank.py#L41) and [`create_memory_bank`](memory/memory_bank.py#L432). The tests focus on verifying observable behavior at the Python API boundary while isolating external dependencies such as the Vertex SDK, runtime settings, and network calls.
+The tests for [`HermesMemoryBank`](memory/memory_bank.py#L79) are designed around **behavioral contract testing** with aggressive mocking of the Vertex AI SDK. The implementation wraps a remote service, so the suite avoids live cloud calls and instead verifies:
 
-A few clear themes show up in the repository’s tests:
+- request construction and argument passing,
+- error swallowing and graceful degradation,
+- lazy client initialization,
+- transformation logic for memories and prompt formatting,
+- SDK compatibility behavior for the newer Vertex AI client model.
 
-- **Behavior over implementation details.** Tests assert that methods call the expected SDK operations, return normalized results, and fail safely when the underlying SDK raises exceptions.
-- **Graceful degradation.** Several public methods intentionally swallow exceptions and return safe fallback values such as `[]`, `0`, `False`, `None`, or `""`. The tests validate these fallback semantics directly.
-- **SDK adaptation.** The codebase is explicitly handling the newer Vertex AI Agent Engine memory APIs. Tests around [`create_memory_bank`](memory/memory_bank.py#L432) and [`build_memory_bank`](memory/memory_bank.py#L411) verify that configuration and SDK behavior are interpreted correctly.
-- **Fast, deterministic unit coverage.** The available tests are heavily mocked using `unittest.mock`, not integration tests against live Vertex resources.
+The central helper [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) is validated indirectly through the facade methods that depend on it, especially [`HermesMemoryBank._ensure_client`](memory/memory_bank.py#L98) and [`build_memory_bank()`](memory/memory_bank.py#L411). The tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1) are intentionally structured to isolate the code under test from external services using `unittest.mock` primitives.
 
-There is no test coverage evidence for true end-to-end runtime scenarios or production SDK connectivity in the provided data. Based on the `relationship_stats.total = 303` and the amount of targeted unit coverage visible in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py), the strategy is best described as a focused unit-test suite around a single subsystem rather than a broad system-wide validation layer.
+From the available evidence, there is no explicit coverage target configured in the repository snapshot. However, the breadth of unit tests suggests the intended goal is to cover the public behavior of [`HermesMemoryBank`](memory/memory_bank.py#L79) rather than internal implementation details. The current suite exercises nearly every public method: `generate_memories`, `ingest_events`, `purge_memories`, `delete_memory`, `create_memory`, `update_memory`, `retrieve_profiles`, `fetch_memories`, `list_revisions`, `format_for_prompt`, plus the factory functions `build_memory_bank` and `create_memory_bank`.  
 
-> **Sources:** `memory/memory_bank.py` · L41–L470 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)  
-> `tests/memory/test_memory_bank.py` · L1–L490 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L48), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L106), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L163)
+> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/memory/test_memory_bank.py` · L1–L495 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173)
 
 ## Test Structure
 
-The visible test layout is compact and intentionally domain-focused:
+The test layout in the provided snapshot is minimal but clear:
 
-| Path | Purpose |
-|------|---------|
-| `tests/conftest.py` | Shared pytest fixtures and test doubles that stub external modules and provide lightweight replacement types. |
-| `tests/memory/test_memory_bank.py` | Unit tests for the `memory.memory_bank` module and the [`HermesMemoryBank`](memory/memory_bank.py#L79) API surface. |
+| Directory / File | Purpose |
+|---|---|
+| `tests/memory/test_memory_bank.py` | Unit-style tests for the memory bank facade and factory functions |
+| `memory/memory_bank.py` | Implementation under test |
 
-### Shared fixtures and stubs
+The tests are organized by behavior into `unittest.TestCase` subclasses:
 
-The [`tests.conftest`](tests/conftest.py#L1) module defines the reusable test scaffolding. It contains helpers such as [`_make_module`](tests/conftest.py#L22), fake agent classes like [`_FakeLlmAgent`](tests/conftest.py#L30), [`_FakeLoopAgent`](tests/conftest.py#L39), and [`_FakeParallelAgent`](tests/conftest.py#L44), plus a minimal [`_FakeEventSourceResponse`](tests/conftest.py#L177). These are used to ensure tests can import or simulate external packages without depending on their real implementations.
+- [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58)
+- [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116)
+- [`TestListRevisions`](tests/memory/test_memory_bank.py#L160)
+- [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173)
+- [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222)
+- [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)
+- [`TestIngestEvents`](tests/memory/test_memory_bank.py#L335)
+- [`TestPurgeMemories`](tests/memory/test_memory_bank.py#L378)
+- [`TestDeleteMemory`](tests/memory/test_memory_bank.py#L411)
+- [`TestCreateMemory`](tests/memory/test_memory_bank.py#L434)
+- [`TestUpdateMemory`](tests/memory/test_memory_bank.py#L460)
+- [`TestRetrieveProfiles`](tests/memory/test_memory_bank.py#L487)
 
-The test data also shows [`_register_all`](tests/conftest.py#L213), which appears to register these shims broadly across the test runtime. The analysis flagged [`_make_module`](tests/conftest.py#L22) as a knowledge gap because it is called multiple times but does not have dedicated test coverage.
+The test file also defines reusable fixtures/helpers:
 
-### Memory bank tests
+- [`_make_mock_client()`](tests/memory/test_memory_bank.py#L32) builds a mock `vertexai.Client` and associated `memories` surface.
+- [`_make_engine()`](tests/memory/test_memory_bank.py#L42) constructs a mock AgentEngine object.
+- [`_make_memory()`](tests/memory/test_memory_bank.py#L52) creates simple memory objects with a `.fact` field.
 
-The main test file, [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1), is organized into class-based test groups by API method:
+These helpers are the backbone of the suite, allowing the tests to simulate the structure expected by the SDK >= 1.112 without invoking the real API.
 
-- `TestGenerateMemories`
-- `TestFetchMemories`
-- `TestListRevisions`
-- `TestFormatForPrompt`
-- `TestBuildMemoryBank`
-- `TestCreateMemoryBank`
-- `TestIngestEvents`
-- `TestPurgeMemories`
-- `TestDeleteMemory`
-- `TestCreateMemory`
-- `TestUpdateMemory`
-- `TestRetrieveProfiles`
-
-That structure maps cleanly to the public methods on [`HermesMemoryBank`](memory/memory_bank.py#L79), making it easy to locate tests for a given behavior.
-
-> **Sources:** `tests/conftest.py` · L1–L274 · [`_make_module`](tests/conftest.py#L22), [`_FakeLlmAgent`](tests/conftest.py#L30), [`_FakeEventSourceResponse`](tests/conftest.py#L177), [`_register_all`](tests/conftest.py#L213)  
-> `tests/memory/test_memory_bank.py` · L1–L490 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L212), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L263)
+> **Sources:** `tests/memory/test_memory_bank.py` · L32–L53 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), [`_make_engine`](tests/memory/test_memory_bank.py#L42), [`_make_memory`](tests/memory/test_memory_bank.py#L52) · `tests/memory/test_memory_bank.py` · L58–L495 · test classes listed above
 
 ## Running Tests
 
-The analysis data does not include pre-built `test_commands`, so the safest documented invocation is based on the observed pytest test layout and conventions.
+The analysis payload does **not** include any recorded `test_commands`, so there is no authoritative repository-specific command list to reproduce verbatim. Based on the observed layout, the practical commands below are the standard ways to run the available tests with `pytest`.
 
 ```bash
 # unit tests
 pytest tests/memory/test_memory_bank.py
 
 # integration tests
-pytest
+pytest -m integration
 
 # with coverage
 pytest --cov=memory --cov-report=term-missing
 ```
 
-### Notes on scope
+If you only want to run the memory-bank suite, target the file directly. If the project later adds broader test coverage, the `pytest -m integration` form is a conventional way to separate slower, environment-dependent tests from fast unit tests.
 
-- The repository evidence only shows one implementation module, [`memory/memory_bank.py`](memory/memory_bank.py#L1), and its corresponding unit test file.
-- There are no explicit integration-test directories or CI scripts visible in the analysis, so `pytest` here is effectively the broadest available test command from the repository snapshot.
-- If you want to run a specific test class or case, pytest’s node selection works well:
+To run a single test or class within this file:
 
 ```bash
 pytest tests/memory/test_memory_bank.py::TestFetchMemories
-pytest tests/memory/test_memory_bank.py::TestCreateMemoryBank::test_uses_custom_display_name
+pytest tests/memory/test_memory_bank.py::TestFormatForPrompt::test_respects_max_tokens_budget
 ```
 
-> **Sources:** `tests/memory/test_memory_bank.py` · L1–L490 · test class layout and method names throughout the file
+This is especially useful when iterating on behavior around [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) or [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381).
+
+> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173)
 
 ## Test Categories
 
 ### Unit Tests
 
-The visible suite is dominated by unit tests for the [`HermesMemoryBank`](memory/memory_bank.py#L79) facade and its helper functions.
+The current suite is overwhelmingly unit-oriented. The tests mock the Vertex AI client and assert that the implementation passes the right arguments to SDK methods such as `generate`, `retrieve`, `ingest_events`, `purge`, `delete`, `create`, and `update` on the client’s `memories` interface.
 
-#### What is tested
+Key fixtures and mocks:
 
-The tests verify:
+- [`_make_mock_client()`](tests/memory/test_memory_bank.py#L32) returns a `(mock_client, mock_memories)` pair.
+- [`patch`](tests/memory/test_memory_bank.py#L1) is used extensively to replace [`_get_vertexai_client`](memory/memory_bank.py#L41), config access, and other runtime dependencies.
+- `MagicMock` and `SimpleNamespace` are used to imitate SDK objects and response payloads.
 
-- [`generate_memories`](memory/memory_bank.py#L105) calls the Vertex client’s `memories.generate` flow and swallows exceptions.
-- [`fetch_memories`](memory/memory_bank.py#L331) returns facts as strings, honors `top_k`, and falls back to `str(memory)` if a memory object lacks a `fact` attribute.
-- [`format_for_prompt`](memory/memory_bank.py#L381) returns a prompt snippet with the expected header and respects a token budget.
-- [`build_memory_bank`](memory/memory_bank.py#L411) returns `None` when `MEMORY_BANK_RESOURCE_NAME` is missing or blank, and returns a [`HermesMemoryBank`](memory/memory_bank.py#L79) when configured.
-- [`create_memory_bank`](memory/memory_bank.py#L432) reuses an existing AgentEngine when the display name matches and creates a new one otherwise.
-- Mutating operations like [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), and [`update_memory`](memory/memory_bank.py#L285) call the expected SDK operations and return safe fallback values on failure.
-- Unsupported compatibility methods such as [`retrieve_profiles`](memory/memory_bank.py#L315) and [`list_revisions`](memory/memory_bank.py#L369) return empty lists.
+Important behaviors covered at the unit level include:
 
-#### Fixtures and mocks
+- lazy initialization in [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105),
+- normalizing event roles in [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143),
+- returning `[]` or `""` when SDK calls fail in [`fetch_memories`](memory/memory_bank.py#L331) and [`format_for_prompt`](memory/memory_bank.py#L381),
+- no-op compatibility behavior in [`retrieve_profiles`](memory/memory_bank.py#L315) and [`list_revisions`](memory/memory_bank.py#L369),
+- configuration-based factory behavior in [`build_memory_bank`](memory/memory_bank.py#L411),
+- resource creation/reuse logic in [`create_memory_bank`](memory/memory_bank.py#L432).
 
-The main helper is [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), which returns a `(mock_client, mock_memories)` pair for the newer Vertex client API. This helper is the bridge between the tests and the [`HermesMemoryBank`](memory/memory_bank.py#L79) methods under test.
+A notable pattern is that many methods are tested for **failure suppression**: if the underlying SDK raises, the facade generally returns a safe fallback rather than propagating the exception. This is verified in several tests such as [`TestGenerateMemories.test_exception_is_swallowed`](tests/memory/test_memory_bank.py#L92), [`TestFetchMemories.test_returns_empty_list_on_error`](tests/memory/test_memory_bank.py#L129), and [`TestPurgeMemories.test_returns_zero_on_exception`](tests/memory/test_memory_bank.py#L400).
 
-Additional helpers include [`_make_memory`](tests/memory/test_memory_bank.py#L42), which creates lightweight memory objects for prompt formatting and retrieval tests.
-
-The tests make extensive use of `patch` and `MagicMock`, and the analysis identifies [`_make_mock_client`](tests/memory/test_memory_bank.py#L32) as the highest-degree bridge node in the test graph, indicating it is central to most unit scenarios.
+> **Sources:** `tests/memory/test_memory_bank.py` · L32–L495 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)
 
 ### Integration Tests
 
-No dedicated integration-test files are visible in the snapshot. The best approximation of “integration” in the current repository is the broader execution of the pytest suite, which exercises multiple components together at import and fixture wiring time:
+No true integration tests are visible in the provided snapshot. There are no test files that appear to exercise the live Vertex AI backend, and no CI or environment-specific test harness is present in the analysis.
 
-- [`tests.conftest`](tests/conftest.py#L1) registers fake modules and response types for external dependencies.
-- [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1) imports [`memory.memory_bank`](memory/memory_bank.py#L1) and patches the SDK boundary.
+What the suite does exercise is a **lightweight integration seam**: the contract between [`HermesMemoryBank`](memory/memory_bank.py#L79) and the Vertex AI client shape that the code expects. For example:
 
-So while the suite is not integration testing against live Google Cloud resources, it does exercise module wiring, configuration access via `get_settings`, and constructor logic in [`create_memory_bank`](memory/memory_bank.py#L432).
+- [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273) simulates pre-existing engines versus creation paths.
+- [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116) checks that SDK results are translated into plain strings.
+- [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173) verifies the prompt snippet produced from retrieved memories.
 
-> **Sources:** `memory/memory_bank.py` · L79–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)  
-> `tests/memory/test_memory_bank.py` · L32–L490 · helper and test class definitions  
-> `tests/conftest.py` · L22–L274 · shared test doubles and registration utilities
+So while the repository snapshot does not include external integration tests, it does validate the interface boundary that a real integration test would rely on.
+
+> **Sources:** `tests/memory/test_memory_bank.py` · L116–L330 · [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173)
 
 ## Writing New Tests
 
-### Conventions to follow
+When adding tests for this subsystem, follow the existing conventions in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1):
 
-When adding tests for `memory.memory_bank`, keep the existing style:
+### Placement and Naming
 
-- Prefer **class-based grouping by method or feature**.
-- Name test methods descriptively, e.g. `test_returns_none_on_exception`.
-- Patch the SDK boundary rather than invoking the real Vertex client.
-- Assert the observable outcome of public methods: return value, delegated method call, or fallback behavior.
+- Put new tests under `tests/memory/` near the code they exercise.
+- Use `test_*.py` file names and `Test*` class names.
+- Prefer one test class per public method or closely related behavior group.
 
-### Where to put new tests
+### Fixture Style
 
-Use the existing layout:
+- Reuse helpers like [`_make_mock_client()`](tests/memory/test_memory_bank.py#L32) and [`_make_engine()`](tests/memory/test_memory_bank.py#L42) instead of constructing ad hoc mocks.
+- Keep fixtures small and declarative; they should mirror the SDK surface expected by [`HermesMemoryBank`](memory/memory_bank.py#L79).
+- Use `SimpleNamespace` for lightweight record-like payloads and `MagicMock` for call assertions.
 
-- Shared fixtures and reusable stubs: [`tests/conftest.py`](tests/conftest.py#L1)
-- Memory-bank-specific tests: [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1)
+### Behavioral Conventions
 
-For new functionality in [`memory/memory_bank.py`](memory/memory_bank.py#L1), add a new test class in `tests/memory/test_memory_bank.py` near the existing class that covers the same API area.
+- Test externally visible behavior, not internal implementation detail.
+- Cover both the happy path and the graceful-failure path.
+- If a method normalizes data, assert the normalized result, as seen in [`TestIngestEvents.test_normalises_agent_role_to_model`](tests/memory/test_memory_bank.py#L356).
+- If a method truncates or budgets output, assert the boundary condition, as seen in [`TestFormatForPrompt.test_respects_max_tokens_budget`](tests/memory/test_memory_bank.py#L204).
 
-### Running a single test
+### Running a Single Test
 
-Use pytest’s node selectors:
+Use `pytest` node IDs to run a focused test:
 
 ```bash
-pytest tests/memory/test_memory_bank.py::TestFormatForPrompt
-pytest tests/memory/test_memory_bank.py::TestCreateMemoryBank::test_creates_and_returns_resource_name
+pytest tests/memory/test_memory_bank.py::TestCreateMemoryBank::test_uses_custom_display_name
+pytest tests/memory/test_memory_bank.py::TestUpdateMemory::test_calls_memories_update
 ```
 
-### Practical guidance
+This is the fastest way to iterate on a specific code path in [`create_memory_bank`](memory/memory_bank.py#L432) or [`HermesMemoryBank.update_memory`](memory/memory_bank.py#L285).
 
-A good pattern is:
-
-1. Build a mock client with [`_make_mock_client`](tests/memory/test_memory_bank.py#L32).
-2. Patch the creation path so [`HermesMemoryBank`](memory/memory_bank.py#L79) uses your mock.
-3. Call the target method.
-4. Assert the expected SDK calls and return value.
-
-If you need extra shared helpers, add them to [`tests/conftest.py`](tests/conftest.py#L1) so they can be reused across future test modules.
-
-> **Sources:** `tests/memory/test_memory_bank.py` · L1–L490 · test organization and helper usage  
-> `tests/conftest.py` · L1–L274 · shared test infrastructure  
-> `memory/memory_bank.py` · L79–L470 · public API surface under test
+> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), [`_make_engine`](tests/memory/test_memory_bank.py#L42), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273), [`TestUpdateMemory`](tests/memory/test_memory_bank.py#L460)
 
 ## CI/CD
 
-No CI configuration files were found in the provided evidence (`ci_files: []`), so there is no repository-backed pipeline description available here.
+No CI configuration files were found in the provided evidence, and the `ci_files` list is empty. As a result, the repository snapshot does **not** reveal:
 
-That means we cannot reliably document:
+- which test commands are run in CI,
+- whether coverage is enforced,
+- whether integration tests are gated separately,
+- whether matrix builds or Python-version splits exist.
 
-- GitHub Actions / GitLab CI / CircleCI workflows
-- matrix jobs or environment setup
-- coverage thresholds enforced in CI
-- release gating or deployment steps
+If CI is added later, the most likely pattern for this codebase would be:
+1. install dependencies,
+2. run the `pytest` suite,
+3. optionally run coverage for the memory subsystem,
+4. publish test/coverage artifacts.
 
-The repository does contain standard project docs such as [`README.md`](README.md) and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), but neither is CI configuration. If CI is added later, this section should be updated from the actual workflow file rather than inferred.
+For now, treat local `pytest` execution as the source of truth for validating changes to [`memory/memory_bank.py`](memory/memory_bank.py#L1).
 
-> **Sources:** `README.md` · `docs/ARCHITECTURE.md` · repository evidence; no CI files were present in the analysis data
+> **Sources:** No CI files were present in the analysis (`ci_files: []`)

@@ -1,182 +1,137 @@
 ---
 slug: configuration
-title: "Configuration Reference for the Memory Bank Module"
+title: "Configuration Reference for Hermes Memory Bank"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T05:01:24Z
+created_at: 2026-05-17T12:38:29Z
 rekipedia_version: 0.15.1
 ---
 
-# Configuration Reference for the Memory Bank Module
+# Configuration Reference for Hermes Memory Bank
 
 ## Overview
 
-This repository snapshot is focused on the memory subsystem, primarily [`memory.memory_bank`](memory/memory_bank.py#L1), which provides a facade over Vertex AI Agent Engine memories through the [`HermesMemoryBank`](memory/memory_bank.py#L79) class. Based on the analysis data, configuration is intentionally lightweight: the code reads runtime settings from a `config` module via [`get_settings`](memory/memory_bank.py#L41) and [`build_memory_bank`](memory/memory_bank.py#L411), then degrades gracefully when memory-bank configuration is absent.
+This repository snapshot is centered on the memory subsystem implemented in [`memory/memory_bank.py`](memory/memory_bank.py#L1). Based on the analysis data, the configuration surface is intentionally small: the code reads runtime settings via a `config` module and uses those values to build and operate a Vertex AI-backed memory bank. The primary observable configuration key is `MEMORY_BANK_RESOURCE_NAME`, which determines whether a reusable memory bank can be instantiated or whether the system degrades gracefully and returns `None` from [`build_memory_bank`](memory/memory_bank.py#L411).
 
-A notable limitation of the available evidence is that the static analysis did **not** include the actual `config` module source. As a result, the documentation below only lists configuration options that are directly evidenced by the analyzed code and tests. Where values are inferred from behavior rather than explicitly declared in a visible config file, that is called out clearly.
+A notable constraint of this snapshot is that no standalone configuration files were detected in `files_seen`; only implementation and test Python files are present. As a result, there are no YAML, TOML, JSON, or `.env` files to enumerate. The configuration below is derived from the runtime behavior visible in [`_get_vertexai_client`](memory/memory_bank.py#L41-L74), [`build_memory_bank`](memory/memory_bank.py#L411-L427), and [`create_memory_bank`](memory/memory_bank.py#L432-L498), as well as the test coverage in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1-L495).
 
 ## Configuration Files
 
-The repository snapshot contains several documentation and implementation files, but **no explicit YAML, TOML, JSON, or `.env` configuration files were present in the provided file list**. The configuration surface appears to be implemented through a Python settings layer imported as `config`.
+No dedicated configuration files were found in this repository slice.
 
-### Observed configuration source
+| File | Purpose | Evidence |
+|------|---------|----------|
+| _None detected_ | No YAML/TOML/JSON/.env files are present in `files_seen`. Runtime configuration appears to be sourced from a Python `config` module rather than file-based config. | [`memory/memory_bank.py`](memory/memory_bank.py#L1-L498), [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1-L495) |
 
-| File | Purpose |
-|------|---------|
-| `config` module (imported, not present in analysis payload) | Central settings provider used by [`_get_vertexai_client`](memory/memory_bank.py#L41) and [`build_memory_bank`](memory/memory_bank.py#L411) to retrieve runtime values such as project, location, and memory bank resource name. |
-
-### Files explicitly analyzed
-The following files were included in the analysis, but none of them are config files in the YAML/TOML/JSON/.env sense:
-
-- `memory/memory_bank.py`
-- `tests/conftest.py`
-- `tests/memory/test_memory_bank.py`
-- `README.md`
-- `docs/ARCHITECTURE.md`
-- `RELEASE_NOTES.md`
-- `requirements.txt`
-
-> **Sources:** `memory/memory_bank.py` · L1–L470 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `memory/memory_bank.py` · L1–L498 · [`memory.memory_bank`](memory/memory_bank.py#L1) · `tests/memory/test_memory_bank.py` · L1–L495 · [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1)
 
 ## Configuration Reference
 
-The configuration options below are derived from the behavior of [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411), and [`create_memory_bank`](memory/memory_bank.py#L432), plus the tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1).
+The analysis exposes one explicitly observable setting and one implied optional runtime input. The table below is limited to what can be supported from the code and tests.
 
-### Memory bank settings
+### `config.MEMORY_BANK_RESOURCE_NAME`
 
-`HermesMemoryBank` depends on a resource name that identifies the Agent Engine backing store for memories. The helper [`build_memory_bank`](memory/memory_bank.py#L411) returns `None` if the setting is missing or empty, which makes memory support optional.
-
-| Key | Type | Default | Required | Description |
-|-----|------|---------|----------|-------------|
-| `MEMORY_BANK_RESOURCE_NAME` | string | `None` / empty | No | Full Agent Engine resource name used by [`HermesMemoryBank`](memory/memory_bank.py#L79), e.g. `projects/my-project/locations/us-central1/reasoningEngines/1234567890`. If unset, [`build_memory_bank`](memory/memory_bank.py#L411) returns `None` and the application degrades gracefully. |
-
-This is the only configuration key directly evidenced by the provided implementation and tests. The tests explicitly verify that `build_memory_bank()` returns `None` when the resource name is not set or is an empty string, and returns a [`HermesMemoryBank`](memory/memory_bank.py#L79) instance when configured.
-
-> **Sources:** `memory/memory_bank.py` · L79–L427 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411)
-
-### Vertex AI client settings
-
-The helper [`_get_vertexai_client`](memory/memory_bank.py#L41) accepts optional `project` and `location` arguments. If they are not supplied, it falls back to settings values retrieved from `config` via [`get_settings`](memory/memory_bank.py#L41). The analysis does not expose the exact settings object shape, but the behavior strongly indicates the following keys or attributes exist on the settings object.
+This setting is accessed indirectly through [`get_settings`](memory/memory_bank.py#L41-L74) and [`build_memory_bank`](memory/memory_bank.py#L411-L427). When it is missing or empty, [`build_memory_bank`](memory/memory_bank.py#L411-L427) returns `None`, allowing the application to continue without memory-backed personalization.
 
 | Key | Type | Default | Required | Description |
 |-----|------|---------|----------|-------------|
-| `project` | string | From settings | No, if passed explicitly | GCP project identifier used to build the Vertex AI client in [`_get_vertexai_client`](memory/memory_bank.py#L41). |
-| `location` | string | From settings | No, if passed explicitly | Vertex AI region used to build the Vertex AI client in [`_get_vertexai_client`](memory/memory_bank.py#L41). |
-| `display_name` | string | `"Hermes Memory Bank"` implied by tests/implementation behavior | No | Human-readable name used by [`create_memory_bank`](memory/memory_bank.py#L432) when creating a new Agent Engine resource. If a custom value is supplied to the function, it is used instead. |
+| `MEMORY_BANK_RESOURCE_NAME` | string | `None` / empty | No | Full Vertex AI Agent Engine resource name used to connect to an existing memory bank, e.g. `projects/.../locations/.../reasoningEngines/...`. If unset or blank, memory bank construction is skipped and the feature is disabled gracefully. |
 
-The `display_name` setting is not shown as a config file key in the analysis, but it is a meaningful runtime parameter to memory-bank creation. Tests verify that custom display names are honored.
+### `project` and `location` parameters for client construction
 
-> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41), `memory/memory_bank.py` · L432–L470 · [`create_memory_bank`](memory/memory_bank.py#L432)
+These are not file-based configuration keys, but they are configuration inputs that affect runtime behavior in [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41-L74) and [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432-L498). If the caller does not supply them, `_get_vertexai_client` falls back to settings values via `get_settings()`.
+
+| Key | Type | Default | Required | Description |
+|-----|------|---------|----------|-------------|
+| `project` | string | Settings fallback | No | Google Cloud project used when creating a Vertex AI client or Agent Engine resource. If omitted, the function falls back to configured settings. |
+| `location` | string | Settings fallback | No | Vertex AI region used for client/resource creation. If omitted, the function falls back to configured settings. |
+| `display_name` | string | Internal default (not fully visible in analysis) | No | Human-readable name for a newly created memory-bank Agent Engine. Tests show the function supports a custom `display_name` and searches existing engines by this value. |
+
+> **Sources:** `memory/memory_bank.py` · L41–L74, L411–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41) · [`build_memory_bank`](memory/memory_bank.py#L411) · [`create_memory_bank`](memory/memory_bank.py#L432)
 
 ## Configuration Examples
 
-Because no concrete config file formats were present in the analysis payload, the examples below are illustrative Python-style settings examples based on observable behavior. They show the minimum values required for the memory subsystem to function and a fuller, more explicit configuration.
+Because no standalone config files were found, the examples below show the minimum observable runtime configuration in a Python-centric style.
 
 ### Minimal configuration
 
-This is the minimum setup needed to enable memory support:
+This is the smallest viable setup for enabling memory support: define the memory bank resource name in the settings layer and let the code build a `HermesMemoryBank` from it.
 
 ```python
-# config.py
-from types import SimpleNamespace
-
-def get_settings():
-    return SimpleNamespace(
-        project="my-gcp-project",
-        location="us-central1",
-        MEMORY_BANK_RESOURCE_NAME="projects/my-gcp-project/locations/us-central1/reasoningEngines/1234567890",
-    )
+# config.py (conceptual example based on runtime behavior)
+MEMORY_BANK_RESOURCE_NAME = "projects/my-project/locations/us-central1/reasoningEngines/1234567890"
 ```
 
-With only `MEMORY_BANK_RESOURCE_NAME` set, [`build_memory_bank`](memory/memory_bank.py#L411) can construct a [`HermesMemoryBank`](memory/memory_bank.py#L79). The Vertex client can also be created from settings if `project` and `location` are present.
+With that value present, [`build_memory_bank`](memory/memory_bank.py#L411-L427) can return a [`HermesMemoryBank`](memory/memory_bank.py#L79-L406) instance; without it, the function returns `None`.
 
 ### Full-featured configuration
 
-```python
-# config.py
-from types import SimpleNamespace
+A fuller setup includes explicit client/resource parameters and a custom display name for provisioning a new backend via [`create_memory_bank`](memory/memory_bank.py#L432-L498).
 
-def get_settings():
-    return SimpleNamespace(
-        project="my-gcp-project",
-        location="us-central1",
-        MEMORY_BANK_RESOURCE_NAME="projects/my-gcp-project/locations/us-central1/reasoningEngines/1234567890",
-        display_name="Hermes Memory Bank",
-        # Additional application settings may exist in the real config module,
-        # but they are not visible in the provided analysis data.
-    )
+```python
+# config.py (conceptual example based on runtime behavior)
+MEMORY_BANK_RESOURCE_NAME = "projects/my-project/locations/us-central1/reasoningEngines/1234567890"
+PROJECT = "my-project"
+LOCATION = "us-central1"
+
+# When provisioning a new memory bank, the call may use:
+# create_memory_bank(project=PROJECT, location=LOCATION, display_name="hermes-memory-bank")
 ```
 
-A more complete setup may also use the creation helper [`create_memory_bank`](memory/memory_bank.py#L432) to provision the backing Agent Engine resource and then persist the resulting resource name into `MEMORY_BANK_RESOURCE_NAME`.
+This matches the code path that resolves project/location from explicit arguments or settings, then creates or reuses an Agent Engine resource before returning its resource name.
 
-> **Sources:** `memory/memory_bank.py` · L411–L470 · [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `memory/memory_bank.py` · L41–L74, L411–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41) · [`build_memory_bank`](memory/memory_bank.py#L411) · [`create_memory_bank`](memory/memory_bank.py#L432)
 
 ## Runtime Configuration
 
-The analysis data does not show any CLI entry points, command-line flags, or environment-variable parsing code. There are no discovered entry points and no build/test commands were provided. That means there is **no evidence of CLI overrides** in the visible repository snapshot.
+The available runtime overrides are inferred from the function signatures and the tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1-L495).
 
-### Observed runtime override behavior
+### Explicit function arguments
 
-What is observable from the implementation is:
+The following inputs override settings-based defaults when the functions are called directly:
 
-- [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) accepts explicit arguments and uses them when provided.
-- If the arguments are omitted, it falls back to settings from `config`.
-- [`build_memory_bank`](memory/memory_bank.py#L411) reads `MEMORY_BANK_RESOURCE_NAME` from settings and returns `None` if it is absent or empty.
-- [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432) is parameterized directly, so callers can override all important creation-time settings at invocation time.
+| Override | Applies to | Behavior |
+|----------|------------|----------|
+| `project` | [`_get_vertexai_client`](memory/memory_bank.py#L41-L74), [`create_memory_bank`](memory/memory_bank.py#L432-L498) | If provided, it takes precedence over values from `get_settings()`. |
+| `location` | [`_get_vertexai_client`](memory/memory_bank.py#L41-L74), [`create_memory_bank`](memory/memory_bank.py#L432-L498) | If provided, it takes precedence over values from `get_settings()`. |
+| `display_name` | [`create_memory_bank`](memory/memory_bank.py#L432-L498) | Changes the friendly name used to search for existing Agent Engine resources before creating a new one. |
+| `dry_run` | [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187-L225) | Prevents deletion and returns the count of memories that would be deleted. |
+| `top_k` | [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331-L367) | Controls how many relevant memories the SDK should return. |
+| `max_tokens` | [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381-L406) | Caps prompt-snippet size when formatting fetched memories. |
 
-### Runtime precedence
+### Environment variables
 
-From the visible behavior, the precedence is effectively:
+No environment-variable parser or `.env` file was visible in the provided analysis. However, because the code relies on a `config` module, environment variables may still be used indirectly by that module. That mechanism is not evidenced here, so it should be treated as an implementation detail outside the analyzed files.
 
-1. Explicit function arguments
-2. Values returned by `get_settings()`
-3. Graceful fallback to `None` / disabled behavior
+### CLI flags
 
-### CLI flags and env vars
+No CLI entry points or command-line flags are present in the analysis data. There is no evidence of direct command-line overrides for configuration in this snapshot.
 
-No CLI flags or environment variables are evidenced in the provided analysis. If such overrides exist, they are not visible in the analyzed files.
-
-> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41), `memory/memory_bank.py` · L411–L470 · [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41) · [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187) · [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) · [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381) · [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/memory/test_memory_bank.py` · L1–L495
 
 ## Validation
 
-No Pydantic models, JSON schemas, or other explicit validation framework appears in the provided analysis data. Validation is therefore best described as **implicit and defensive** rather than schema-driven.
+There is no evidence of Pydantic models, JSON Schema, or formal config-file validation in the provided repository slice. Validation appears to be done defensively at runtime through conditional checks and exception handling in the Python code.
 
 ### Observed validation and fallback behavior
 
-- [`build_memory_bank`](memory/memory_bank.py#L411) checks whether `MEMORY_BANK_RESOURCE_NAME` is present and non-empty.
-- If configuration is missing or invalid, it returns `None` instead of throwing.
-- [`_get_vertexai_client`](memory/memory_bank.py#L41) raises a helpful `ImportError` if the Vertex AI SDK is too old.
-- Most operational methods in [`HermesMemoryBank`](memory/memory_bank.py#L79) swallow exceptions and return safe defaults (`[]`, `False`, `0`, `None`, or `""` depending on the method), which means the configuration/runtime layer is designed to fail open rather than crash the app.
+- [`build_memory_bank`](memory/memory_bank.py#L411-L427) checks whether `MEMORY_BANK_RESOURCE_NAME` is present. If it is missing or empty, the function returns `None`.
+- [`_get_vertexai_client`](memory/memory_bank.py#L41-L74) falls back to settings when `project` or `location` are not passed explicitly.
+- Several methods wrap SDK calls in `try/except` blocks and degrade gracefully:
+  - [`generate_memories`](memory/memory_bank.py#L105-L141) swallows exceptions and logs debug output.
+  - [`fetch_memories`](memory/memory_bank.py#L331-L367) returns an empty list on failure.
+  - [`format_for_prompt`](memory/memory_bank.py#L381-L406) returns an empty string if no memories are available or retrieval fails.
+  - [`purge_memories`](memory/memory_bank.py#L187-L225) returns `0` on exception.
+  - [`delete_memory`](memory/memory_bank.py#L227-L248), [`create_memory`](memory/memory_bank.py#L250-L283), and [`update_memory`](memory/memory_bank.py#L285-L313) return failure indicators rather than propagating SDK exceptions.
+- [`create_memory_bank`](memory/memory_bank.py#L432-L498) searches existing engines before creating a new one and raises a `RuntimeError` only when the SDK returns an unexpected result shape.
 
-### Validation model summary
+### Test evidence for validation paths
 
-| Area | Validation Mechanism | Result on Failure |
-|------|----------------------|-------------------|
-| Memory bank enablement | Presence check for `MEMORY_BANK_RESOURCE_NAME` | Returns `None` from [`build_memory_bank`](memory/memory_bank.py#L411) |
-| Vertex client construction | Fallback to settings; SDK compatibility check | Raises `ImportError` for incompatible SDK |
-| Memory operations | Runtime `try/except` guards | Logs and returns safe default values |
+The tests explicitly exercise the fallback and failure behavior:
+- missing/empty `MEMORY_BANK_RESOURCE_NAME` returns `None` in [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222-L268)
+- SDK errors are swallowed in [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58-L111), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116-L155), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173-L217), [`TestPurgeMemories`](tests/memory/test_memory_bank.py#L378-L406), [`TestDeleteMemory`](tests/memory/test_memory_bank.py#L411-L429), [`TestCreateMemory`](tests/memory/test_memory_bank.py#L434-L455), and [`TestUpdateMemory`](tests/memory/test_memory_bank.py#L460-L482)
 
-### What is not present
+In short, configuration validation is pragmatic rather than schema-driven: values are checked just enough to decide whether to enable memory support, and operational errors are contained to preserve application availability.
 
-There is no evidence of:
-
-- Pydantic `BaseModel` settings classes
-- JSON schema validation
-- TOML/YAML schema validation
-- Typed CLI parsing for config overrides
-
-So while the configuration is clearly validated in a runtime sense, it is not validated through a dedicated configuration schema in the visible code.
-
-> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41), `memory/memory_bank.py` · L411–L470 · [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
-
-## Notes on Configuration Scope
-
-This repository snapshot is centered on memory persistence rather than broad application configuration. The most important practical takeaway is that configuration is optional and environment-sensitive:
-
-- If `MEMORY_BANK_RESOURCE_NAME` is configured, the memory system is enabled.
-- If not, the application continues without memory bank support.
-- Vertex AI access is assembled from settings or explicit parameters, not from a dedicated config file shown in the snapshot.
-
-If you want, I can next produce a companion page that documents the memory subsystem’s runtime behavior and API surface in the same DeepWiki style.
+> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41) · [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105) · [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) · [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381) · [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187) · [`build_memory_bank`](memory/memory_bank.py#L411) · [`create_memory_bank`](memory/memory_bank.py#L432)

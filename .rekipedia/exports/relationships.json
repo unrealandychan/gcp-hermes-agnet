@@ -601,7 +601,7 @@
   },
   {
     "from": "create_memory_bank",
-    "to": "info",
+    "to": "_engine_resource_name",
     "kind": "calls",
     "file": "memory/memory_bank.py",
     "confidence": 0.8,
@@ -609,7 +609,7 @@
   },
   {
     "from": "create_memory_bank",
-    "to": "list",
+    "to": "info",
     "kind": "calls",
     "file": "memory/memory_bank.py",
     "confidence": 0.8,
@@ -625,209 +625,73 @@
   },
   {
     "from": "create_memory_bank",
-    "to": "info",
+    "to": "getattr",
     "kind": "calls",
     "file": "memory/memory_bank.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "tests.conftest",
-    "to": "__future__",
-    "kind": "imports",
-    "file": "tests/conftest.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.conftest",
-    "to": "os",
-    "kind": "imports",
-    "file": "tests/conftest.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.conftest",
-    "to": "sys",
-    "kind": "imports",
-    "file": "tests/conftest.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.conftest",
-    "to": "types",
-    "kind": "imports",
-    "file": "tests/conftest.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.conftest",
-    "to": "unittest.mock",
-    "kind": "imports",
-    "file": "tests/conftest.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.conftest",
-    "to": "functools",
-    "kind": "imports",
-    "file": "tests/conftest.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.conftest",
-    "to": "starlette.responses",
-    "kind": "imports",
-    "file": "tests/conftest.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_make_module",
-    "to": "ModuleType",
-    "kind": "calls",
-    "file": "tests/conftest.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_make_module",
-    "to": "items",
-    "kind": "calls",
-    "file": "tests/conftest.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_make_module",
-    "to": "setattr",
-    "kind": "calls",
-    "file": "tests/conftest.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_FakeLlmAgent.__init__",
+    "from": "create_memory_bank",
     "to": "list",
     "kind": "calls",
-    "file": "tests/conftest.py",
+    "file": "memory/memory_bank.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_FakeLlmAgent.__init__",
-    "to": "list",
+    "from": "create_memory_bank",
+    "to": "RuntimeError",
     "kind": "calls",
-    "file": "tests/conftest.py",
+    "file": "memory/memory_bank.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_FakeParallelAgent.__init__",
-    "to": "list",
+    "from": "create_memory_bank",
+    "to": "getattr",
     "kind": "calls",
-    "file": "tests/conftest.py",
+    "file": "memory/memory_bank.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_noop_limit",
-    "to": "wraps",
+    "from": "create_memory_bank",
+    "to": "getattr",
     "kind": "calls",
-    "file": "tests/conftest.py",
+    "file": "memory/memory_bank.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_noop_limit",
-    "to": "func",
+    "from": "create_memory_bank",
+    "to": "getattr",
     "kind": "calls",
-    "file": "tests/conftest.py",
+    "file": "memory/memory_bank.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_FakeEventSourceResponse.__init__",
-    "to": "__init__",
+    "from": "create_memory_bank",
+    "to": "getattr",
     "kind": "calls",
-    "file": "tests/conftest.py",
+    "file": "memory/memory_bank.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_FakeEventSourceResponse.__init__",
-    "to": "super",
+    "from": "create_memory_bank",
+    "to": "_engine_resource_name",
     "kind": "calls",
-    "file": "tests/conftest.py",
+    "file": "memory/memory_bank.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_FakeEventSourceResponse",
-    "to": "_StarletteResponse",
-    "kind": "inherits",
-    "file": "tests/conftest.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_register_all",
-    "to": "items",
+    "from": "create_memory_bank",
+    "to": "info",
     "kind": "calls",
-    "file": "tests/conftest.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_register_all",
-    "to": "_make_module",
-    "kind": "calls",
-    "file": "tests/conftest.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_register_all",
-    "to": "_make_module",
-    "kind": "calls",
-    "file": "tests/conftest.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_register_all",
-    "to": "_make_module",
-    "kind": "calls",
-    "file": "tests/conftest.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_register_all",
-    "to": "_make_module",
-    "kind": "calls",
-    "file": "tests/conftest.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_register_all",
-    "to": "_make_module",
-    "kind": "calls",
-    "file": "tests/conftest.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_register_all",
-    "to": "_make_module",
-    "kind": "calls",
-    "file": "tests/conftest.py",
+    "file": "memory/memory_bank.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
@@ -922,6 +786,22 @@
   {
     "from": "_make_mock_client",
     "to": "MagicMock",
+    "kind": "calls",
+    "file": "tests/memory/test_memory_bank.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_make_engine",
+    "to": "SimpleNamespace",
+    "kind": "calls",
+    "file": "tests/memory/test_memory_bank.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_make_engine",
+    "to": "SimpleNamespace",
     "kind": "calls",
     "file": "tests/memory/test_memory_bank.py",
     "confidence": 0.8,
@@ -1633,7 +1513,7 @@
   },
   {
     "from": "TestCreateMemoryBank.test_creates_and_returns_resource_name",
-    "to": "MagicMock",
+    "to": "_make_engine",
     "kind": "calls",
     "file": "tests/memory/test_memory_bank.py",
     "confidence": 0.8,
@@ -1681,7 +1561,7 @@
   },
   {
     "from": "TestCreateMemoryBank.test_returns_existing_engine_when_display_name_matches",
-    "to": "MagicMock",
+    "to": "_make_engine",
     "kind": "calls",
     "file": "tests/memory/test_memory_bank.py",
     "confidence": 0.8,
@@ -1729,7 +1609,7 @@
   },
   {
     "from": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "to": "MagicMock",
+    "to": "_make_engine",
     "kind": "calls",
     "file": "tests/memory/test_memory_bank.py",
     "confidence": 0.8,
@@ -1737,7 +1617,7 @@
   },
   {
     "from": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "to": "MagicMock",
+    "to": "_make_engine",
     "kind": "calls",
     "file": "tests/memory/test_memory_bank.py",
     "confidence": 0.8,
@@ -1785,7 +1665,7 @@
   },
   {
     "from": "TestCreateMemoryBank.test_uses_custom_display_name",
-    "to": "MagicMock",
+    "to": "_make_engine",
     "kind": "calls",
     "file": "tests/memory/test_memory_bank.py",
     "confidence": 0.8,
@@ -1833,7 +1713,7 @@
   },
   {
     "from": "TestCreateMemoryBank.test_proceeds_to_create_when_list_raises",
-    "to": "MagicMock",
+    "to": "_make_engine",
     "kind": "calls",
     "file": "tests/memory/test_memory_bank.py",
     "confidence": 0.8,

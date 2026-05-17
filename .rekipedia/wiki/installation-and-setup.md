@@ -4,292 +4,258 @@ title: "Installation and Setup Guide"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T05:01:09Z
+created_at: 2026-05-17T12:36:37Z
 rekipedia_version: 0.15.1
 ---
 
 # Installation and Setup Guide
 
-This guide covers how to prepare a development environment for the repository, install dependencies, and verify that the memory bank module works as expected. The codebase in the provided analysis is centered on [`memory.memory_bank`](memory/memory_bank.py#L1), which wraps the Vertex AI Agent Engine memories API via the [`HermesMemoryBank`](memory/memory_bank.py#L79) facade.
+This guide covers how to install, configure, and verify the memory-bank component implemented in [`memory/memory_bank.py`](memory/memory_bank.py#L1). The codebase snapshot available here is focused on a single implementation module and its tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1), so the setup instructions below are based on what is observable in that code rather than on a full repository manifest.
 
 ## Requirements
 
-### Python and runtime expectations
+### Runtime and platform expectations
 
-The repository is Python-based and includes a `requirements.txt` file, so a standard virtual environment workflow is the most appropriate setup path. The code in [`memory.memory_bank`](memory/memory_bank.py#L1) uses:
+The implementation in [`memory.memory_bank`](memory/memory_bank.py#L1) is Python-based and uses:
 
-- `asyncio` for async orchestration
-- `logging` for operational logging
-- `typing` for type hints
-- `vertexai` for Google Vertex AI integration
-- `config` for application settings access
+- `asyncio` for async wrappers and background execution
+- `logging` for operational messages
+- `typing` for type annotations
+- `vertexai` for the Vertex AI Agent Engine memory APIs
+- a local `config` module, accessed via `get_settings()` in several entry points
 
-Because the implementation calls `asyncio.to_thread(...)` in methods such as [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105) and [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331), it must be run on a reasonably modern Python version with `asyncio.to_thread` support. In practice, that means Python 3.9+ is a safe baseline.
+The main facade, [`HermesMemoryBank`](memory/memory_bank.py#L79), is designed to work against Vertex AI Agent Engine memories and expects a resource name such as:
 
-### External service dependency
+`projects/my-project/locations/us-central1/reasoningEngines/1234567890`
 
-This project depends on Google Vertex AI Agent Engine Memories. The implementation is not a local-only memory store: the core facade methods such as [`create_memory_bank`](memory/memory_bank.py#L432), [`create_memory`](memory/memory_bank.py#L250), [`fetch_memories`](memory/memory_bank.py#L331), and [`ingest_events`](memory/memory_bank.py#L143) call into the Vertex SDK.
+The helper [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) indicates two important setup requirements:
 
-To use the project against real services, you will need:
+1. The installed Vertex AI SDK must be new enough to provide `VertexClient`.
+2. If `project` / `location` are not supplied, the code falls back to settings from [`get_settings()`](memory/memory_bank.py#L41).
 
-| Requirement | Why it is needed |
-|---|---|
-| Google Cloud project | Used by Vertex AI client initialization |
-| Vertex AI access enabled | Required for Agent Engine and memories operations |
-| Correct region/location | Used when creating or resolving the memory bank resource |
-| SDK access credentials | Required by the Vertex client |
+### Python version
 
-The helper [`_get_vertexai_client`](memory/memory_bank.py#L41) explicitly falls back to configuration settings when `project` or `location` are not passed, so environment/configuration is part of setup.
+No `pyproject.toml`, `package.json`, or explicit build metadata is present in the supplied analysis data, so the exact Python version cannot be confirmed from the repository snapshot. What is clear is that the code uses modern async syntax and `from __future__` imports, so a recent Python 3 release is expected.
 
-### Repository dependencies
+### External dependencies
 
-The presence of [`requirements.txt`](requirements.txt) indicates dependency management is pinned via pip-style requirements. The analysis did not include the actual file contents, so the exact package list is not visible here. However, the tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1) clearly assume the presence of `pytest` and mocking support.
+The direct runtime dependency that is clearly evidenced is:
 
-> **Sources:** `memory/memory_bank.py` · L1–L470 · [`memory.memory_bank`](memory/memory_bank.py#L1), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`_get_vertexai_client`](memory/memory_bank.py#L41)  
-> `requirements.txt` · file present in repository
+| Dependency | Why it is needed | Evidence |
+|---|---|---|
+| `vertexai` | Provides `VertexClient`, memory generation, retrieval, purge, create, update, and delete operations | [`memory/memory_bank.py`](memory/memory_bank.py#L1) |
+| local `config` module | Supplies project/location/resource-name configuration via `get_settings()` | [`memory/memory_bank.py`](memory/memory_bank.py#L41), [`memory/memory_bank.py`](memory/memory_bank.py#L411) |
+
+The tests additionally rely on:
+
+- `pytest`
+- `unittest.mock`
+- `types.SimpleNamespace`
+
+> **Sources:** `memory/memory_bank.py` · L1–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411) · `tests/memory/test_memory_bank.py` · L1–L495 · [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222)
 
 ## Installation Methods
 
 ### From Source
 
-The repository does not provide `build_commands` in the analysis payload, so there is no evidence of a custom build system. The safest source-install workflow is a conventional virtual environment plus dependency installation from `requirements.txt`.
+No build commands were provided in the analysis payload, so the repository’s exact bootstrap steps cannot be reconstructed. However, the code is pure Python and the tests import the module directly, so a source install is likely straightforward.
 
-#### Step 1: Clone the repository
+A practical source workflow would be:
 
 ```bash
 git clone <repository-url>
-cd <repository-directory>
-```
-
-#### Step 2: Create and activate a virtual environment
-
-```bash
-python3 -m venv .venv
+cd <repository-dir>
+python -m venv .venv
 source .venv/bin/activate
+python -m pip install -U pip
+python -m pip install vertexai pytest
 ```
 
-On Windows PowerShell:
+If your environment uses the local `config` module, ensure that package or module is importable before running the code.
 
-```powershell
-py -3 -m venv .venv
-.venv\Scripts\Activate.ps1
-```
-
-#### Step 3: Install dependencies
-
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-If you are working on the memory module specifically, this should bring in the Vertex SDK and any support libraries used by the tests.
-
-#### Step 4: Verify the package can be imported
-
-Because the memory module is available under `memory/memory_bank.py`, a basic import check is useful:
-
-```bash
-python -c "from memory.memory_bank import HermesMemoryBank; print(HermesMemoryBank)"
-```
-
-This confirms that the package layout is correct and that the installed dependencies satisfy import-time requirements.
-
-> **Sources:** `requirements.txt` · file present in repository  
-> `memory/memory_bank.py` · L1–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+Because the implementation wraps the SDK calls in `asyncio.to_thread()` in methods like [`generate_memories`](memory/memory_bank.py#L105) and [`fetch_memories`](memory/memory_bank.py#L331), there is no special build step beyond dependency installation.
 
 ### Via Package Manager
 
-The analysis did not detect a `pyproject.toml` or `package.json`, so there is no evidence of a Poetry, uv, npm, or pnpm package manifest. The only explicit dependency manifest present is [`requirements.txt`](requirements.txt), which means installation via pip is the documented path.
-
-#### Recommended pip install
+No `pyproject.toml`, `setup.py`, `package.json`, or similar packaging manifest is visible in the provided analysis, so there is no repository-specific package-manager install command to cite. If this code is part of a larger Python project, the usual patterns would be:
 
 ```bash
-pip install -r requirements.txt
+pip install .
+# or
+uv pip install .
 ```
 
-#### Optional editable-style development install
-
-If the repository is structured as a Python package and you want local edits to be immediately reflected, you can also install the project itself in editable mode after dependencies are installed:
+If the project is published to an index, installation would likely look like:
 
 ```bash
-pip install -e .
+pip install <package-name>
 ```
 
-Note: this is a standard Python workflow suggestion; the analysis does not show whether a packaging configuration file exists, so editable install may or may not be supported without additional repository context.
-
-> **Sources:** `requirements.txt` · file present in repository
+At minimum, the code requires the Vertex AI SDK compatible with [`VertexClient`](memory/memory_bank.py#L41).
 
 ### Docker
 
-No `Dockerfile` was present in the analysis data, so there is no evidence that the repository ships an official container workflow. If you need one, it would have to be added manually.
+No `Dockerfile` is present in the analysis data, so Docker-based installation cannot be confirmed. If you add container support later, the container should include:
 
-A typical Docker workflow for a Python service would look like this, but treat it as an example rather than repository-specific guidance:
+- a Python runtime
+- the Vertex AI SDK
+- whatever provides the local `config` module
+- credentials for Google Cloud / Vertex AI access
 
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-CMD ["python", "-c", "from memory.memory_bank import build_memory_bank; print(build_memory_bank())"]
-```
-
-Build and run:
+A generic container invocation would look like:
 
 ```bash
-docker build -t hermes-memory .
-docker run --rm hermes-memory
+docker build -t hermes-memory-bank .
+docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/gcp.json hermes-memory-bank
 ```
 
-Because `build_memory_bank()` returns `None` when `MEMORY_BANK_RESOURCE_NAME` is unset, this container would likely start without a configured backend unless you inject the needed environment variables.
+This is illustrative only; the repository snapshot does not prove that the project currently supports Docker.
 
-> **Sources:** `memory/memory_bank.py` · L411–L427 · [`build_memory_bank`](memory/memory_bank.py#L411)  
-> No `Dockerfile` found in `files_seen`
+> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
 
 ## First Run
 
-The first run depends on whether you are just validating the local Python environment or connecting to a real Vertex AI memory bank.
+The primary runtime entry point exposed by the module is the memory facade [`HermesMemoryBank`](memory/memory_bank.py#L79). The first-run flow depends on whether you already have a Memory Bank resource configured.
 
-### Local sanity check
+### 1. Configure a memory resource name
 
-A quick way to verify the repository is installed correctly is to exercise the helper that builds the memory facade from settings:
+The helper [`build_memory_bank()`](memory/memory_bank.py#L411) returns `None` if `MEMORY_BANK_RESOURCE_NAME` is not configured. The tests confirm that both `None` and empty string values are treated as “not configured” in [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222).
 
-```bash
-python - <<'PY'
+So your first step is to ensure the relevant setting exists in your config layer. The code reads from settings via `get_settings()` and then accesses `MEMORY_BANK_RESOURCE_NAME` with `getattr`.
+
+### 2. Create the Agent Engine-backed memory store if needed
+
+If you do not yet have a resource name, use [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432) to create one. The function is designed to be idempotent:
+
+- it lists existing engines
+- if one matches the display name, it returns the existing engine’s resource name
+- otherwise it creates a new one
+
+This is the most direct “bootstrap” path for a new deployment.
+
+### 3. Build the facade
+
+Once configured, call:
+
+```python
 from memory.memory_bank import build_memory_bank
+
 bank = build_memory_bank()
-print(bank)
-PY
 ```
 
-If `MEMORY_BANK_RESOURCE_NAME` is not configured, [`build_memory_bank`](memory/memory_bank.py#L411) is designed to degrade gracefully and return `None`. That is expected behavior, not an error.
+If successful, `bank` will be an instance of [`HermesMemoryBank`](memory/memory_bank.py#L79). If not configured or if creation fails, the function degrades gracefully and returns `None`.
 
-### Creating or reusing a memory bank
+### 4. Use the memory APIs
 
-To actually use the backend, you need a full Agent Engine resource name, such as:
+The facade exposes methods for common operations:
 
-`projects/my-project/locations/us-central1/reasoningEngines/1234567890`
+- [`generate_memories`](memory/memory_bank.py#L105) for automatic extraction after a conversation turn
+- [`ingest_events`](memory/memory_bank.py#L143) for batched event ingestion
+- [`fetch_memories`](memory/memory_bank.py#L331) for prompt-time retrieval
+- [`format_for_prompt`](memory/memory_bank.py#L381) for ready-to-inject context strings
+- CRUD-like operations such as [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), and [`delete_memory`](memory/memory_bank.py#L227)
 
-This is documented directly on [`HermesMemoryBank`](memory/memory_bank.py#L79). If you do not already have such a resource, the helper [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432) can create one.
-
-Example workflow:
+A minimal first-run example would be:
 
 ```python
-from memory.memory_bank import create_memory_bank, HermesMemoryBank
+import asyncio
+from memory.memory_bank import build_memory_bank
 
-resource_name = create_memory_bank(
-    project="my-project",
-    location="us-central1",
-    display_name="hermes-memory-bank",
-)
+async def main():
+    bank = build_memory_bank()
+    if bank is None:
+        print("Memory bank not configured")
+        return
 
-bank = HermesMemoryBank(resource_name=resource_name)
+    memories = await bank.fetch_memories(user_id="u123", query="VPN setup", top_k=5)
+    print(memories)
+
+asyncio.run(main())
 ```
 
-### Typical first interaction
-
-Once instantiated, the facade supports both direct memory writes and retrieval:
-
-```python
-await bank.create_memory(user_id="u123", fact="Uses VPN on Monday mornings")
-memories = await bank.fetch_memories(user_id="u123", query="VPN")
-print(memories)
-```
-
-For chat-style usage, [`format_for_prompt`](memory/memory_bank.py#L381) converts relevant memories into a system-prompt snippet, which is meant to be injected by the caller.
-
-> **Sources:** `memory/memory_bank.py` · L79–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`create_memory_bank`](memory/memory_bank.py#L432), [`create_memory`](memory/memory_bank.py#L250), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)
+> **Sources:** `memory/memory_bank.py` · L79–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/memory/test_memory_bank.py` · L222–L330 · [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)
 
 ## Environment Variables
 
-The analysis did not include the contents of configuration files, so only a small set of environment-driven settings can be stated with confidence.
+The provided analysis does not expose a `.env` file, config module source, or explicit environment-variable declarations. That means we can only infer configuration usage from code.
 
-### Observed configuration hook
+### Observable configuration inputs
 
-The code imports `config` and calls `get_settings()` in several places, notably:
+The following values are clearly expected to come from settings and may ultimately be sourced from environment variables in the wider application:
 
-- [`_get_vertexai_client`](memory/memory_bank.py#L41)
-- [`build_memory_bank`](memory/memory_bank.py#L411)
-
-From the function docstrings and behavior, the following configuration field is clearly supported:
-
-| Setting | Purpose | Required? |
+| Setting | Used by | Purpose |
 |---|---|---|
-| `MEMORY_BANK_RESOURCE_NAME` | Full Agent Engine resource name for the memory backend | Yes, for real backend usage |
+| `MEMORY_BANK_RESOURCE_NAME` | [`build_memory_bank`](memory/memory_bank.py#L411) | Controls whether a `HermesMemoryBank` is instantiated |
+| project / location settings | [`_get_vertexai_client`](memory/memory_bank.py#L41) | Default Vertex AI project and region when explicit args are omitted |
 
-If `MEMORY_BANK_RESOURCE_NAME` is missing or empty, [`build_memory_bank`](memory/memory_bank.py#L411) returns `None` and the application can continue without memory persistence.
+The `create_memory_bank` flow also depends on project and location values, and uses a `display_name` to find or create the backing Agent Engine.
 
-### Vertex client project/location fallback
+### Suggested environment setup
 
-[`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) falls back to values from settings when explicit parameters are not provided. The exact setting names are not shown in the analysis, so they should be confirmed in the repository’s `config` module before relying on them in production.
-
-### Practical setup example
-
-A typical shell-based setup might look like this:
+If your local config system maps settings to env vars, you will likely need something like:
 
 ```bash
-export MEMORY_BANK_RESOURCE_NAME="projects/my-project/locations/us-central1/reasoningEngines/1234567890"
+export MEMORY_BANK_RESOURCE_NAME="projects/.../locations/.../reasoningEngines/..."
+export GOOGLE_CLOUD_PROJECT="my-project"
+export GOOGLE_CLOUD_LOCATION="us-central1"
 ```
 
-If the config module reads additional Vertex settings from the environment, they will need to be set as well, but those names are not evidenced in the available analysis.
+This mapping is an informed guess; the exact variable names are not present in the supplied data.
 
-> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41)  
-> `memory/memory_bank.py` · L411–L427 · [`build_memory_bank`](memory/memory_bank.py#L411)  
-> `memory/memory_bank.py` · L79–L94 · [`HermesMemoryBank`](memory/memory_bank.py#L79)
+### SDK compatibility concern
+
+The docstring on [`_get_vertexai_client`](memory/memory_bank.py#L41) explicitly says it “raises ImportError with a helpful message if the SDK is too old.” If you see that error, your environment almost certainly has an outdated Vertex AI SDK and needs an upgrade.
+
+> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411)
 
 ## Troubleshooting
 
 ### `build_memory_bank()` returns `None`
 
-This usually means `MEMORY_BANK_RESOURCE_NAME` is not set, is blank, or the config lookup failed. The behavior is intentional: [`build_memory_bank`](memory/memory_bank.py#L411) is designed to return `None` when the memory bank is not configured.
+This is expected when the memory resource is not configured. The implementation explicitly returns `None` if `MEMORY_BANK_RESOURCE_NAME` is missing or empty. Check:
 
-**Fix:**
+- your settings source
+- whether the environment variable or config entry is actually present
+- whether the resource name string is non-empty and correctly formatted
 
-- Set `MEMORY_BANK_RESOURCE_NAME`
-- Confirm it contains a full resource path
-- Restart the process after updating environment variables
+Relevant behavior is exercised in [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222).
 
-### Vertex SDK import errors
+### ImportError mentioning Vertex AI / old SDK
 
-[`_get_vertexai_client`](memory/memory_bank.py#L41) raises an `ImportError` with a helpful message when the Vertex SDK is too old. Since the analysis does not show the exact dependency version pin, this is a common setup issue if your environment has a stale Google SDK.
+The helper [`_get_vertexai_client`](memory/memory_bank.py#L41) is designed to fail fast if the installed SDK is too old to provide `VertexClient`. Fix by upgrading the Vertex AI package in your environment.
 
-**Fix:**
+### No memories returned from `fetch_memories()`
 
-```bash
-pip install --upgrade -r requirements.txt
-```
+[`fetch_memories`](memory/memory_bank.py#L331) returns an empty list on errors and when no results are found. If you are seeing no context:
 
-If that does not help, explicitly upgrade the Vertex SDK package used by the repository.
+- verify the user ID is correct
+- verify the query matches known memory content
+- verify the backing Agent Engine has memories stored
+- check logs for swallowed exceptions
 
-### Missing project or location context
+### `format_for_prompt()` returns an empty string
 
-When project/location are not passed to [`create_memory_bank`](memory/memory_bank.py#L432) or client initialization helpers, the code falls back to settings. If those settings are absent, client creation may fail or default incorrectly.
+[`format_for_prompt`](memory/memory_bank.py#L381) intentionally returns an empty string when there are no memories or when retrieval fails. This is a safe fallback for prompt injection. If you expected content, troubleshoot `fetch_memories()` first.
 
-**Fix:**
+### Memory generation appears to do nothing
 
-- Pass `project` and `location` explicitly to [`create_memory_bank`](memory/memory_bank.py#L432)
-- Ensure your settings source provides the needed defaults
-- Verify the active Google Cloud credentials have access to the target project
+[`generate_memories`](memory/memory_bank.py#L105) is fire-and-forget and wraps the blocking SDK call in `asyncio.to_thread()`. If it fails, the exception is swallowed after logging a debug message. This means:
 
-### Network or API permission failures
+- the app won’t crash
+- you must inspect logs to see failures
+- client initialization is lazy, so the first call is also the first real connectivity test
 
-Methods such as [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`delete_memory`](memory/memory_bank.py#L227), and [`fetch_memories`](memory/memory_bank.py#L331) all depend on external Vertex API calls. In the tests, failures are often swallowed and converted to safe defaults, but in real usage these failures usually indicate authorization or connectivity problems.
+### SDK batch ingestion behaves differently than direct generation
 
-**Fix:**
+Use [`ingest_events`](memory/memory_bank.py#L143) when you want the SDK to batch events automatically. The tests show it normalizes event roles, including mapping agent-like roles to model roles. If your event payload does not use the expected `role` and `text` keys, ingestion may not behave as intended.
 
-- Check Google Cloud authentication
-- Confirm Vertex AI is enabled in the project
-- Confirm the resource name points to the correct region
-- Verify the runtime has outbound network access
+### Create/update/delete operations fail silently
 
-### No memories returned on startup
+The methods [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`delete_memory`](memory/memory_bank.py#L227), and [`purge_memories`](memory/memory_bank.py#L187) all handle exceptions by logging and returning safe fallback values (`None`, `False`, or `0`). This is deliberate. Troubleshooting should focus on:
 
-[`fetch_memories`](memory/memory_bank.py#L331) and [`format_for_prompt`](memory/memory_bank.py#L381) will return empty results if there are no stored memories or if retrieval fails.
+- credentials
+- project/region correctness
+- resource names
+- API permissions
 
-**Fix:**
-
-- Confirm memories were ingested via [`generate_memories`](memory/memory_bank.py#L105) or [`ingest_events`](memory/memory_bank.py#L143)
-- Check that the `user_id` matches the one used when storing memories
-- Use a query that matches the expected facts
-
-> **Sources:** `memory/memory_bank.py` · L41–L470 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)
+> **Sources:** `memory/memory_bank.py` · L105–L406 · [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143), [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381) · `tests/memory/test_memory_bank.py` · L58–L495 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)

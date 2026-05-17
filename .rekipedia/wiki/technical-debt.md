@@ -1,234 +1,254 @@
 ---
 slug: technical-debt
-title: "Technical Debt Audit"
+title: "Technical Debt Assessment: `memory/memory_bank.py`"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T05:02:18Z
+created_at: 2026-05-17T12:37:13Z
 rekipedia_version: 0.15.1
 ---
 
-# Technical Debt Audit
+# Technical Debt Assessment: `memory/memory_bank.py`
 
 ## Summary
 
-This codebase is small and focused, with one implementation module, [`memory.memory_bank`](memory/memory_bank.py#L1), and a reasonably broad unit test suite in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1). Overall technical health is **Medium**: the core logic is well-covered for the documented happy-path and error-swallowing behaviors, but the module contains several structural debt items, weakly typed API boundaries, and a few “deprecated-by-design” compatibility stubs that reduce long-term maintainability.
+This codebase is small and focused, with a single implementation module and a strong test suite around its core behaviors (`memory/memory_bank.py` and `tests/memory/test_memory_bank.py`). Overall technical debt is **Medium**: the implementation is reasonably well-tested, but it carries a few maintainability risks, notably a very large facade class, repeated error-handling patterns, and several intentionally unsupported compatibility methods that add API surface without real functionality.
 
-The biggest debt concentration is in [`HermesMemoryBank`](memory/memory_bank.py#L79), which acts as a facade over a Vertex AI memories client while also handling migration compatibility, prompt formatting, failure suppression, and resource lifecycle operations. This is manageable now, but it is already carrying too many responsibilities for a single class.
+The biggest debt is not correctness-related but architectural: [`HermesMemoryBank`](memory/memory_bank.py#L79) centralizes many responsibilities, while `build_memory_bank()` and `create_memory_bank()` embed configuration, SDK adaptation, and resource-creation logic in the same module. The tests are thorough for the supported behaviors, but several methods return empty values by design, which should be documented and revisited as SDK support evolves.
+
+---
 
 ## Debt Inventory
 
 | # | Area | Severity | Description | Files Affected | Effort to Fix |
 |---|------|----------|-------------|----------------|---------------|
-| 1 | `HermesMemoryBank` multi-responsibility facade | 🟠 High | The class combines client initialization, ingestion, CRUD, purge, retrieval, compatibility stubs, and prompt formatting in one place. | `memory/memory_bank.py` | L |
-| 2 | Broad exception swallowing across API methods | 🟠 High | Several methods catch `Exception` and return fallback values, potentially hiding production failures. | `memory/memory_bank.py` | M |
-| 3 | Compatibility stubs returning empty values | 🟡 Medium | `retrieve_profiles()` and `list_revisions()` always return empty lists, which may mislead callers into thinking the operations are supported. | `memory/memory_bank.py` | S |
-| 4 | Weakly typed event/memory payload handling | 🟡 Medium | Methods accept untyped dicts and dynamic attributes (`fact`) with runtime fallbacks. | `memory/memory_bank.py` | M |
-| 5 | Prompt construction logic mixed into storage facade | 🟡 Medium | `format_for_prompt()` embeds token-budgeting and rendering logic inside the memory bank wrapper. | `memory/memory_bank.py` | M |
-| 6 | Test helper duplication / central fixture sprawl | 🟡 Medium | [`tests/conftest.py`](tests/conftest.py#L1) contains many broad fake modules and stubs, which makes test setup harder to reason about. | `tests/conftest.py` | M |
-| 7 | Missing coverage for helper function `_make_module` | 🟢 Low | Static analysis explicitly flags `_make_module()` as used but untested. | `tests/conftest.py` | S |
-| 8 | Dependency inventory is effectively absent | 🟢 Low | Only `requirements.txt` is present in the analyzed set, and no version-risk review is possible from the provided data. | `requirements.txt` | S |
+| 1 | Large facade / mixed responsibilities | 🟠 High | [`HermesMemoryBank`](memory/memory_bank.py#L79) bundles client lifecycle, memory CRUD, prompt formatting, batching, purge, and compatibility stubs in one class. | `memory/memory_bank.py` | L |
+| 2 | Repeated exception-swallowing pattern | 🟡 Medium | Multiple methods catch broad exceptions and return fallback values, which can hide partial failures and make debugging harder. | `memory/memory_bank.py` | M |
+| 3 | Unsupported methods retained for compatibility | 🟡 Medium | [`retrieve_profiles`](memory/memory_bank.py#L315), [`list_revisions`](memory/memory_bank.py#L369) always return empty lists, which may mislead callers. | `memory/memory_bank.py` | S |
+| 4 | Token budgeting / truncation logic is ad hoc | 🟡 Medium | [`format_for_prompt`](memory/memory_bank.py#L381) implements token budgeting locally with string-length logic rather than a shared utility. | `memory/memory_bank.py` | M |
+| 5 | Async wrapper around blocking SDK calls | 🟡 Medium | `asyncio.to_thread()` is used repeatedly to offload blocking SDK calls; effective, but repetitive and easy to misapply. | `memory/memory_bank.py` | M |
+| 6 | Test-only fake SDK objects mirror production SDK internals | 🟢 Low | Helper mocks like [`_make_mock_client`](tests/memory/test_memory_bank.py#L32) and [`_make_engine`](tests/memory/test_memory_bank.py#L42) are tightly coupled to current SDK structure. | `tests/memory/test_memory_bank.py` | S |
+| 7 | Missing repository-wide dependency visibility | 🟢 Low | No `pyproject.toml`, `package.json`, or `go.mod` was present in the analyzed files, so dependency risk cannot be assessed from evidence. | N/A | S |
 
-> **Sources:** `memory/memory_bank.py` · L1–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/conftest.py` · L1–L274 · [`_make_module`](tests/conftest.py#L22)
+> **Sources:** `memory/memory_bank.py` · L1–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)  
+> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)
+
+---
 
 ## Critical Issues
 
-No **Critical** issues were evidenced in the provided analysis data. The code has risks, but none were clearly severe enough to justify a critical rating from the observed repository slice.
+No **Critical** issues were evidenced in the provided analysis. The module appears functionally covered by tests, and there are no explicit signs of data loss bugs, security vulnerabilities, or broken entry points in the analyzed code.
 
-### 1) `HermesMemoryBank` is too broad for one class
+### High: Large Facade Class with Multiple Responsibilities
 
-[`HermesMemoryBank`](memory/memory_bank.py#L79) implements memory generation, event ingestion, purge, delete, create, update, fetch, compatibility no-ops, and prompt formatting in a single class. That makes it a coupling hotspot and makes the class hard to evolve independently.
+[`HermesMemoryBank`](memory/memory_bank.py#L79) is a broad application facade over Vertex AI Agent Engine memories. It implements client initialization, ingestion, retrieval, creation, update, deletion, purge, prompt formatting, and compatibility shims all in one class.
 
-This is visible in the call graph: methods like [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143), [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`fetch_memories`](memory/memory_bank.py#L331), and [`format_for_prompt`](memory/memory_bank.py#L381) are all on the same class.
+#### Why this is a problem
+- It increases cognitive load and makes the module harder to change safely.
+- It couples unrelated responsibilities: network client management, domain logic, and presentation formatting.
+- It makes testing more brittle as one class accumulates more branches and SDK adaptation logic.
 
-**Why this is a problem**
-- Harder to test in isolation at the method level
-- Harder to replace the Vertex AI backend later
-- Mixes domain logic with presentation logic
-- Increases blast radius for changes
+#### Concrete fix
+Split the class into focused collaborators:
+- `VertexClientProvider` for SDK/client creation
+- `MemoryWriter` for create/update/delete/purge/ingest operations
+- `MemoryRetriever` for `fetch_memories()` and prompt formatting
+- `MemoryCompatibilityAdapter` for unsupported methods
 
-**Suggested fix**
-Split the class into smaller collaborators:
-- `MemoryClientFactory` for `_get_vertexai_client()`
-- `MemoryRepository` for CRUD / ingest / purge
-- `MemoryPromptFormatter` for `format_for_prompt()`
-- `MemoryBankService` as a small orchestration layer
-
-Example shape:
+Example direction:
 
 ```python
-class MemoryRepository:
-    async def fetch_memories(self, user_id: str, query: str, top_k: int = 5) -> list[str]:
-        ...
+class MemoryRetriever:
+    def __init__(self, client):
+        self.client = client
 
-class MemoryPromptFormatter:
-    def format(self, memories: list[str], max_tokens: int) -> str:
+    async def fetch_memories(self, user_id: str, query: str, top_k: int = 10) -> list[str]:
         ...
-
-class HermesMemoryBank:
-    def __init__(self, repository: MemoryRepository, formatter: MemoryPromptFormatter):
-        self.repository = repository
-        self.formatter = formatter
 ```
 
-> **Sources:** `memory/memory_bank.py` · L79–L406 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)
+Then keep `HermesMemoryBank` as a thin orchestration layer or replace it with composition entirely.
 
-### 2) Exception swallowing hides operational failures
+> **Sources:** `memory/memory_bank.py` · L79–L406 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`generate_memories`](memory/memory_bank.py#L105), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)
 
-Multiple methods in [`HermesMemoryBank`](memory/memory_bank.py#L79) catch broad exceptions and return benign fallbacks:
-- [`generate_memories`](memory/memory_bank.py#L105) swallows failures
-- [`ingest_events`](memory/memory_bank.py#L143) swallows failures
-- [`purge_memories`](memory/memory_bank.py#L187) swallows failures
-- [`delete_memory`](memory/memory_bank.py#L227) returns `False` on failure
-- [`create_memory`](memory/memory_bank.py#L250) returns `None` on failure
-- [`update_memory`](memory/memory_bank.py#L285) returns `False` on failure
-- [`fetch_memories`](memory/memory_bank.py#L331) returns `[]` on failure
-- [`build_memory_bank`](memory/memory_bank.py#L411) returns `None` on failure
+### High: Unsupported API Methods Exposed as Functional Surface
 
-**Why this is a problem**
-This pattern is pragmatic for user-facing resilience, but it also makes outages and permission/configuration errors nearly invisible. Without structured logging, metrics, or error propagation, callers cannot distinguish “no memories found” from “backend unavailable.”
+[`retrieve_profiles`](memory/memory_bank.py#L315) and [`list_revisions`](memory/memory_bank.py#L369) are documented as unsupported in the current SDK and always return `[]`.
 
-**Suggested fix**
-Use explicit exception classes and distinguish:
-- expected “not configured” degradation
-- backend timeouts / transient errors
-- permanent misconfiguration
+#### Why this is a problem
+- These methods present an API that appears implemented but is effectively inert.
+- Callers may assume they are retrieving meaningful data and build workflows around empty results.
+- The behavior is hidden behind normal-looking method signatures, increasing the risk of silent failure-by-design.
 
-Example:
+#### Concrete fix
+Either:
+1. Remove them from public surface, or
+2. Raise a clear `NotImplementedError`, or
+3. Rename/document them as explicit compatibility stubs.
+
+For example:
 
 ```python
-try:
-    return await asyncio.to_thread(client.memories.retrieve, ...)
-except PermissionError as exc:
-    logger.error("Memory fetch denied for user_id=%s: %s", user_id, exc)
-    raise
-except Exception as exc:
-    logger.warning("Memory fetch failed for user_id=%s: %s", user_id, exc)
-    return []
+def retrieve_profiles(self, user_id: str) -> list[str]:
+    raise NotImplementedError(
+        "RetrieveProfiles is not supported by SDK >= 1.112; use fetch_memories() instead."
+    )
 ```
 
-> **Sources:** `memory/memory_bank.py` · L105–L406 · [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143), [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`fetch_memories`](memory/memory_bank.py#L331), [`build_memory_bank`](memory/memory_bank.py#L411)
+> **Sources:** `memory/memory_bank.py` · L315–L329 · [`retrieve_profiles`](memory/memory_bank.py#L315)  
+> **Sources:** `memory/memory_bank.py` · L369–L379 · [`list_revisions`](memory/memory_bank.py#L369)
+
+---
 
 ## Code Smell Patterns
 
-### 1) God object / overloaded facade
+### 1) God Object / Bloated Facade
 
-[`HermesMemoryBank`](memory/memory_bank.py#L79) is the clearest example of a God object. It owns both API integration and presentation-related behavior.
+The strongest smell is the breadth of [`HermesMemoryBank`](memory/memory_bank.py#L79). It centralizes many unrelated operations and thus becomes a change magnet.
 
-**Real example**
-- CRUD operations: [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`delete_memory`](memory/memory_bank.py#L227)
-- ingestion flows: [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143)
-- read / formatting flows: [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)
-- compatibility stubs: [`retrieve_profiles`](memory/memory_bank.py#L315), [`list_revisions`](memory/memory_bank.py#L369)
+**Example:** the class spans methods for generate, ingest, purge, delete, create, update, fetch, revisions, and prompt formatting.
 
-**Recommended refactor**
-Introduce separate classes for storage, lifecycle management, and formatting, then let a thin orchestration facade compose them.
+**Recommended refactor:** split by responsibility and keep only a small orchestration layer. This will also improve test isolation.
 
 > **Sources:** `memory/memory_bank.py` · L79–L406 · [`HermesMemoryBank`](memory/memory_bank.py#L79)
 
-### 2) Dynamic runtime data handling
+### 2) Repeated Broad Exception Handling
 
-Methods such as [`ingest_events`](memory/memory_bank.py#L143) and [`fetch_memories`](memory/memory_bank.py#L331) accept generic `events` collections and memory objects with optional `.fact` attributes. The test suite explicitly validates fallback behavior for objects without a `fact` attribute.
+Methods such as [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143), [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), and [`fetch_memories`](memory/memory_bank.py#L331) all catch broad exceptions and return a fallback value.
 
-**Real example**
-- [`fetch_memories`](memory/memory_bank.py#L331) uses `getattr(..., "fact", str(memory))`
-- [`ingest_events`](memory/memory_bank.py#L143) normalizes event roles at runtime
+**Why it matters:** this can mask infrastructure failures and make operational issues appear like normal empty responses.
 
-**Recommended refactor**
-Define typed dataclasses or `TypedDict` objects for events and memory records. This will reduce reliance on `getattr()` and implicit schema conventions.
+**Recommended refactor:** centralize exception handling in a helper that logs structured context and optionally distinguishes transient SDK errors from unsupported behavior.
 
-> **Sources:** `memory/memory_bank.py` · L143–L367 · [`ingest_events`](memory/memory_bank.py#L143), [`fetch_memories`](memory/memory_bank.py#L331)
+> **Sources:** `memory/memory_bank.py` · L105–L367 · [`generate_memories`](memory/memory_bank.py#L105), [`fetch_memories`](memory/memory_bank.py#L331)
 
-### 3) Compatibility no-op methods
+### 3) Ad Hoc Feature Degradation
 
-[`retrieve_profiles`](memory/memory_bank.py#L315) and [`list_revisions`](memory/memory_bank.py#L369) are documented as unsupported and return empty lists.
+The compatibility methods [`retrieve_profiles`](memory/memory_bank.py#L315) and [`list_revisions`](memory/memory_bank.py#L369) are explicit no-ops. This is understandable for SDK migration, but it becomes technical debt if left indefinitely.
 
-**Real example**
-- `retrieve_profiles()` returns `[]`
-- `list_revisions()` returns `[]`
-
-**Recommended refactor**
-Replace silent no-ops with:
-- explicit `NotImplementedError`, or
-- a compatibility adapter interface that clearly signals unsupported behavior
+**Recommended refactor:** replace silent degradation with a compatibility shim that emits warnings or exceptions, and track removal in the roadmap.
 
 > **Sources:** `memory/memory_bank.py` · L315–L379 · [`retrieve_profiles`](memory/memory_bank.py#L315), [`list_revisions`](memory/memory_bank.py#L369)
 
-### 4) Presentation logic embedded in service layer
+### 4) Local Token-Budget Heuristic
 
-[`format_for_prompt`](memory/memory_bank.py#L381) fetches memories and renders a prompt snippet, including token-budget handling.
+[`format_for_prompt`](memory/memory_bank.py#L381) assembles prompt text and trims by a `max_tokens` budget using local logic. That approach is reasonable, but it is isolated and likely hard to reuse consistently.
 
-**Real example**
-- fetch + render in the same method
-- string assembly with a hard token budget parameter
-
-**Recommended refactor**
-Move rendering to a dedicated formatter utility so the memory service only returns structured data.
+**Recommended refactor:** extract prompt formatting into a shared utility and define a single token-counting strategy.
 
 > **Sources:** `memory/memory_bank.py` · L381–L406 · [`format_for_prompt`](memory/memory_bank.py#L381)
 
+### 5) Test Mock Structure Mirrors SDK Internals
+
+The test helpers [`_make_mock_client`](tests/memory/test_memory_bank.py#L32) and [`_make_engine`](tests/memory/test_memory_bank.py#L42) encode a specific object shape from the Vertex SDK.
+
+**Why it matters:** SDK updates may require repeated test updates even if app behavior remains unchanged.
+
+**Recommended refactor:** wrap SDK interactions behind a small adapter interface so tests mock the adapter, not SDK internals.
+
+> **Sources:** `tests/memory/test_memory_bank.py` · L32–L53 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), [`_make_engine`](tests/memory/test_memory_bank.py#L42)
+
+---
+
 ## Missing Tests
 
-The core implementation module is well covered relative to its size: [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1) exercises every public method on [`HermesMemoryBank`](memory/memory_bank.py#L79), plus both builders. However, the analysis explicitly identifies one untested helper and the overall repository slice is too small to support broader test-gap claims.
+Based on the provided analysis, there is **1 implementation file** and **1 test file**, so the raw ratio is superficially strong. However, test coverage is concentrated entirely on `memory/memory_bank.py`; there are no tests for configuration loading, SDK import fallback behavior, logging behavior, or any higher-level integration path.
 
-### Explicit gap identified by analysis
+### Areas with limited or unverified coverage
 
-- [`_make_module`](tests/conftest.py#L22) is called 6 times and has no direct test coverage.
-
-### Test coverage observations
-
-| Area | Evidence | Gap |
+| Module / Function | Coverage Observation | Gap |
 |---|---|---|
-| [`HermesMemoryBank`](memory/memory_bank.py#L79) methods | Extensive unit tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L48) | No major gap evidenced |
-| [`build_memory_bank`](memory/memory_bank.py#L411) | Covered by `TestBuildMemoryBank` | No major gap evidenced |
-| [`create_memory_bank`](memory/memory_bank.py#L432) | Covered by `TestCreateMemoryBank` | No major gap evidenced |
-| [`tests.conftest`](tests/conftest.py#L1) helpers | Analysis flags `_make_module` as uncovered | Add direct test(s) |
+| [`_get_vertexai_client`](memory/memory_bank.py#L41) | Not directly tested for ImportError fallback messaging or settings fallback behavior. | Error-path and configuration-path verification missing. |
+| [`build_memory_bank`](memory/memory_bank.py#L411) | Tested for empty config and exception fallback. | No test of exact settings resolution or logging output. |
+| [`create_memory_bank`](memory/memory_bank.py#L432) | Good unit coverage for creation and existing-engine reuse. | No live integration test against real SDK objects. |
+| [`format_for_prompt`](memory/memory_bank.py#L381) | Tested for formatting and token budget. | No test for edge cases like long memory entries with newline-heavy payloads. |
+| Compatibility methods | Tested that they return empty lists. | No test that callers are warned or that these stubs are intentionally deprecated. |
 
-### Recommendation
-Add one small test module for `tests/conftest.py` helpers, especially `_make_module`, to prevent regressions in fixture generation.
+### Coverage ratio note
+The analysis does not provide numeric coverage metrics, so this assessment is qualitative. The test suite is broad within this module, but the repo as analyzed does not expose enough breadth to prove coverage outside the memory-bank boundary.
 
-> **Sources:** `tests/conftest.py` · L22–L26 · [`_make_module`](tests/conftest.py#L22) · `tests/memory/test_memory_bank.py` · L48–L490 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L48)
+> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)  
+> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · test classes and helpers
+
+---
 
 ## Dependency & Security Concerns
 
-The provided data includes [`requirements.txt`](requirements.txt) but does not enumerate dependency versions, and there are no build/test commands or CI metadata available. Because of that, there is **not enough evidence** to flag specific vulnerable versions or CVEs.
+No `pyproject.toml`, `package.json`, or `go.mod` file was included in the provided analysis, so there is **insufficient evidence** to identify outdated packages, pinned versions, or known CVE-prone dependency patterns.
 
 ### What is observable
-- `requirements.txt` is present in the repo snapshot
-- No parsed dependency versions were supplied
-- No `pyproject.toml`, `package.json`, or `go.mod` appeared in `files_seen`
+- The implementation imports `vertexai` and relies on `config` settings.
+- The SDK migration note in [`create_memory_bank`](memory/memory_bank.py#L432) indicates a dependency on Vertex AI SDK behavior changes.
 
-### Security risk pattern to watch
-The main code risk is not a known CVE from the available data, but the broad exception-swallowing and dynamic behavior in [`memory/memory_bank.py`](memory/memory_bank.py#L1) can mask misconfiguration, permission failures, or transport issues in a production Vertex AI integration.
+### Security posture notes
+- There are no obvious secrets handling issues visible in the analyzed files.
+- There are no explicit authentication/authorization checks in `memory/memory_bank.py`; that may be appropriate if this module is only a backend facade, but it should be validated at the call site.
 
-### Recommendation
-Once dependency versions are available, run:
-- `pip-audit` for Python packages
-- `uv pip check` / `pip check`
-- Dependabot or Renovate for patch management
+> **Sources:** `memory/memory_bank.py` · L1–L498 · imports and SDK adaptation logic in [`_get_vertexai_client`](memory/memory_bank.py#L41), [`create_memory_bank`](memory/memory_bank.py#L432)
 
-> **Sources:** `requirements.txt` · `memory/memory_bank.py` · L1–L470 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank`](memory/memory_bank.py#L79)
+---
 
 ## TODO / FIXME Tracker
 
-No `TODO`, `FIXME`, `HACK`, or `XXX` comments were provided in the analysis data. This may mean none exist in the scanned files, or simply that comment extraction was not included in the payload.
+No `TODO`, `FIXME`, `HACK`, or `XXX` comments were present in the provided analysis data.
 
 | File | Line | Comment | Suggested Action |
 |---|---:|---|---|
-| _No evidence provided_ | — | No TODO/FIXME/HACK/XXX comments extracted | Run a comment scan across the repository |
+| — | — | No tracked TODO/FIXME comments evidenced | Add explicit tracker comments where future migration work is intended, especially around unsupported compatibility methods |
 
-> **Sources:** No comment extraction evidence present in the provided analysis payload.
+> **Sources:** `memory/memory_bank.py` · L1–L498 · no TODO/FIXME evidence in supplied analysis  
+> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · no TODO/FIXME evidence in supplied analysis
+
+---
 
 ## Refactoring Roadmap
 
 | Priority | Action | Rationale | Estimated Effort |
-|----------|--------|-----------|-----------------|
-| 1 | Split [`HermesMemoryBank`](memory/memory_bank.py#L79) into smaller collaborators | Highest impact on maintainability and future feature work | L |
-| 2 | Replace broad exception swallowing with structured failure handling | Improves observability and reduces hidden production issues | M |
-| 3 | Extract prompt formatting into a dedicated formatter | Separates storage concerns from presentation concerns | M |
-| 4 | Introduce typed event/memory schemas | Reduces runtime brittleness and `getattr`-style fallback logic | M |
-| 5 | Replace compatibility no-op methods with explicit adapters or exceptions | Makes unsupported behavior visible to callers | S |
-| 6 | Add tests for [`_make_module`](tests/conftest.py#L22) | Closes the only explicit uncovered helper noted in analysis | S |
-| 7 | Audit and pin dependencies once version data is available | Needed before any meaningful security review | S |
+|----------|-----------|-----------|------------------|
+| 1 | Split [`HermesMemoryBank`](memory/memory_bank.py#L79) into smaller collaborators | Highest impact on maintainability; reduces class size and change risk | L |
+| 2 | Replace silent empty-list compatibility methods with explicit deprecation handling | Prevents hidden behavior and improves caller clarity | S |
+| 3 | Extract shared error-handling / retry policy for SDK calls | Reduces repeated `try/except` boilerplate and makes failure behavior consistent | M |
+| 4 | Extract prompt formatting/token budgeting into a reusable utility | Improves readability and reuse for any future prompt injection path | M |
+| 5 | Add tests for `_get_vertexai_client()` fallback and helpful ImportError messaging | Closes the main untested edge of SDK initialization | S |
+| 6 | Add a small adapter interface around Vertex SDK objects | Decouples tests and app logic from SDK structure changes | M |
+| 7 | Decide whether compatibility stubs should be removed or retained with warnings | Prevents long-term accumulation of dead API surface | S |
 
-> **Sources:** `memory/memory_bank.py` · L79–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`format_for_prompt`](memory/memory_bank.py#L381), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/conftest.py` · L22–L26 · [`_make_module`](tests/conftest.py#L22)
+> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+
+---
+
+## Relationship and Coverage Snapshot
+
+The analyzed code is tightly centered around a single production module and its unit tests. Relationship statistics show **288 total relationships**, with **17 imports** and **271 calls**, which is a high call-density for such a small surface area and reinforces the “central facade” debt pattern.
+
+```mermaid
+flowchart LR
+    MB[memory_memory_bank]
+    HB[HermesMemoryBank]
+    GM[generate_memories]
+    IE[ingest_events]
+    PM[purge_memories]
+    FM[fetch_memories]
+    CFP[format_for_prompt]
+    BMB[build_memory_bank]
+    CMB[create_memory_bank]
+    TMB[tests_memory_test_memory_bank]
+    VC[_get_vertexai_client]
+    GS[get_settings]
+
+    MB --> HB
+    MB --> VC
+    MB --> BMB
+    MB --> CMB
+    TMB --> MB
+    HB --> GM
+    HB --> IE
+    HB --> PM
+    HB --> FM
+    HB --> CFP
+    BMB --> GS
+    CMB --> VC
+```
+
+> **Sources:** `memory/memory_bank.py` · L1–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)  
+> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · test module imports and method coverage  
+> **Sources:** `relationship_stats` · total 288 relationships, 17 imports, 271 calls

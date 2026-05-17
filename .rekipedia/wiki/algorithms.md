@@ -1,268 +1,233 @@
 ---
 slug: algorithms
-title: "Core Algorithms and Data Processing Logic"
+title: "Memory Bank Algorithms and Data Processing"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T05:00:31Z
+created_at: 2026-05-17T12:38:13Z
 rekipedia_version: 0.15.1
 ---
 
-# Core Algorithms and Data Processing Logic
+# Memory Bank Algorithms and Data Processing
 
 ## Overview
 
-This repository’s main computational problem is **memory lifecycle management for an AI assistant**: taking conversational or explicit facts, persisting them into Vertex AI Agent Engine memories, retrieving the most relevant memories later, formatting them into prompt-ready context, and supporting administrative operations like delete, update, and purge. The central implementation lives in [`memory.memory_bank`](memory/memory_bank.py#L1) and is encapsulated by the [`HermesMemoryBank`](memory/memory_bank.py#L79) facade.
+This project solves a focused but important data-processing problem: it turns conversational turns and user-authored facts into durable, queryable memory records backed by Vertex AI Agent Engine memories, then retrieves and formats those memories for prompt injection at session start. The core implementation lives in [`memory.memory_bank`](memory/memory_bank.py#L1), centered around the [`HermesMemoryBank`](memory/memory_bank.py#L79) facade.
 
-At a high level, the project solves three related classes of work:
+From the available symbols, the computational responsibilities fall into three categories:
 
-1. **Memory ingestion and distillation**  
-   Conversation turns are transformed into durable memory records via [`HermesMemoryBank.generate_memories()`](memory/memory_bank.py#L105) or batched event streams via [`HermesMemoryBank.ingest_events()`](memory/memory_bank.py#L143).
+1. **Memory ingestion / consolidation**
+   - Convert a conversation turn or a stream of events into a write to the remote memory store.
+   - This includes fire-and-forget generation via [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105) and batched event ingestion via [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143).
 
-2. **Memory retrieval and prompt construction**  
-   Relevant memories are fetched using [`HermesMemoryBank.fetch_memories()`](memory/memory_bank.py#L331) and converted into a compact system-prompt snippet by [`HermesMemoryBank.format_for_prompt()`](memory/memory_bank.py#L381).
+2. **Memory retrieval / ranking**
+   - Query the memory store for relevant memories based on a user ID and search query.
+   - Implemented by [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331), which returns memory facts as plain strings.
 
-3. **Memory administration and provisioning**  
-   The module also supports direct CRUD-style operations such as [`create_memory()`](memory/memory_bank.py#L250), [`update_memory()`](memory/memory_bank.py#L285), [`delete_memory()`](memory/memory_bank.py#L227), and resource provisioning through [`create_memory_bank()`](memory/memory_bank.py#L432).
+3. **Memory lifecycle management**
+   - Create, update, delete, and purge memories.
+   - Implemented by [`HermesMemoryBank.create_memory`](memory/memory_bank.py#L250), [`HermesMemoryBank.update_memory`](memory/memory_bank.py#L285), [`HermesMemoryBank.delete_memory`](memory/memory_bank.py#L227), and [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187).
 
-The design is intentionally defensive: almost every public operation catches exceptions and degrades gracefully, returning `None`, `False`, `0`, `[]`, or `""` instead of raising, which makes the memory layer safe to use in request/response paths and fire-and-forget callbacks. This behavior is strongly reflected in the tests under [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1).
+A secondary problem solved by the module is **SDK compatibility and graceful degradation**. The helper [`_get_vertexai_client`](memory/memory_bank.py#L41) abstracts Vertex AI client construction and handles missing/older SDK behavior, while [`build_memory_bank`](memory/memory_bank.py#L411) returns `None` when the feature is not configured.
 
-> **Sources:** `memory/memory_bank.py` · L1–L470 · [`memory.memory_bank`](memory/memory_bank.py#L1), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `memory/memory_bank.py` · L1–L498 · [`memory.memory_bank`](memory/memory_bank.py#L1), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411)
 
 ## Algorithm Descriptions
 
-### 1. Vertex AI Client Resolution and Compatibility Shim
+### 1) Vertex AI client bootstrap and compatibility resolution
 
-The helper [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) resolves a `vertexai.Client` while handling SDK compatibility and configuration fallback.
-
-- **Input**: optional `project` and `location` arguments
+- **Input**: optional `project` and `location` values, plus the runtime settings object accessed by [`get_settings`](memory/memory_bank.py#L41).
 - **Steps**:
-  1. If `project` or `location` are omitted, call `get_settings()` to read defaults from configuration.
-  2. Read `vertex_project` and `vertex_location` from settings via `getattr(...)`.
-  3. Construct and return a `vertexai.Client`.
-  4. If the SDK is too old or the expected client class is unavailable, raise an `ImportError` with a helpful message.
-- **Output**: a configured Vertex AI client instance
-- **Complexity**: O(1) time and space; the work is configuration lookup and object construction
-- **Code Reference**: [`_get_vertexai_client()`](memory/memory_bank.py#L41) in `memory/memory_bank.py`
+  1. Check whether `project` and `location` were explicitly provided.
+  2. If not, fall back to configured settings values.
+  3. Construct and return a [`VertexClient`](memory/memory_bank.py#L41)-compatible client.
+  4. If the installed SDK is too old or incompatible, raise an `ImportError` with a helpful message.
+- **Output**: a configured Vertex AI client instance.
+- **Complexity**: `O(1)` time and `O(1)` space; it is pure configuration/bootstrap logic.
+- **Code Reference**: [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41)
 
-This is not an algorithm in the mathematical sense, but it is a key **initialization pipeline** that ensures downstream memory operations can be written against a single client abstraction.
+This function is foundational because nearly every mutating or read operation in [`HermesMemoryBank`](memory/memory_bank.py#L79) depends on lazy client initialization via [`HermesMemoryBank._ensure_client`](memory/memory_bank.py#L98). Its main algorithmic purpose is not computation, but robust dependency setup.
 
-> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`get_settings`](memory/memory_bank.py#L41)
+> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank._ensure_client`](memory/memory_bank.py#L98)
 
----
+### 2) Fire-and-forget memory generation from a conversation turn
 
-### 2. Conversation Turn Distillation
-
-The [`HermesMemoryBank.generate_memories()`](memory/memory_bank.py#L105) method converts one user turn plus one agent response into durable memories.
-
-- **Input**:
-  - `user_id`
-  - `user_text`
-  - `agent_text`
-  - optional `agent_name`
+- **Input**: `user_id`, `user_text`, `agent_text`, and optional `agent_name` as defined by [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105).
 - **Steps**:
-  1. Lazily initialize the Vertex client with [`_ensure_client()`](memory/memory_bank.py#L98).
-  2. Build the SDK request for the `generate` operation.
-  3. Wrap the blocking SDK call in `asyncio.to_thread(...)` so the async event loop is not blocked.
-  4. Log debug details.
-  5. Swallow any exception and log it rather than failing the caller.
-- **Output**: `None` on success or failure; the effect is side-effectful persistence inside Vertex AI
-- **Complexity**: O(1) wrapper work; actual SDK cost is external/network-bound
-- **Code Reference**: [`HermesMemoryBank.generate_memories()`](memory/memory_bank.py#L105)
+  1. Lazily initialize the client with [`_ensure_client`](memory/memory_bank.py#L98).
+  2. Build a remote call payload from the user’s and agent’s latest utterances.
+  3. If an `agent_name` is present, attach it to the event metadata.
+  4. Execute the blocking SDK `generate` call inside `asyncio.to_thread` so the async caller is not blocked.
+  5. Swallow exceptions and log/debug rather than failing the user request path.
+- **Output**: no direct return value; side effect is durable memory generation in the remote backend.
+- **Complexity**: `O(1)` local work, plus remote API latency. Space is `O(1)`.
+- **Code Reference**: [`HermesMemoryBank.generate_memories(...)`](memory/memory_bank.py#L105)
 
-The tests show two important behavioral constraints: the client must be lazily initialized, and exceptions must be swallowed rather than propagated (`TestGenerateMemories` in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L48)).
+The tests show this path is intentionally defensive: exceptions are swallowed and the client is initialized lazily, indicating the algorithm is designed for best-effort persistence rather than transactional guarantees.
 
 > **Sources:** `memory/memory_bank.py` · L105–L141 · [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105), [`HermesMemoryBank._ensure_client`](memory/memory_bank.py#L98)
 
----
+### 3) Batched event ingestion for automatic memory generation
 
-### 3. Event Normalization and Batched Memory Ingestion
-
-The [`HermesMemoryBank.ingest_events()`](memory/memory_bank.py#L143) pipeline is the most production-oriented ingestion path.
-
-- **Input**:
-  - `user_id`
-  - `events`: a list of dictionaries containing `role` and `text`
+- **Input**: `user_id` and `events`, where each event dict contains a `role` and `text` field.
 - **Steps**:
-  1. Initialize the client lazily.
-  2. Iterate through the event list and normalize event roles.
-  3. Convert `role == "agent"` into the SDK’s expected `"model"` role.
-  4. Preserve `user` events as-is.
-  5. Submit the normalized event batch to the SDK’s `ingest_events` RPC using `asyncio.to_thread(...)`.
-  6. Log and swallow exceptions.
-- **Output**: `None`; the memory bank batches and persists events internally
-- **Complexity**: O(n) time and O(n) space for event normalization, where `n` is the number of events
-- **Code Reference**: [`HermesMemoryBank.ingest_events()`](memory/memory_bank.py#L143)
+  1. Lazily initialize the client.
+  2. Normalize each event into the schema required by the SDK.
+  3. Convert application roles into SDK-compatible roles; the tests show `agent` is normalized to `model`.
+  4. Submit the batched event list to the SDK’s `ingest_events` RPC using `asyncio.to_thread`.
+  5. Swallow any exception to preserve application flow.
+- **Output**: no direct return value; the remote service batches and triggers memory generation automatically.
+- **Complexity**: `O(n)` in the number of input events for normalization, `O(n)` space for the outgoing event payload.
+- **Code Reference**: [`HermesMemoryBank.ingest_events(...)`](memory/memory_bank.py#L143)
 
-This function is the clearest example of an internal **data transformation pipeline**: a small schema-normalization pass over raw event dictionaries before handing them to the backend. The tests explicitly verify role normalization from `agent` to `model` in [`TestIngestEvents.test_normalises_agent_role_to_model`](tests/memory/test_memory_bank.py#L351).
+This is the more production-oriented pipeline compared with [`generate_memories`](memory/memory_bank.py#L105) because it delegates batching and extraction timing to the backend service. The tests explicitly verify role normalization and payload shaping.
 
 > **Sources:** `memory/memory_bank.py` · L143–L185 · [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143)
 
----
+### 4) Bulk purge of a user’s memories
 
-### 4. Bulk Memory Purge
-
-The [`HermesMemoryBank.purge_memories()`](memory/memory_bank.py#L187) method deletes all memories belonging to a user.
-
-- **Input**:
-  - `user_id`
-  - `dry_run`
+- **Input**: `user_id` and `dry_run` flag.
 - **Steps**:
-  1. Initialize the client lazily.
-  2. Enumerate memories for the user.
-  3. Count the candidate memories.
-  4. If `dry_run` is enabled, return the count without deleting anything.
-  5. Otherwise invoke the SDK purge operation in a background thread.
-  6. Log and swallow exceptions.
-- **Output**: number of memories deleted, or would be deleted in dry-run mode
-- **Complexity**: O(n) time to enumerate memories; O(1) additional space aside from the returned list
-- **Code Reference**: [`HermesMemoryBank.purge_memories()`](memory/memory_bank.py#L187)
+  1. Initialize the client.
+  2. List all memories for the user.
+  3. If `dry_run` is enabled, return the count without deleting anything.
+  4. Otherwise, invoke the SDK purge operation with `force=True` semantics implied by the tests.
+  5. Return the number of memories purged, or `0` on failure.
+- **Output**: integer count of deleted or would-be-deleted memories.
+- **Complexity**: `O(n)` in the number of memories listed; space is `O(n)` if the list is materialized locally.
+- **Code Reference**: [`HermesMemoryBank.purge_memories(...)`](memory/memory_bank.py#L187)
 
-The dry-run branch is important operationally: it gives administrators a safe way to estimate the impact of a purge before executing it. The tests validate both execution and dry-run behavior in [`TestPurgeMemories`](tests/memory/test_memory_bank.py#L373).
+The important algorithmic detail here is the two-phase behavior: enumerate first, then optionally delete. That makes `dry_run` cheap and safe for operational inspection.
 
 > **Sources:** `memory/memory_bank.py` · L187–L225 · [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187)
 
----
+### 5) Single-memory CRUD operations
 
-### 5. Single-Memory CRUD Operations
+#### Delete a specific memory
 
-The module includes three straightforward CRUD-like operations: [`delete_memory()`](memory/memory_bank.py#L227), [`create_memory()`](memory/memory_bank.py#L250), and [`update_memory()`](memory/memory_bank.py#L285).
-
-#### Delete Memory
-- **Input**: full `memory_resource_name`
+- **Input**: `memory_resource_name`
 - **Steps**:
-  1. Initialize the client lazily.
-  2. Call the SDK delete operation in a thread.
-  3. Return `True` on success; `False` on failure.
-- **Output**: boolean success flag
-- **Complexity**: O(1)
+  1. Initialize the client.
+  2. Call the SDK delete method for the resource name.
+  3. Return `True` on success, `False` on exception.
+- **Output**: boolean success/failure
+- **Complexity**: `O(1)` local work
+- **Code Reference**: [`HermesMemoryBank.delete_memory(...)`](memory/memory_bank.py#L227)
 
-#### Create Memory
+#### Create a memory fact directly
+
 - **Input**: `user_id`, `fact`
 - **Steps**:
-  1. Initialize the client lazily.
-  2. Call the SDK create operation in a thread.
-  3. Extract `resource_name` from the returned object using `getattr(...)`.
-  4. Return the resource name or `None` on failure.
-- **Output**: created memory resource name or `None`
-- **Complexity**: O(1)
+  1. Initialize the client.
+  2. Submit a direct create request to the memory service.
+  3. Read the created object’s resource name using `getattr`-style defensive access.
+  4. Return the new resource name, or `None` if creation fails.
+- **Output**: resource name string or `None`
+- **Complexity**: `O(1)` local work
+- **Code Reference**: [`HermesMemoryBank.create_memory(...)`](memory/memory_bank.py#L250)
 
-#### Update Memory
+#### Update an existing memory
+
 - **Input**: `memory_resource_name`, `new_fact`
 - **Steps**:
-  1. Initialize the client lazily.
-  2. Call the SDK update operation in a thread.
-  3. Return `True` on success; `False` on failure.
-- **Output**: boolean success flag
-- **Complexity**: O(1)
-
-These methods are thin adapters over backend SDK methods, but they still matter because they enforce uniform error handling and isolate the rest of the application from SDK details.
+  1. Initialize the client.
+  2. Call the SDK update operation with the corrected fact.
+  3. Return `True` on success, `False` on exception.
+- **Output**: boolean
+- **Complexity**: `O(1)`
+- **Code Reference**: [`HermesMemoryBank.update_memory(...)`](memory/memory_bank.py#L285)
 
 > **Sources:** `memory/memory_bank.py` · L227–L313 · [`HermesMemoryBank.delete_memory`](memory/memory_bank.py#L227), [`HermesMemoryBank.create_memory`](memory/memory_bank.py#L250), [`HermesMemoryBank.update_memory`](memory/memory_bank.py#L285)
 
----
+### 6) Memory retrieval and fact extraction
 
-### 6. Memory Retrieval and Fact Extraction
-
-The [`HermesMemoryBank.fetch_memories()`](memory/memory_bank.py#L331) method retrieves relevant memory records for a query.
-
-- **Input**:
-  - `user_id`
-  - `query`
-  - `top_k`
+- **Input**: `user_id`, `query`, `top_k`
 - **Steps**:
-  1. Lazily initialize the client.
-  2. Call the SDK retrieval method using the query and `top_k`.
-  3. Iterate over returned memory objects.
-  4. Extract `fact` attributes when present.
-  5. Fall back to `str(memory)` if the object lacks a `fact` field.
-  6. Return the collected fact strings.
-  7. Return `[]` on any error.
-- **Output**: list of memory strings
-- **Complexity**: O(k) time and O(k) space, where `k` is the number of retrieved memories
-- **Code Reference**: [`HermesMemoryBank.fetch_memories()`](memory/memory_bank.py#L331)
+  1. Initialize the client.
+  2. Call the backend retrieval API scoped to the user and query.
+  3. Collect the top `k` results.
+  4. For each returned object, read `.fact` when present; otherwise fall back to `str(memory)`.
+  5. Return a list of plain fact strings.
+  6. On error, return an empty list.
+- **Output**: list of strings, each a memory fact
+- **Complexity**: `O(k)` for the result materialization; space `O(k)`
+- **Code Reference**: [`HermesMemoryBank.fetch_memories(...)`](memory/memory_bank.py#L331)
 
-This is a simple but important post-processing step: the backend may return structured memory objects, but this method guarantees prompt-friendly plain text output. Tests cover both the normal path and the fallback stringification path in [`TestFetchMemories`](tests/memory/test_memory_bank.py#L106).
+This is the primary read-side algorithm. The tests show a significant robustness feature: if the SDK returns memory objects without a `fact` attribute, the code degrades to stringification rather than failing. That makes downstream prompt formatting predictable.
 
 > **Sources:** `memory/memory_bank.py` · L331–L367 · [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331)
 
----
+### 7) Prompt snippet assembly with token budget awareness
 
-### 7. Prompt Formatting with Token Budgeting
-
-The [`HermesMemoryBank.format_for_prompt()`](memory/memory_bank.py#L381) method transforms retrieved memories into a compact system prompt snippet.
-
-- **Input**:
-  - `user_id`
-  - `query`
-  - `max_tokens`
+- **Input**: `user_id`, `query`, `max_tokens`
 - **Steps**:
-  1. Call [`fetch_memories()`](memory/memory_bank.py#L331) to retrieve relevant memories.
-  2. If none are returned, emit an empty string.
-  3. Build a prompt header and append memory lines incrementally.
-  4. Track the cumulative size against the provided token budget.
-  5. Stop appending once the budget would be exceeded.
-  6. Join the lines into a single formatted string.
-- **Output**: a prompt snippet, or `""` when no memories are available
-- **Complexity**: O(k) time and O(k) space for `k` candidate memories
-- **Code Reference**: [`HermesMemoryBank.format_for_prompt()`](memory/memory_bank.py#L381)
+  1. Call [`fetch_memories`](memory/memory_bank.py#L331) to retrieve candidate facts.
+  2. If no memories are found, return an empty string.
+  3. Build a system-prompt-style snippet with a header and bullet/list formatting.
+  4. Truncate or stop appending once the token budget is approached.
+  5. Return the final formatted string.
+- **Output**: a prompt-ready string for system prompt injection
+- **Complexity**: `O(k)` in the number of retrieved memories, plus string assembly cost.
+- **Code Reference**: [`HermesMemoryBank.format_for_prompt(...)`](memory/memory_bank.py#L381)
 
-This is the clearest internal **packing algorithm** in the module. While the code’s token estimate is not visible in the analysis as a full tokenizer-based implementation, the tests show the contract: respect the `max_tokens` budget and preserve the expected header formatting.
+This is the final transformation step in the pipeline. It bridges storage-backed memory retrieval with LLM prompt construction, making memory actionable.
 
 > **Sources:** `memory/memory_bank.py` · L381–L406 · [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381)
 
----
+### 8) Memory-bank lifecycle provisioning
 
-### 8. Memory Bank Build and Resource Provisioning
-
-The top-level convenience functions [`build_memory_bank()`](memory/memory_bank.py#L411) and [`create_memory_bank()`](memory/memory_bank.py#L432) implement configuration-driven instantiation and resource provisioning.
-
-#### Build Memory Bank
-- **Input**: implicit configuration from `get_settings()`
+- **Input**: configured settings, especially `MEMORY_BANK_RESOURCE_NAME`, and provisioning parameters for project/location/display name.
 - **Steps**:
-  1. Read `MEMORY_BANK_RESOURCE_NAME` from settings.
-  2. Return `None` if not configured.
-  3. Construct a [`HermesMemoryBank`](memory/memory_bank.py#L79).
-  4. Swallow errors and return `None`.
+  1. Read runtime settings.
+  2. If the resource name is not configured, return `None` to degrade gracefully.
+  3. Otherwise create a [`HermesMemoryBank`](memory/memory_bank.py#L79) wrapper around the configured resource.
+  4. Catch and suppress failures, returning `None`.
 - **Output**: `HermesMemoryBank` instance or `None`
-- **Complexity**: O(1)
+- **Complexity**: `O(1)`
+- **Code Reference**: [`build_memory_bank()`](memory/memory_bank.py#L411)
 
-#### Create Memory Bank
-- **Input**:
-  - `project`
-  - `location`
-  - `display_name`
+This is a configuration gate rather than a computational algorithm, but it is important in the data path because it decides whether memory processing is active at runtime.
+
+> **Sources:** `memory/memory_bank.py` · L411–L427 · [`build_memory_bank`](memory/memory_bank.py#L411)
+
+### 9) Memory-bank resource creation / idempotent provisioning
+
+- **Input**: `project`, `location`, `display_name`
 - **Steps**:
-  1. Resolve a Vertex client with [`_get_vertexai_client()`](memory/memory_bank.py#L41).
-  2. List existing Agent Engine resources.
-  3. Return the existing resource if the display name already matches.
-  4. Otherwise create a new lightweight Agent Engine dedicated to memory storage.
-  5. Return the new resource name.
-- **Output**: resource name string
-- **Complexity**: O(n) over existing engines for the list-and-match step
-- **Code Reference**: [`build_memory_bank()`](memory/memory_bank.py#L411), [`create_memory_bank()`](memory/memory_bank.py#L432)
+  1. Initialize a Vertex client with [`_get_vertexai_client`](memory/memory_bank.py#L41).
+  2. Inspect existing Agent Engine resources via `list`.
+  3. Compare each resource’s display name against the target display name.
+  4. If a match is found, reuse it and return its resource name.
+  5. Otherwise create a new lightweight Agent Engine dedicated to memory storage.
+  6. Return the new engine’s resource name.
+- **Output**: AgentEngine resource name string
+- **Complexity**: `O(n)` in number of existing engines inspected; space `O(1)` excluding SDK objects.
+- **Code Reference**: [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432)
 
-The provisioning flow is idempotent in spirit: the implementation checks existing engines before creating a new one. This matters for deploy-time scripts and makes repeated invocations safe.
+This function implements an idempotent provisioning algorithm. Its key property is “reuse if existing,” which prevents duplicate memory banks across repeated setup runs.
 
-> **Sources:** `memory/memory_bank.py` · L411–L470 · [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `memory/memory_bank.py` · L432–L498 · [`create_memory_bank`](memory/memory_bank.py#L432), [`_get_vertexai_client`](memory/memory_bank.py#L41)
 
 ## Data Structures
 
-The implementation is light on custom schema types, but there are still a few key internal data structures worth documenting.
+The internal data model is intentionally lightweight. The module uses a facade class plus simple dict/list payloads and SDK-returned objects.
 
-| Structure | Kind | Purpose | Key Fields / Shape | Evidence |
+| Data Structure | Kind | Fields / Shape | Used By | Notes |
 |---|---|---|---|---|
-| [`HermesMemoryBank`](memory/memory_bank.py#L79) | class | Facade over Agent Engine memories | `resource_name`, lazy `client` | [`HermesMemoryBank`](memory/memory_bank.py#L79) |
-| Event dicts | runtime dict schema | Input to batched ingestion | `{"role": "user" \| "agent" \| "model", "text": "..."}` | [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143) |
-| Memory objects | SDK-returned objects | Retrieval results from Vertex AI | May expose `fact`; otherwise stringified | [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) |
-| Settings object | config object | Source of `vertex_project`, `vertex_location`, `MEMORY_BANK_RESOURCE_NAME` | Accessed via `getattr(...)` | [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411) |
+| [`HermesMemoryBank`](memory/memory_bank.py#L79) | class | `resource_name`, cached client, async methods | all algorithms | Main facade over the Vertex AI memories API |
+| Event dict | `dict[str, str]` | `role`, `text` | [`ingest_events`](memory/memory_bank.py#L143) | Input is normalized before SDK submission |
+| Memory fact string | `str` | raw fact text | [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381) | Output format preferred for prompt injection |
+| Resource name string | `str` | full Agent Engine or memory resource path | CRUD/provisioning methods | Example shown in docstrings under `projects/.../reasoningEngines/...` |
+| SDK memory object | external object | may expose `.fact` or stringify meaningfully | [`fetch_memories`](memory/memory_bank.py#L331) | Code defensively falls back to `str(memory)` |
+| Settings object | config schema | includes `MEMORY_BANK_RESOURCE_NAME`, project, location | [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411) | Observed via `get_settings` and `getattr` |
 
-### Class Diagram
+A class diagram of the main facade and its helper relationship:
 
 ```mermaid
 classDiagram
     class HermesMemoryBank {
-        +resource_name
+        +__init__(resource_name)
+        +_ensure_client()
         +generate_memories(user_id, user_text, agent_text, agent_name)
         +ingest_events(user_id, events)
         +purge_memories(user_id, dry_run)
@@ -274,68 +239,79 @@ classDiagram
         +list_revisions(user_id)
         +format_for_prompt(user_id, query, max_tokens)
     }
+
+    class _get_vertexai_client {
+        +_get_vertexai_client(project, location)
+    }
+
+    class build_memory_bank {
+        +build_memory_bank()
+    }
+
+    class create_memory_bank {
+        +create_memory_bank(project, location, display_name)
+    }
+
+    HermesMemoryBank ..> _get_vertexai_client : lazy client init
+    build_memory_bank ..> HermesMemoryBank : constructs
+    create_memory_bank ..> _get_vertexai_client : provisioning client
 ```
 
-The class diagram is intentionally simple because the module is not built around a deep object hierarchy. Instead, [`HermesMemoryBank`](memory/memory_bank.py#L79) serves as an operational facade with a handful of specialized processing methods.
-
-> **Sources:** `memory/memory_bank.py` · L79–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79)
+> **Sources:** `memory/memory_bank.py` · L79–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
 
 ## Processing Pipeline
 
-The end-to-end pipeline starts with application configuration, moves through lazy client initialization, and then branches into ingestion or retrieval depending on the runtime need.
+The end-to-end processing pipeline connects conversation data to prompt-ready memory context:
 
 ```mermaid
 flowchart TD
-    A[Settings / config] --> B[build_memory_bank]
-    A --> C[create_memory_bank]
-    B --> D[HermesMemoryBank]
-    D --> E[_ensure_client]
-    E --> F[_get_vertexai_client]
-    D --> G[generate_memories]
-    D --> H[ingest_events]
-    D --> I[fetch_memories]
-    I --> J[format_for_prompt]
-    D --> K[purge_memories]
-    D --> L[create_memory]
-    D --> M[update_memory]
-    D --> N[delete_memory]
-    C --> O[Vertex AI Agent Engine]
-    G --> O
-    H --> O
-    I --> O
-    K --> O
-    L --> O
-    M --> O
-    N --> O
-    J --> P[System prompt snippet]
+    A[User conversation turn]
+    B[generate_memories or ingest_events]
+    C[_ensure_client]
+    D[_get_vertexai_client]
+    E[Vertex AI Agent Engine memories API]
+    F[Stored memories]
+    G[fetch_memories]
+    H[format_for_prompt]
+    I[System prompt injection]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    B --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
 ```
 
-### End-to-End Interpretation
+### Pipeline interpretation
 
-1. Configuration is read from settings.
-2. [`build_memory_bank()`](memory/memory_bank.py#L411) may create a ready-to-use facade if a memory bank resource exists.
-3. If the caller needs provisioning, [`create_memory_bank()`](memory/memory_bank.py#L432) creates or reuses a backend Agent Engine resource.
-4. Runtime operations on [`HermesMemoryBank`](memory/memory_bank.py#L79) lazily initialize the SDK client through [`_ensure_client()`](memory/memory_bank.py#L98) and [`_get_vertexai_client()`](memory/memory_bank.py#L41).
-5. Conversation data is either:
-   - distilled and persisted via [`generate_memories()`](memory/memory_bank.py#L105), or
-   - normalized and ingested in batches via [`ingest_events()`](memory/memory_bank.py#L143).
-6. At session start, relevant memories are retrieved via [`fetch_memories()`](memory/memory_bank.py#L331) and packed by [`format_for_prompt()`](memory/memory_bank.py#L381) into prompt context.
+1. **Capture**: a user turn or event stream is passed into [`generate_memories`](memory/memory_bank.py#L105) or [`ingest_events`](memory/memory_bank.py#L143).
+2. **Initialize**: the first API call triggers lazy client setup through [`_ensure_client`](memory/memory_bank.py#L98) and [`_get_vertexai_client`](memory/memory_bank.py#L41).
+3. **Persist**: the SDK writes to the remote Agent Engine memories backend.
+4. **Retrieve**: at session start, [`fetch_memories`](memory/memory_bank.py#L331) queries relevant facts.
+5. **Format**: [`format_for_prompt`](memory/memory_bank.py#L381) converts facts into a compact prompt snippet.
+6. **Inject**: the resulting text is inserted into the system prompt by the caller.
 
-This pipeline is deliberately **failure-tolerant**: the implementation favors returning empty/default values over surfacing backend failures into the application flow.
+### Algorithmic characteristics of the pipeline
 
-> **Sources:** `memory/memory_bank.py` · L41–L470 · [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432), [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381)
+- The **write path** is optimized for resilience and non-blocking behavior.
+- The **read path** is optimized for predictable prompt-ready output.
+- The only clearly data-dependent algorithmic cost visible in the repository is the linear scan used in [`create_memory_bank`](memory/memory_bank.py#L432) to detect existing engines and the linear processing of retrieved memories in [`fetch_memories`](memory/memory_bank.py#L331) and [`format_for_prompt`](memory/memory_bank.py#L381).
+
+> **Sources:** `memory/memory_bank.py` · L98–L498 · [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105), [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143), [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331), [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381), [`create_memory_bank`](memory/memory_bank.py#L432)
 
 ## Notes on Observability and Test Coverage
 
-The test suite in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1) gives strong evidence about the intended algorithmic behavior:
+The unit tests in [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1) strongly corroborate the inferred pipelines:
 
-- lazy client initialization
-- event role normalization
-- dry-run purge behavior
-- fallback stringification for retrieved memory objects
-- token-budget-aware prompt formatting
-- idempotent memory bank creation logic
+- They validate lazy client creation, exception swallowing, and event normalization for [`generate_memories`](memory/memory_bank.py#L105) and [`ingest_events`](memory/memory_bank.py#L143).
+- They confirm retrieval fallback behavior for missing `.fact` attributes in [`fetch_memories`](memory/memory_bank.py#L331).
+- They verify token-budget-sensitive formatting in [`format_for_prompt`](memory/memory_bank.py#L381).
+- They exercise idempotent resource provisioning in [`create_memory_bank`](memory/memory_bank.py#L432).
 
-One gap is that the repository snapshot does not include production callers, so the exact upstream request flow into [`HermesMemoryBank`](memory/memory_bank.py#L79) is not visible here. However, the API surface and tests clearly establish how the memory processing logic is meant to behave.
+This gives high confidence that the observable behavior documented above matches the intended processing logic.
 
-> **Sources:** `tests/memory/test_memory_bank.py` · L32–L490 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L48), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L106), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L163), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L263)
+> **Sources:** `tests/memory/test_memory_bank.py` · L32–L495 · [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1)

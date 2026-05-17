@@ -5,13 +5,13 @@ flowchart LR
   __future__["__future__"]
   _make_mock_client["_make_mock_client"]
   _run_task_background["_run_task_background"]
+  any["any"]
   append["append"]
   config["config"]
   exception["exception"]
   gateway_main["main"]
   get["get"]
   get_settings["get_settings"]
-  header["header"]
   len["len"]
   lower["lower"]
   main["main"]
@@ -34,9 +34,9 @@ flowchart LR
   main -.->|calls| append
   main -.->|calls| get
   main -.->|calls| get_settings
-  main -.->|calls| header
   main -.->|calls| len
   main -.->|calls| run
   main -.->|calls| strip
+  run -.->|calls| len
 
 ```
