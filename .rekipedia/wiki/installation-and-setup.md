@@ -1,234 +1,295 @@
 ---
 slug: installation-and-setup
-title: "Getting Started: Install and Bootstrap"
-section: getting-started
-tags: [getting-started, configuration]
+title: "Installation and Setup Guide"
+section: general
 pin: false
-importance: 74
-created_at: 2026-05-16T04:11:22Z
+importance: 50
+created_at: 2026-05-17T05:01:09Z
 rekipedia_version: 0.15.1
 ---
 
-# Getting Started: Install and Bootstrap
+# Installation and Setup Guide
 
-This page documents the practical steps to install, configure, and bootstrap the project for local development. It focuses on environment prerequisites, Python and Node setup, dependency installation, and the main build/start commands. It also calls out the repository’s setup entry points, especially [`setup_wizard.py`](setup_wizard.py) and [`scripts/setup_rag.py`](scripts/setup_rag.py), which are the clearest system-initialization scripts in the codebase.
+This guide covers how to prepare a development environment for the repository, install dependencies, and verify that the memory bank module works as expected. The codebase in the provided analysis is centered on [`memory.memory_bank`](memory/memory_bank.py#L1), which wraps the Vertex AI Agent Engine memories API via the [`HermesMemoryBank`](memory/memory_bank.py#L79) facade.
 
-## Prerequisites
+## Requirements
 
-Before bootstrapping, make sure the required tooling and external services are available.
+### Python and runtime expectations
 
-### Local tooling
+The repository is Python-based and includes a `requirements.txt` file, so a standard virtual environment workflow is the most appropriate setup path. The code in [`memory.memory_bank`](memory/memory_bank.py#L1) uses:
 
-The repository indicates a Python-backed application with a companion UI in `ui/`. The presence of [`pyproject.toml`](pyproject.toml), [`requirements.txt`](requirements.txt), and [`ui/package.json`](ui/package.json) shows that you need both a Python environment and a Node.js environment.
+- `asyncio` for async orchestration
+- `logging` for operational logging
+- `typing` for type hints
+- `vertexai` for Google Vertex AI integration
+- `config` for application settings access
 
-Recommended baseline prerequisites:
+Because the implementation calls `asyncio.to_thread(...)` in methods such as [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105) and [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331), it must be run on a reasonably modern Python version with `asyncio.to_thread` support. In practice, that means Python 3.9+ is a safe baseline.
 
-- Python matching the project’s pinned version in [`.python-version`](.python-version)
-- Node.js and npm for the frontend workspace under `ui/`
-- Access to Google Cloud tooling if you intend to use the project’s bootstrap scripts that configure cloud resources, because [`setup_wizard.py`](setup_wizard.py) includes GCP-oriented steps such as `bootstrap_gcp`, `setup_rag`, and `deploy_cloud_run`
-- Optional: Docker, if you want to inspect or build containerized deployments via [`Dockerfile.gateway`](Dockerfile.gateway)
+### External service dependency
 
-### Configuration files to review first
+This project depends on Google Vertex AI Agent Engine Memories. The implementation is not a local-only memory store: the core facade methods such as [`create_memory_bank`](memory/memory_bank.py#L432), [`create_memory`](memory/memory_bank.py#L250), [`fetch_memories`](memory/memory_bank.py#L331), and [`ingest_events`](memory/memory_bank.py#L143) call into the Vertex SDK.
 
-The repo ships with:
-- [`.env.example`](.env.example) for environment variable defaults
-- [`agents.yaml`](agents.yaml) for agent registration inputs
-- [`governance/policies.yaml`](governance/policies.yaml) for policy configuration
-- [`ui/.env.local.example`](ui/.env.local.example) for UI-side environment values
+To use the project against real services, you will need:
 
-These files are important because the bootstrap flow is configuration-driven rather than hard-coded.
+| Requirement | Why it is needed |
+|---|---|
+| Google Cloud project | Used by Vertex AI client initialization |
+| Vertex AI access enabled | Required for Agent Engine and memories operations |
+| Correct region/location | Used when creating or resolving the memory bank resource |
+| SDK access credentials | Required by the Vertex client |
 
-> **Sources:** `.python-version` · `.env.example` · `ui/.env.local.example` · `ui/package.json` · `pyproject.toml` · `requirements.txt` · `Dockerfile.gateway` · [`setup_wizard.py`](setup_wizard.py#L1)
+The helper [`_get_vertexai_client`](memory/memory_bank.py#L41) explicitly falls back to configuration settings when `project` or `location` are not passed, so environment/configuration is part of setup.
 
-## Python Environment Setup
+### Repository dependencies
 
-The backend and bootstrap scripts are Python-based, so the first step is to create and activate a Python environment that matches the repository’s version constraints.
+The presence of [`requirements.txt`](requirements.txt) indicates dependency management is pinned via pip-style requirements. The analysis did not include the actual file contents, so the exact package list is not visible here. However, the tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1) clearly assume the presence of `pytest` and mocking support.
 
-### Version alignment
+> **Sources:** `memory/memory_bank.py` · L1–L470 · [`memory.memory_bank`](memory/memory_bank.py#L1), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`_get_vertexai_client`](memory/memory_bank.py#L41)  
+> `requirements.txt` · file present in repository
 
-The project includes [`.python-version`](.python-version), which is the clearest version pin visible in the repository layout. Use that version for the virtual environment to minimize dependency drift.
+## Installation Methods
 
-### Typical virtual environment workflow
+### From Source
 
-A standard local setup sequence is:
+The repository does not provide `build_commands` in the analysis payload, so there is no evidence of a custom build system. The safest source-install workflow is a conventional virtual environment plus dependency installation from `requirements.txt`.
+
+#### Step 1: Clone the repository
 
 ```bash
-python -m venv .venv
+git clone <repository-url>
+cd <repository-directory>
+```
+
+#### Step 2: Create and activate a virtual environment
+
+```bash
+python3 -m venv .venv
 source .venv/bin/activate
-python --version
 ```
 
-If you are using `uv`, `poetry`, or another environment manager, align it to the version in [`.python-version`](.python-version). The repo’s build command list includes `uv build`, suggesting `uv` is a supported tooling path for Python packaging.
+On Windows PowerShell:
 
-### Python dependencies
+```powershell
+py -3 -m venv .venv
+.venv\Scripts\Activate.ps1
+```
 
-The project has both [`requirements.txt`](requirements.txt) and [`pyproject.toml`](pyproject.toml). The bootstrap helper [`install_python_deps`](setup_wizard.py#L506-L512) indicates that Python dependencies are installed as part of the setup flow, rather than requiring manual piecemeal installation.
+#### Step 3: Install dependencies
 
-A typical install command is:
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+If you are working on the memory module specifically, this should bring in the Vertex SDK and any support libraries used by the tests.
+
+#### Step 4: Verify the package can be imported
+
+Because the memory module is available under `memory/memory_bank.py`, a basic import check is useful:
+
+```bash
+python -c "from memory.memory_bank import HermesMemoryBank; print(HermesMemoryBank)"
+```
+
+This confirms that the package layout is correct and that the installed dependencies satisfy import-time requirements.
+
+> **Sources:** `requirements.txt` · file present in repository  
+> `memory/memory_bank.py` · L1–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+
+### Via Package Manager
+
+The analysis did not detect a `pyproject.toml` or `package.json`, so there is no evidence of a Poetry, uv, npm, or pnpm package manifest. The only explicit dependency manifest present is [`requirements.txt`](requirements.txt), which means installation via pip is the documented path.
+
+#### Recommended pip install
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Or, if you use `uv`:
+#### Optional editable-style development install
+
+If the repository is structured as a Python package and you want local edits to be immediately reflected, you can also install the project itself in editable mode after dependencies are installed:
 
 ```bash
-uv sync
+pip install -e .
 ```
 
-The exact mechanism is not fully expanded in the static analysis, but the presence of `uv build` in the build commands strongly suggests `uv` is part of the intended developer workflow.
+Note: this is a standard Python workflow suggestion; the analysis does not show whether a packaging configuration file exists, so editable install may or may not be supported without additional repository context.
 
-> **Sources:** `.python-version` · `pyproject.toml` · `requirements.txt` · [`setup_wizard.py`](setup_wizard.py#L506-L512)
+> **Sources:** `requirements.txt` · file present in repository
 
-## Node Environment Setup
+### Docker
 
-The `ui/` directory is a separate Node workspace. Its `package.json` declares the frontend dependencies and scripts used to build and run the Next.js application.
+No `Dockerfile` was present in the analysis data, so there is no evidence that the repository ships an official container workflow. If you need one, it would have to be added manually.
 
-### Recommended setup
+A typical Docker workflow for a Python service would look like this, but treat it as an example rather than repository-specific guidance:
 
-Install Node.js using your preferred version manager, then install frontend dependencies in `ui/`:
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD ["python", "-c", "from memory.memory_bank import build_memory_bank; print(build_memory_bank())"]
+```
+
+Build and run:
 
 ```bash
-cd ui
-npm install
+docker build -t hermes-memory .
+docker run --rm hermes-memory
 ```
 
-The evidence shows the UI depends on packages such as `next`, `react`, `react-dom`, `next-auth`, and `react-markdown` (`ui/package.json`), which confirms that a working Node/npm toolchain is required.
+Because `build_memory_bank()` returns `None` when `MEMORY_BANK_RESOURCE_NAME` is unset, this container would likely start without a configured backend unless you inject the needed environment variables.
 
-### UI environment variables
+> **Sources:** `memory/memory_bank.py` · L411–L427 · [`build_memory_bank`](memory/memory_bank.py#L411)  
+> No `Dockerfile` found in `files_seen`
 
-The frontend includes [`ui/.env.local.example`](ui/.env.local.example). Copy this into a local `.env.local` file and fill in the environment-specific values expected by the UI.
+## First Run
+
+The first run depends on whether you are just validating the local Python environment or connecting to a real Vertex AI memory bank.
+
+### Local sanity check
+
+A quick way to verify the repository is installed correctly is to exercise the helper that builds the memory facade from settings:
 
 ```bash
-cp ui/.env.local.example ui/.env.local
+python - <<'PY'
+from memory.memory_bank import build_memory_bank
+bank = build_memory_bank()
+print(bank)
+PY
 ```
 
-Because the UI communicates with the backend gateway and authentication flow, this environment file is part of the normal bootstrapping process.
+If `MEMORY_BANK_RESOURCE_NAME` is not configured, [`build_memory_bank`](memory/memory_bank.py#L411) is designed to degrade gracefully and return `None`. That is expected behavior, not an error.
 
-> **Sources:** `ui/package.json` · `ui/.env.local.example`
+### Creating or reusing a memory bank
 
-## Dependency Installation
+To actually use the backend, you need a full Agent Engine resource name, such as:
 
-The repository’s installation flow is split between Python and Node dependencies.
+`projects/my-project/locations/us-central1/reasoningEngines/1234567890`
 
-### Python dependency installation
+This is documented directly on [`HermesMemoryBank`](memory/memory_bank.py#L79). If you do not already have such a resource, the helper [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432) can create one.
 
-The primary Python install path is captured by [`install_python_deps`](setup_wizard.py#L506-L512). While the implementation details are not spelled out in the payload, the visible repository signals point to:
+Example workflow:
 
-```bash
-pip install -r requirements.txt
+```python
+from memory.memory_bank import create_memory_bank, HermesMemoryBank
+
+resource_name = create_memory_bank(
+    project="my-project",
+    location="us-central1",
+    display_name="hermes-memory-bank",
+)
+
+bank = HermesMemoryBank(resource_name=resource_name)
 ```
 
-or a lockfile-aware workflow if you are using `uv`.
+### Typical first interaction
 
-### Node dependency installation
+Once instantiated, the facade supports both direct memory writes and retrieval:
 
-For the UI workspace:
-
-```bash
-cd ui
-npm install
+```python
+await bank.create_memory(user_id="u123", fact="Uses VPN on Monday mornings")
+memories = await bank.fetch_memories(user_id="u123", query="VPN")
+print(memories)
 ```
 
-This step is required before running any frontend build or start command.
+For chat-style usage, [`format_for_prompt`](memory/memory_bank.py#L381) converts relevant memories into a system-prompt snippet, which is meant to be injected by the caller.
 
-### Optional environment bootstrap files
+> **Sources:** `memory/memory_bank.py` · L79–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`create_memory_bank`](memory/memory_bank.py#L432), [`create_memory`](memory/memory_bank.py#L250), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)
 
-The project includes `.env.example` and `ui/.env.local.example`, which should be copied and customized before running setup scripts. The codebase also contains [`config.py`](config.py) and the [`Settings`](config.py#L7-L159) class, showing that environment variables are central to configuration loading.
+## Environment Variables
 
-> **Sources:** `.env.example` · `ui/.env.local.example` · `requirements.txt` · `ui/package.json` · [`config.py`](config.py#L1-L1) · [`Settings`](config.py#L7-L159)
+The analysis did not include the contents of configuration files, so only a small set of environment-driven settings can be stated with confidence.
 
-## Primary Build and Start Commands
+### Observed configuration hook
 
-The analysis data explicitly lists the main build commands used by this repository.
+The code imports `config` and calls `get_settings()` in several places, notably:
 
-| Command | Purpose | Expected Result |
+- [`_get_vertexai_client`](memory/memory_bank.py#L41)
+- [`build_memory_bank`](memory/memory_bank.py#L411)
+
+From the function docstrings and behavior, the following configuration field is clearly supported:
+
+| Setting | Purpose | Required? |
 |---|---|---|
-| `uv build` | Build the Python package/distribution | Produces build artifacts for the Python project |
-| `npm run build` | Build the Next.js UI (`next build`) | Creates an optimized production build in `ui/` |
-| `npm start` | Start the Next.js UI (`next start`) | Runs the compiled frontend in production mode |
+| `MEMORY_BANK_RESOURCE_NAME` | Full Agent Engine resource name for the memory backend | Yes, for real backend usage |
 
-These are the canonical build/start commands surfaced by the static analysis. In practice, you would run them after both dependency trees are installed and environment files are populated.
+If `MEMORY_BANK_RESOURCE_NAME` is missing or empty, [`build_memory_bank`](memory/memory_bank.py#L411) returns `None` and the application can continue without memory persistence.
 
-### Common development start pattern
+### Vertex client project/location fallback
 
-A typical bootstrap sequence looks like this:
+[`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) falls back to values from settings when explicit parameters are not provided. The exact setting names are not shown in the analysis, so they should be confirmed in the repository’s `config` module before relying on them in production.
+
+### Practical setup example
+
+A typical shell-based setup might look like this:
 
 ```bash
-# Python environment
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# Node UI
-cd ui
-npm install
-npm run build
-npm start
+export MEMORY_BANK_RESOURCE_NAME="projects/my-project/locations/us-central1/reasoningEngines/1234567890"
 ```
 
-If you are working only on the Python side, `uv build` is the repository’s documented build command. For the UI, `npm run build` and `npm start` are the main production-oriented commands.
+If the config module reads additional Vertex settings from the environment, they will need to be set as well, but those names are not evidenced in the available analysis.
 
-> **Sources:** [`build_commands`](#) are derived from analysis evidence · `ui/package.json` · [`setup_wizard.py`](setup_wizard.py#L506-L512)
+> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41)  
+> `memory/memory_bank.py` · L411–L427 · [`build_memory_bank`](memory/memory_bank.py#L411)  
+> `memory/memory_bank.py` · L79–L94 · [`HermesMemoryBank`](memory/memory_bank.py#L79)
 
-## Bootstrap Entry Points and Initialization Scripts
+## Troubleshooting
 
-Several scripts in the repository are clearly intended to initialize or prepare the system.
+### `build_memory_bank()` returns `None`
 
-### Main setup wizard
+This usually means `MEMORY_BANK_RESOURCE_NAME` is not set, is blank, or the config lookup failed. The behavior is intentional: [`build_memory_bank`](memory/memory_bank.py#L411) is designed to return `None` when the memory bank is not configured.
 
-The most important bootstrap entry point is [`setup_wizard.py`](setup_wizard.py). Its symbol map shows a structured sequence of setup functions:
+**Fix:**
 
-- [`preflight`](setup_wizard.py#L121-L167)
-- [`gather_config`](setup_wizard.py#L171-L211)
-- [`bootstrap_gcp`](setup_wizard.py#L244-L316)
-- [`setup_rag`](setup_wizard.py#L320-L371)
-- [`deploy_agent`](setup_wizard.py#L375-L414)
-- [`seed_demo_data`](setup_wizard.py#L418-L430)
-- [`setup_memory_bank`](setup_wizard.py#L433-L454)
-- [`deploy_cloud_run`](setup_wizard.py#L458-L502)
-- [`install_python_deps`](setup_wizard.py#L506-L512)
-- [`print_summary`](setup_wizard.py#L516-L553)
+- Set `MEMORY_BANK_RESOURCE_NAME`
+- Confirm it contains a full resource path
+- Restart the process after updating environment variables
 
-This script appears to be the project’s all-in-one bootstrap wizard. It is the best place to start if you want to prepare the full system from a fresh checkout.
+### Vertex SDK import errors
 
-### RAG setup helper
+[`_get_vertexai_client`](memory/memory_bank.py#L41) raises an `ImportError` with a helpful message when the Vertex SDK is too old. Since the analysis does not show the exact dependency version pin, this is a common setup issue if your environment has a stale Google SDK.
 
-[`scripts/setup_rag.py`](scripts/setup_rag.py) is another initialization entry point. Its [`main`](scripts/setup_rag.py#L43-L59) function and [`create_corpus`](scripts/setup_rag.py#L29-L40) helper indicate that it is dedicated to RAG corpus initialization.
+**Fix:**
 
-### Other preparation scripts
+```bash
+pip install --upgrade -r requirements.txt
+```
 
-Other repository entry points that may be relevant during setup:
+If that does not help, explicitly upgrade the Vertex SDK package used by the repository.
 
-- [`scripts/register_agents.py`](scripts/register_agents.py) — appears to register agents from [`agents.yaml`](agents.yaml)
-- [`scripts/demo/seed_knowledge_base.py`](scripts/demo/seed_knowledge_base.py) — seeds demo knowledge content
-- [`scripts/demo/seed_bigquery.py`](scripts/demo/seed_bigquery.py) — seeds BigQuery demo data
-- [`scripts/demo/e2e_test.py`](scripts/demo/e2e_test.py) — test harness for exercising the system after setup
-- [`teardown_wizard.py`](teardown_wizard.py) — cleanup companion for reversing bootstrap actions
+### Missing project or location context
 
-### What the setup wizard does not imply
+When project/location are not passed to [`create_memory_bank`](memory/memory_bank.py#L432) or client initialization helpers, the code falls back to settings. If those settings are absent, client creation may fail or default incorrectly.
 
-This page is intentionally about installation and bootstrap only. It does not explain the runtime architecture or API behavior of the gateway, agents, or tools. It only identifies the scripts that initialize the environment and the project state.
+**Fix:**
 
-> **Sources:** [`setup_wizard.py`](setup_wizard.py#L1-L1) · [`preflight`](setup_wizard.py#L121-L167) · [`gather_config`](setup_wizard.py#L171-L211) · [`bootstrap_gcp`](setup_wizard.py#L244-L316) · [`setup_rag`](setup_wizard.py#L320-L371) · [`deploy_agent`](setup_wizard.py#L375-L414) · [`seed_demo_data`](setup_wizard.py#L418-L430) · [`setup_memory_bank`](setup_wizard.py#L433-L454) · [`deploy_cloud_run`](setup_wizard.py#L458-L502) · [`install_python_deps`](setup_wizard.py#L506-L512) · [`print_summary`](setup_wizard.py#L516-L553) · [`scripts/setup_rag.py`](scripts/setup_rag.py#L1-L1) · [`create_corpus`](scripts/setup_rag.py#L29-L40) · [`main`](scripts/setup_rag.py#L43-L59) · [`scripts/register_agents.py`](scripts/register_agents.py#L1-L1) · [`scripts/demo/seed_knowledge_base.py`](scripts/demo/seed_knowledge_base.py#L1-L1) · [`scripts/demo/seed_bigquery.py`](scripts/demo/seed_bigquery.py#L1-L1) · [`scripts/demo/e2e_test.py`](scripts/demo/e2e_test.py#L1-L1) · [`teardown_wizard.py`](teardown_wizard.py#L1-L1)
+- Pass `project` and `location` explicitly to [`create_memory_bank`](memory/memory_bank.py#L432)
+- Ensure your settings source provides the needed defaults
+- Verify the active Google Cloud credentials have access to the target project
 
-## Setup Step Summary
+### Network or API permission failures
 
-The following table consolidates the practical bootstrap path.
+Methods such as [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`delete_memory`](memory/memory_bank.py#L227), and [`fetch_memories`](memory/memory_bank.py#L331) all depend on external Vertex API calls. In the tests, failures are often swallowed and converted to safe defaults, but in real usage these failures usually indicate authorization or connectivity problems.
 
-| Step | Command | Purpose | Expected Result |
-|---|---|---|---|
-| 1 | `python --version` | Confirm Python version matches [`.python-version`](.python-version) | Compatible Python runtime available |
-| 2 | `python -m venv .venv && source .venv/bin/activate` | Create and activate an isolated Python environment | Local virtualenv is active |
-| 3 | `pip install -r requirements.txt` | Install backend and bootstrap dependencies | Python packages installed successfully |
-| 4 | `cd ui && npm install` | Install frontend dependencies | Node modules installed in `ui/node_modules` |
-| 5 | `cp .env.example .env` | Create local backend environment config | Backend configuration file exists |
-| 6 | `cp ui/.env.local.example ui/.env.local` | Create local UI environment config | UI configuration file exists |
-| 7 | `uv build` | Build the Python package | Python build artifacts created |
-| 8 | `cd ui && npm run build` | Build the frontend | Next.js production build succeeds |
-| 9 | `cd ui && npm start` | Start the built frontend | UI runs in production mode |
-| 10 | `python setup_wizard.py` | Run end-to-end bootstrap workflow | System initialization steps execute |
+**Fix:**
 
-This table is the shortest actionable path from clone to a working local bootstrap.
+- Check Google Cloud authentication
+- Confirm Vertex AI is enabled in the project
+- Confirm the resource name points to the correct region
+- Verify the runtime has outbound network access
 
-> **Sources:** `.python-version` · `.env.example` · `ui/.env.local.example` · `requirements.txt` · `ui/package.json` · [`setup_wizard.py`](setup_wizard.py#L1-L1)
+### No memories returned on startup
+
+[`fetch_memories`](memory/memory_bank.py#L331) and [`format_for_prompt`](memory/memory_bank.py#L381) will return empty results if there are no stored memories or if retrieval fails.
+
+**Fix:**
+
+- Confirm memories were ingested via [`generate_memories`](memory/memory_bank.py#L105) or [`ingest_events`](memory/memory_bank.py#L143)
+- Check that the `user_id` matches the one used when storing memories
+- Use a query that matches the expected facts
+
+> **Sources:** `memory/memory_bank.py` · L41–L470 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)

@@ -1,78 +1,234 @@
 ---
 slug: technical-debt
-title: "Maintenance Risk Review"
-section: development
-tags: [contributing, internals, overview]
+title: "Technical Debt Audit"
+section: general
 pin: false
-importance: 70
-created_at: 2026-05-16T04:12:39Z
+importance: 50
+created_at: 2026-05-17T05:02:18Z
 rekipedia_version: 0.15.1
 ---
 
-# Maintenance Risk Review
+# Technical Debt Audit
 
-## Biggest maintenance risks
+## Summary
 
-The repository’s most significant debt is concentrated in three areas:
+This codebase is small and focused, with one implementation module, [`memory.memory_bank`](memory/memory_bank.py#L1), and a reasonably broad unit test suite in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1). Overall technical health is **Medium**: the core logic is well-covered for the documented happy-path and error-swallowing behaviors, but the module contains several structural debt items, weakly typed API boundaries, and a few “deprecated-by-design” compatibility stubs that reduce long-term maintainability.
 
-1. **High-coupling orchestration code** — the gateway and agent construction layers fan out across many modules, with `gateway/main.py` importing and coordinating `agents`, `connectors`, `memory`, `tools`, `governance`, and observability components in one place. This increases regression risk because changes in one subsystem can cascade through the runtime startup path and request handlers.
+The biggest debt concentration is in [`HermesMemoryBank`](memory/memory_bank.py#L79), which acts as a facade over a Vertex AI memories client while also handling migration compatibility, prompt formatting, failure suppression, and resource lifecycle operations. This is manageable now, but it is already carrying too many responsibilities for a single class.
 
-2. **Duplicate implementation patterns across connectors and bootstrap scripts** — the Slack, Teams, and Telegram connectors each reimplement very similar “receive request → validate → run agent → split/reply” flows in separate modules (`connectors/slack.py`, `connectors/teams.py`, `connectors/telegram.py`). Likewise, `setup_wizard.py` and `teardown_wizard.py` are large, procedural, command-driven scripts with overlapping helper patterns. That duplication raises the cost of fixes and makes behaviour drift likely.
+## Debt Inventory
 
-3. **Soft-fail behavior around risky external dependencies** — several modules deliberately swallow exceptions or degrade silently when GCP / ADK / tracing / Memory Bank features are unavailable. Examples include `eval/online_monitor.py` (`log_quality_score` “fails silently”), `gateway/observability.py` (noop tracer fallback), `memory/memory_bank.py` (graceful fallback around Vertex AI Memory Bank), and `gateway/agent_gateway.py` (transparent direct-runner fallback). This is valuable for local development, but it also means production outages and integration regressions can be masked unless tests and runtime monitoring are very strong.
+| # | Area | Severity | Description | Files Affected | Effort to Fix |
+|---|------|----------|-------------|----------------|---------------|
+| 1 | `HermesMemoryBank` multi-responsibility facade | 🟠 High | The class combines client initialization, ingestion, CRUD, purge, retrieval, compatibility stubs, and prompt formatting in one place. | `memory/memory_bank.py` | L |
+| 2 | Broad exception swallowing across API methods | 🟠 High | Several methods catch `Exception` and return fallback values, potentially hiding production failures. | `memory/memory_bank.py` | M |
+| 3 | Compatibility stubs returning empty values | 🟡 Medium | `retrieve_profiles()` and `list_revisions()` always return empty lists, which may mislead callers into thinking the operations are supported. | `memory/memory_bank.py` | S |
+| 4 | Weakly typed event/memory payload handling | 🟡 Medium | Methods accept untyped dicts and dynamic attributes (`fact`) with runtime fallbacks. | `memory/memory_bank.py` | M |
+| 5 | Prompt construction logic mixed into storage facade | 🟡 Medium | `format_for_prompt()` embeds token-budgeting and rendering logic inside the memory bank wrapper. | `memory/memory_bank.py` | M |
+| 6 | Test helper duplication / central fixture sprawl | 🟡 Medium | [`tests/conftest.py`](tests/conftest.py#L1) contains many broad fake modules and stubs, which makes test setup harder to reason about. | `tests/conftest.py` | M |
+| 7 | Missing coverage for helper function `_make_module` | 🟢 Low | Static analysis explicitly flags `_make_module()` as used but untested. | `tests/conftest.py` | S |
+| 8 | Dependency inventory is effectively absent | 🟢 Low | Only `requirements.txt` is present in the analyzed set, and no version-risk review is possible from the provided data. | `requirements.txt` | S |
 
-A smaller but important debt signal is that the repo’s testing is broad for many core behaviors, but there are still notable coverage gaps around full end-to-end runtime paths, deployment/teardown scripts, and failure modes involving real networked services.
+> **Sources:** `memory/memory_bank.py` · L1–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/conftest.py` · L1–L274 · [`_make_module`](tests/conftest.py#L22)
 
-## Debt and maintenance-risk inventory
+## Critical Issues
 
-| Area | Evidence | Impact | Suggested Remediation |
-|---|---|---|---|
-| Gateway startup and request-path coupling | `gateway/main.py` imports and coordinates `agents`, `connectors.slack`, `connectors.teams`, `connectors.telegram`, `gateway.auth`, `gateway.observability`, `tools.model_armor`, `governance.policy_engine`, and `memory.memory_bank`. The lifespan function initializes `Runner`, `build_policy_engine`, `build_memory_bank`, tracing, and instrumentation in one flow. | A change in any one subsystem can break app startup or chat handling. The central module becomes a “god module” with hard-to-isolate failures. | Split startup concerns into smaller bootstrappers, e.g. auth, policy, memory, tracing, and connector registration. Keep `gateway/main.py` as thin routing glue. |
-| Duplicate connector logic | `connectors/slack.py`, `connectors/teams.py`, and `connectors/telegram.py` all perform message validation, agent execution via `connectors.runner.run_agent`, response splitting, and platform-specific reply posting. | Fixes to message parsing, error handling, or rate limits must be replicated in three places; behaviour can diverge across channels. | Extract a shared connector framework for “validate → normalize → run → reply”; keep only platform-specific authentication and transport code in each adapter. |
-| Procedural bootstrap/teardown scripts | `setup_wizard.py` (many top-level helper functions such as `bootstrap_gcp`, `setup_rag`, `setup_memory_bank`, `deploy_cloud_run`) and `teardown_wizard.py` (e.g. `delete_cloud_run`, `delete_reasoning_engine`, `delete_rag_corpora`, `disable_apis`) are large procedural workflows built from shell commands and ad hoc environment parsing. | High maintenance cost and high blast radius: every infrastructure change requires editing long imperative flows with many subprocess calls. | Move shared command execution, env parsing, and resource name handling into reusable utilities; convert the scripts into smaller composable tasks with explicit inputs/outputs. |
-| Soft-fail external dependencies | `eval/online_monitor.py:log_quality_score` is documented to “fail silently”; `gateway/observability.py` silently degrades when packages are missing; `gateway/agent_gateway.py` returns `None` and falls back to direct runner execution; `memory/memory_bank.py` returns empty or disabled behavior on errors. | Production issues may be hidden rather than surfaced, delaying detection of broken integrations or missing credentials. | Add structured warnings/metrics on fallback paths and use targeted smoke tests for each external integration path. |
-| Weakly enforced dependency boundaries | `agents/loader.py` is a central dynamic builder that imports many agents and tool factories; `agents/orchestrator.py` depends on the loader; `agents/__init__.py` delegates to the orchestrator. | Dynamic loading is flexible, but errors in YAML/tool mapping can surface late at runtime and are harder to trace. | Add schema validation for `agents.yaml`, stronger tests around unknown tools/builders, and explicit module contracts for supported tool names. |
-| Memory subsystem complexity | `memory/memory_bank.py`, `memory/skill_learning.py`, `memory/skill_extractor.py`, `memory/skill_store.py`, `memory/skill_loader.py`, and `memory/cross_corpus.py` form a multi-stage pipeline with asynchronous callbacks, background tasks, and multiple persistence backends. | This is a high-risk area because several layers can fail independently: extraction, store upload, prompt formatting, and memory bank persistence. | Add end-to-end tests that cover a full learning cycle and explicit logging/trace IDs across extraction → persistence → retrieval. |
-| Tightly coupled agent/tool composition | `agents/hr.py` and `agents/it_helpdesk.py` share the same pattern of `get_model`, `build_skill_learning_callback`, `PreloadMemoryTool`, and tool factories; `agents/developer.py` similarly mirrors the pattern but adds code execution and storage. | Repeated composition logic increases copy/paste drift when agent capabilities change. | Introduce a shared agent builder helper that assembles common concerns: model resolution, memory preload, and skill-learning callback wiring. |
-| Test gaps around deployment and teardown flows | There are tests for `agents`, `gateway`, `memory`, `governance`, `eval`, and `tools`, but the repo snapshot shows no dedicated tests for `setup_wizard.py`, `teardown_wizard.py`, `scripts/deploy.py`, or `scripts/register_agents.py`. | The most operationally dangerous paths are least covered, so infrastructure regressions may only appear during manual execution. | Add unit tests for environment parsing and command assembly, plus a small integration harness that mocks subprocess and verifies resource names and command sequencing. |
-| Risky external SDK and auth dependencies | `tools.mcp_connector.py` requires Node.js / `npx`; `gateway/auth.py` uses Google token verification and cache-based validation; `connectors.teams` relies on JWKS and Bot Framework JWT verification; `memory` and `tools` rely on Google Cloud SDKs. | Build/runtime failures can arise from absent host tooling, token format changes, or upstream SDK regressions. | Document minimum runtime prerequisites more explicitly and add startup probes that assert critical SDKs and credentials are present before serving traffic. |
+No **Critical** issues were evidenced in the provided analysis data. The code has risks, but none were clearly severe enough to justify a critical rating from the observed repository slice.
 
-> **Sources:** `gateway/main.py` · `gateway/agent_gateway.py` · `gateway/observability.py` · `eval/online_monitor.py` · `connectors/slack.py` · `connectors/teams.py` · `connectors/telegram.py` · `setup_wizard.py` · `teardown_wizard.py` · `agents/loader.py` · `agents/hr.py` · `agents/it_helpdesk.py` · `agents/developer.py` · `memory/memory_bank.py` · `memory/skill_learning.py` · `memory/skill_extractor.py` · `memory/skill_store.py` · `memory/skill_loader.py` · `memory/cross_corpus.py` · `tools/mcp_connector.py`
+### 1) `HermesMemoryBank` is too broad for one class
 
-## Tightly coupled modules and duplicated logic
+[`HermesMemoryBank`](memory/memory_bank.py#L79) implements memory generation, event ingestion, purge, delete, create, update, fetch, compatibility no-ops, and prompt formatting in a single class. That makes it a coupling hotspot and makes the class hard to evolve independently.
 
-The relationship data confirms several module pairs that are more coupled than ideal:
+This is visible in the call graph: methods like [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143), [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`fetch_memories`](memory/memory_bank.py#L331), and [`format_for_prompt`](memory/memory_bank.py#L381) are all on the same class.
 
-| Module | Imports From | Called By | Calls Into | Inherits From |
-|--------|-------------|-----------|------------|---------------|
-| `gateway.main` | `agents`, `config`, `connectors.*`, `gateway.auth`, `gateway.observability`, `governance.policy_engine`, `memory.memory_bank`, `tools.model_armor` | external entry points and FastAPI runtime | `Runner`, `build_agent`, `build_policy_engine`, `build_memory_bank`, `screen_prompt`, `check_prompt`, `submit_task` | `BaseModel` via `ChatRequest`, `ChatEvent`, `CreateMemoryRequest`, `TaskRequest`, `SchedulerTriggerRequest` |
-| `agents.loader` | `config`, `models.provider`, `tools.*`, `agents.*`, ADK tool modules | `agents.orchestrator`, `scripts/register_agents.py` | `make_search_tool`, `make_bigquery_tool`, `make_storage_tool`, `PreloadMemoryTool`, `MCPToolset`, `BuiltInCodeExecutionTool`, `LlmAgent` | none |
-| `memory.skill_learning` | `memory.memory_bank`, `memory.skill_extractor`, `memory.skill_store` | agent callbacks in `agents/*.py` | `extract_skill`, `upsert_skill`, `build_memory_bank`, `generate_memories`, `create_task` | none |
-| `connectors.runner` | `gateway.main` | all connector webhooks | `Runner`, `create_session`, `run_async` | none |
-| `setup_wizard` / `teardown_wizard` | `config`, `memory.memory_bank`, `vertexai` / `vertexai.preview.rag` | CLI entry point only | extensive subprocess and SDK calls | none |
+**Why this is a problem**
+- Harder to test in isolation at the method level
+- Harder to replace the Vertex AI backend later
+- Mixes domain logic with presentation logic
+- Increases blast radius for changes
 
-The strongest coupling is between `gateway.main` and nearly every runtime subsystem. `agents.loader` is also a nexus: it imports agent modules and tool factories, and is itself imported by `agents.orchestrator`. This is a workable architecture for a small project, but it means the loader becomes the main point of failure for model/tool composition.
+**Suggested fix**
+Split the class into smaller collaborators:
+- `MemoryClientFactory` for `_get_vertexai_client()`
+- `MemoryRepository` for CRUD / ingest / purge
+- `MemoryPromptFormatter` for `format_for_prompt()`
+- `MemoryBankService` as a small orchestration layer
 
-Duplicated logic is most visible in the connector layer. Each of `slack_webhook`, `teams_webhook`, and `telegram_webhook` has the same shape: parse request, verify transport-specific auth, call `run_agent`, then send a response back in platform-specific chunks. Similarly, the agent builders in `agents/analytics.py`, `agents/hr.py`, `agents/it_helpdesk.py`, and `agents/developer.py` repeat the same “construct `LlmAgent` with model, memory callback, and tools” pattern.
+Example shape:
 
-> **Sources:** `gateway/main.py` · `agents/loader.py` · `agents/orchestrator.py` · `connectors/runner.py` · `connectors/slack.py` · `connectors/teams.py` · `connectors/telegram.py` · `agents/analytics.py` · `agents/hr.py` · `agents/it_helpdesk.py` · `agents/developer.py` · `memory/skill_learning.py`
+```python
+class MemoryRepository:
+    async def fetch_memories(self, user_id: str, query: str, top_k: int = 5) -> list[str]:
+        ...
 
-## Test coverage notes
+class MemoryPromptFormatter:
+    def format(self, memories: list[str], max_tokens: int) -> str:
+        ...
 
-The test suite is substantial in some core areas: agent assembly (`tests/agents/test_agent_builds.py`), dynamic YAML loading (`tests/agents/test_agent_loader.py`), gateway behavior (`tests/gateway/test_main_chat.py`, `tests/gateway/test_agent_gateway.py`, `tests/gateway/test_observability.py`), evaluation logic (`tests/eval/test_eval_metrics.py`), governance (`tests/governance/test_policy_engine.py`), and memory components (`tests/memory/*.py`). That coverage is a positive sign because it reduces the risk of refactoring the most interconnected runtime paths.
+class HermesMemoryBank:
+    def __init__(self, repository: MemoryRepository, formatter: MemoryPromptFormatter):
+        self.repository = repository
+        self.formatter = formatter
+```
 
-However, the repository snapshot does not show corresponding tests for the operational scripts that actually provision and destroy infrastructure: `setup_wizard.py`, `teardown_wizard.py`, `scripts/deploy.py`, `scripts/register_agents.py`, `scripts/setup_rag.py`, and the demo seeding utilities. Those are high-risk because they orchestrate GCP resources and filesystem state using subprocess-driven flows. They also sit at the edges of the repository’s operational lifecycle, where failures are expensive and less visible.
+> **Sources:** `memory/memory_bank.py` · L79–L406 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)
 
-A second test gap is the absence of a clearly repository-wide end-to-end test that spans the full call chain from entry point to agent execution and back through a connector or gateway surface. The existing tests are good unit and component tests, but the runtime still depends on many soft-fail integrations.
+### 2) Exception swallowing hides operational failures
 
-> **Sources:** `tests/agents/test_agent_builds.py` · `tests/agents/test_agent_loader.py` · `tests/gateway/test_main_chat.py` · `tests/gateway/test_agent_gateway.py` · `tests/gateway/test_observability.py` · `tests/eval/test_eval_metrics.py` · `tests/governance/test_policy_engine.py` · `tests/memory/test_context_budget.py` · `tests/memory/test_cross_corpus.py` · `tests/memory/test_memory_bank.py`
+Multiple methods in [`HermesMemoryBank`](memory/memory_bank.py#L79) catch broad exceptions and return benign fallbacks:
+- [`generate_memories`](memory/memory_bank.py#L105) swallows failures
+- [`ingest_events`](memory/memory_bank.py#L143) swallows failures
+- [`purge_memories`](memory/memory_bank.py#L187) swallows failures
+- [`delete_memory`](memory/memory_bank.py#L227) returns `False` on failure
+- [`create_memory`](memory/memory_bank.py#L250) returns `None` on failure
+- [`update_memory`](memory/memory_bank.py#L285) returns `False` on failure
+- [`fetch_memories`](memory/memory_bank.py#L331) returns `[]` on failure
+- [`build_memory_bank`](memory/memory_bank.py#L411) returns `None` on failure
 
-## Suggested remediation priorities
+**Why this is a problem**
+This pattern is pragmatic for user-facing resilience, but it also makes outages and permission/configuration errors nearly invisible. Without structured logging, metrics, or error propagation, callers cannot distinguish “no memories found” from “backend unavailable.”
 
-1. **Refactor the shared connector workflow first.** This will remove the most obvious duplication and reduce maintenance cost across Slack, Teams, and Telegram.
-2. **Split gateway startup responsibilities.** The main app should orchestrate, not implement, all initialization logic.
-3. **Add tests for bootstrap and teardown scripts.** These are the most failure-prone operational paths and currently appear under-tested.
-4. **Make fallback paths observable.** Silent degradation is acceptable for local dev, but production fallbacks should emit structured warnings/metrics.
-5. **Extract shared agent-building helpers.** The `agents/*.py` modules would benefit from a single shared composition pattern for model resolution, memory preload, and skill learning.
+**Suggested fix**
+Use explicit exception classes and distinguish:
+- expected “not configured” degradation
+- backend timeouts / transient errors
+- permanent misconfiguration
 
-> **Sources:** `connectors/slack.py` · `connectors/teams.py` · `connectors/telegram.py` · `gateway/main.py` · `setup_wizard.py` · `teardown_wizard.py` · `gateway/agent_gateway.py` · `gateway/observability.py` · `eval/online_monitor.py` · `agents/hr.py` · `agents/it_helpdesk.py` · `agents/developer.py`
+Example:
+
+```python
+try:
+    return await asyncio.to_thread(client.memories.retrieve, ...)
+except PermissionError as exc:
+    logger.error("Memory fetch denied for user_id=%s: %s", user_id, exc)
+    raise
+except Exception as exc:
+    logger.warning("Memory fetch failed for user_id=%s: %s", user_id, exc)
+    return []
+```
+
+> **Sources:** `memory/memory_bank.py` · L105–L406 · [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143), [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`fetch_memories`](memory/memory_bank.py#L331), [`build_memory_bank`](memory/memory_bank.py#L411)
+
+## Code Smell Patterns
+
+### 1) God object / overloaded facade
+
+[`HermesMemoryBank`](memory/memory_bank.py#L79) is the clearest example of a God object. It owns both API integration and presentation-related behavior.
+
+**Real example**
+- CRUD operations: [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`delete_memory`](memory/memory_bank.py#L227)
+- ingestion flows: [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143)
+- read / formatting flows: [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)
+- compatibility stubs: [`retrieve_profiles`](memory/memory_bank.py#L315), [`list_revisions`](memory/memory_bank.py#L369)
+
+**Recommended refactor**
+Introduce separate classes for storage, lifecycle management, and formatting, then let a thin orchestration facade compose them.
+
+> **Sources:** `memory/memory_bank.py` · L79–L406 · [`HermesMemoryBank`](memory/memory_bank.py#L79)
+
+### 2) Dynamic runtime data handling
+
+Methods such as [`ingest_events`](memory/memory_bank.py#L143) and [`fetch_memories`](memory/memory_bank.py#L331) accept generic `events` collections and memory objects with optional `.fact` attributes. The test suite explicitly validates fallback behavior for objects without a `fact` attribute.
+
+**Real example**
+- [`fetch_memories`](memory/memory_bank.py#L331) uses `getattr(..., "fact", str(memory))`
+- [`ingest_events`](memory/memory_bank.py#L143) normalizes event roles at runtime
+
+**Recommended refactor**
+Define typed dataclasses or `TypedDict` objects for events and memory records. This will reduce reliance on `getattr()` and implicit schema conventions.
+
+> **Sources:** `memory/memory_bank.py` · L143–L367 · [`ingest_events`](memory/memory_bank.py#L143), [`fetch_memories`](memory/memory_bank.py#L331)
+
+### 3) Compatibility no-op methods
+
+[`retrieve_profiles`](memory/memory_bank.py#L315) and [`list_revisions`](memory/memory_bank.py#L369) are documented as unsupported and return empty lists.
+
+**Real example**
+- `retrieve_profiles()` returns `[]`
+- `list_revisions()` returns `[]`
+
+**Recommended refactor**
+Replace silent no-ops with:
+- explicit `NotImplementedError`, or
+- a compatibility adapter interface that clearly signals unsupported behavior
+
+> **Sources:** `memory/memory_bank.py` · L315–L379 · [`retrieve_profiles`](memory/memory_bank.py#L315), [`list_revisions`](memory/memory_bank.py#L369)
+
+### 4) Presentation logic embedded in service layer
+
+[`format_for_prompt`](memory/memory_bank.py#L381) fetches memories and renders a prompt snippet, including token-budget handling.
+
+**Real example**
+- fetch + render in the same method
+- string assembly with a hard token budget parameter
+
+**Recommended refactor**
+Move rendering to a dedicated formatter utility so the memory service only returns structured data.
+
+> **Sources:** `memory/memory_bank.py` · L381–L406 · [`format_for_prompt`](memory/memory_bank.py#L381)
+
+## Missing Tests
+
+The core implementation module is well covered relative to its size: [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1) exercises every public method on [`HermesMemoryBank`](memory/memory_bank.py#L79), plus both builders. However, the analysis explicitly identifies one untested helper and the overall repository slice is too small to support broader test-gap claims.
+
+### Explicit gap identified by analysis
+
+- [`_make_module`](tests/conftest.py#L22) is called 6 times and has no direct test coverage.
+
+### Test coverage observations
+
+| Area | Evidence | Gap |
+|---|---|---|
+| [`HermesMemoryBank`](memory/memory_bank.py#L79) methods | Extensive unit tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L48) | No major gap evidenced |
+| [`build_memory_bank`](memory/memory_bank.py#L411) | Covered by `TestBuildMemoryBank` | No major gap evidenced |
+| [`create_memory_bank`](memory/memory_bank.py#L432) | Covered by `TestCreateMemoryBank` | No major gap evidenced |
+| [`tests.conftest`](tests/conftest.py#L1) helpers | Analysis flags `_make_module` as uncovered | Add direct test(s) |
+
+### Recommendation
+Add one small test module for `tests/conftest.py` helpers, especially `_make_module`, to prevent regressions in fixture generation.
+
+> **Sources:** `tests/conftest.py` · L22–L26 · [`_make_module`](tests/conftest.py#L22) · `tests/memory/test_memory_bank.py` · L48–L490 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L48)
+
+## Dependency & Security Concerns
+
+The provided data includes [`requirements.txt`](requirements.txt) but does not enumerate dependency versions, and there are no build/test commands or CI metadata available. Because of that, there is **not enough evidence** to flag specific vulnerable versions or CVEs.
+
+### What is observable
+- `requirements.txt` is present in the repo snapshot
+- No parsed dependency versions were supplied
+- No `pyproject.toml`, `package.json`, or `go.mod` appeared in `files_seen`
+
+### Security risk pattern to watch
+The main code risk is not a known CVE from the available data, but the broad exception-swallowing and dynamic behavior in [`memory/memory_bank.py`](memory/memory_bank.py#L1) can mask misconfiguration, permission failures, or transport issues in a production Vertex AI integration.
+
+### Recommendation
+Once dependency versions are available, run:
+- `pip-audit` for Python packages
+- `uv pip check` / `pip check`
+- Dependabot or Renovate for patch management
+
+> **Sources:** `requirements.txt` · `memory/memory_bank.py` · L1–L470 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank`](memory/memory_bank.py#L79)
+
+## TODO / FIXME Tracker
+
+No `TODO`, `FIXME`, `HACK`, or `XXX` comments were provided in the analysis data. This may mean none exist in the scanned files, or simply that comment extraction was not included in the payload.
+
+| File | Line | Comment | Suggested Action |
+|---|---:|---|---|
+| _No evidence provided_ | — | No TODO/FIXME/HACK/XXX comments extracted | Run a comment scan across the repository |
+
+> **Sources:** No comment extraction evidence present in the provided analysis payload.
+
+## Refactoring Roadmap
+
+| Priority | Action | Rationale | Estimated Effort |
+|----------|--------|-----------|-----------------|
+| 1 | Split [`HermesMemoryBank`](memory/memory_bank.py#L79) into smaller collaborators | Highest impact on maintainability and future feature work | L |
+| 2 | Replace broad exception swallowing with structured failure handling | Improves observability and reduces hidden production issues | M |
+| 3 | Extract prompt formatting into a dedicated formatter | Separates storage concerns from presentation concerns | M |
+| 4 | Introduce typed event/memory schemas | Reduces runtime brittleness and `getattr`-style fallback logic | M |
+| 5 | Replace compatibility no-op methods with explicit adapters or exceptions | Makes unsupported behavior visible to callers | S |
+| 6 | Add tests for [`_make_module`](tests/conftest.py#L22) | Closes the only explicit uncovered helper noted in analysis | S |
+| 7 | Audit and pin dependencies once version data is available | Needed before any meaningful security review | S |
+
+> **Sources:** `memory/memory_bank.py` · L79–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`format_for_prompt`](memory/memory_bank.py#L381), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/conftest.py` · L22–L26 · [`_make_module`](tests/conftest.py#L22)

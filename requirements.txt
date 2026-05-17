@@ -1,5 +1,5 @@
 # Agent Platform + ADK
-google-cloud-aiplatform[agent_engines,adk]>=1.112
+google-cloud-aiplatform[agent_engines,adk]>=1.17.0
 google-adk>=0.5.0
 
 # LLM providers (LiteLLM bridges ADK to OpenAI, Anthropic, Azure, Bedrock, etc.)

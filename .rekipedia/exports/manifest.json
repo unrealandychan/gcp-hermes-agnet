@@ -1,121 +1,61 @@
 {
-  "run_id": "6781f2a1-c7fe-46a8-949a-97896760334f",
-  "generated_at": "2026-05-16T04:12:57.337752+00:00",
-  "file_count": 145,
-  "symbol_count": 714,
-  "relationship_count": 3597,
+  "run_id": "0bde5785-0f4e-4bc3-a4ed-bd8f964d3fe8",
+  "generated_at": "2026-05-17T05:02:18.391515+00:00",
+  "file_count": 148,
+  "symbol_count": 79,
+  "relationship_count": 303,
   "nav_order": [
     "index",
-    "repository-structure",
+    "architecture",
+    "core-modules",
+    "algorithms",
+    "cli-and-api",
     "installation-and-setup",
     "configuration",
-    "architecture-data-flow",
-    "agents-overview",
-    "architecture-overview",
-    "gateway-overview",
-    "connectors-overview",
-    "registry-overview",
-    "memory-overview",
-    "tools-overview",
-    "cli-reference",
-    "python-api",
-    "rest-api",
-    "algorithms",
     "testing",
-    "ci-cd",
-    "technical-debt",
-    "contributing",
-    "deployment",
-    "integrations"
+    "ecosystem-and-integrations",
+    "technical-debt"
   ],
   "pages": [
     {
       "slug": "index",
-      "title": "Overview"
+      "title": "Project Overview"
     },
     {
-      "slug": "repository-structure",
-      "title": "Repository Map"
+      "slug": "architecture",
+      "title": "Architectural Overview"
     },
     {
-      "slug": "installation-and-setup",
-      "title": "Getting Started: Install and Bootstrap"
-    },
-    {
-      "slug": "configuration",
-      "title": "Repository Configuration Surfaces"
-    },
-    {
-      "slug": "architecture-data-flow",
-      "title": "Runtime and Data Movement"
-    },
-    {
-      "slug": "agents-overview",
-      "title": "Agents Subsystem Overview"
-    },
-    {
-      "slug": "architecture-overview",
-      "title": "Architecture Overview"
-    },
-    {
-      "slug": "gateway-overview",
-      "title": "Gateway Subsystem End-to-End"
-    },
-    {
-      "slug": "connectors-overview",
-      "title": "Connector Integrations as Webhook Adapters"
-    },
-    {
-      "slug": "registry-overview",
-      "title": "Registry Package Overview"
-    },
-    {
-      "slug": "memory-overview",
-      "title": "Memory Subsystem Architecture"
-    },
-    {
-      "slug": "tools-overview",
-      "title": "Tool Layer and Agent Capability Injection"
-    },
-    {
-      "slug": "cli-reference",
-      "title": "Command-Line Entry Points Reference"
-    },
-    {
-      "slug": "python-api",
-      "title": "Public Python API Reference"
-    },
-    {
-      "slug": "rest-api",
-      "title": "Gateway and Webhook Network API Reference"
+      "slug": "core-modules",
+      "title": "Module Documentation: Memory Bank and Test Support"
     },
     {
       "slug": "algorithms",
-      "title": "Internal Algorithms and Decision Logic"
+      "title": "Core Algorithms and Data Processing Logic"
+    },
+    {
+      "slug": "cli-and-api",
+      "title": "CLI Reference and Programmatic API for `memory.memory_bank`"
+    },
+    {
+      "slug": "installation-and-setup",
+      "title": "Installation and Setup Guide"
+    },
+    {
+      "slug": "configuration",
+      "title": "Configuration Reference for the Memory Bank Module"
     },
     {
       "slug": "testing",
-      "title": "Testing Strategy and Execution Guide"
+      "title": "Testing Strategy and Test Execution"
     },
     {
-      "slug": "ci-cd",
-      "title": "Automation and Build Pipeline"
+      "slug": "ecosystem-and-integrations",
+      "title": "External Integrations, Plugins, and Ecosystem"
     },
     {
       "slug": "technical-debt",
-      "title": "Maintenance Risk Review"
-    },
-    {
-      "slug": "contributing",
-      "title": "Contributing Guide"
-    },
-    {
-      "slug": "deployment",
-      "title": "Deployment Lifecycle and Environment Provisioning"
-    },
-    {
-      "slug": "integrations",
-      "title": "External Integrations and Third-Party Services"
+      "title": "Technical Debt Audit"
     }
   ],
   "diagrams": [
@@ -123,13 +63,6 @@
     "class-hierarchy"
   ],
   "risks": [],
-  "build_commands": [
-    "uv build",
-    "npm run build  # next build",
-    "npm start  # next start"
-  ],
-  "test_commands": [
-    "pytest",
-    "python -m pytest tests/ -q --tb=short"
-  ]
+  "build_commands": [],
+  "test_commands": []
 }

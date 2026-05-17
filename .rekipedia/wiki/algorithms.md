@@ -1,262 +1,341 @@
 ---
 slug: algorithms
-title: "Internal Algorithms and Decision Logic"
-section: internals
-tags: [internals, algorithms]
+title: "Core Algorithms and Data Processing Logic"
+section: general
 pin: false
-importance: 57
-created_at: 2026-05-16T04:12:27Z
+importance: 50
+created_at: 2026-05-17T05:00:31Z
 rekipedia_version: 0.15.1
 ---
 
-# Internal Algorithms and Decision Logic
+# Core Algorithms and Data Processing Logic
 
-## Scope
+## Overview
 
-This page focuses on the nontrivial implementation logic visible in the repository’s symbol graph: agent construction heuristics, webhook authentication and verification, evaluation scoring, and the main routing / data-processing flows. It intentionally avoids repeating high-level architecture and test-only helper details.
+This repository’s main computational problem is **memory lifecycle management for an AI assistant**: taking conversational or explicit facts, persisting them into Vertex AI Agent Engine memories, retrieving the most relevant memories later, formatting them into prompt-ready context, and supporting administrative operations like delete, update, and purge. The central implementation lives in [`memory.memory_bank`](memory/memory_bank.py#L1) and is encapsulated by the [`HermesMemoryBank`](memory/memory_bank.py#L79) facade.
 
-The most important algorithmic surfaces are:
+At a high level, the project solves three related classes of work:
 
-- Agent assembly and fallback selection in [`agents/loader.py`](agents/loader.py)
-- Slack / Teams request verification in [`connectors/slack.py`](connectors/slack.py) and [`connectors/teams.py`](connectors/teams.py)
-- Offline evaluation scoring in [`eval/metrics.py`](eval/metrics.py) and asynchronous quality logging in [`eval/online_monitor.py`](eval/online_monitor.py)
-- Memory and text-processing pipelines in [`memory/context_budget.py`](memory/context_budget.py), [`memory/cross_corpus.py`](memory/cross_corpus.py), [`memory/skill_loader.py`](memory/skill_loader.py), and [`memory/skill_store.py`](memory/skill_store.py)
+1. **Memory ingestion and distillation**  
+   Conversation turns are transformed into durable memory records via [`HermesMemoryBank.generate_memories()`](memory/memory_bank.py#L105) or batched event streams via [`HermesMemoryBank.ingest_events()`](memory/memory_bank.py#L143).
 
-> **Sources:** `agents/loader.py` · `connectors/slack.py` · `connectors/teams.py` · `eval/metrics.py` · `eval/online_monitor.py` · `memory/context_budget.py` · `memory/cross_corpus.py` · `memory/skill_loader.py` · `memory/skill_store.py`
+2. **Memory retrieval and prompt construction**  
+   Relevant memories are fetched using [`HermesMemoryBank.fetch_memories()`](memory/memory_bank.py#L331) and converted into a compact system-prompt snippet by [`HermesMemoryBank.format_for_prompt()`](memory/memory_bank.py#L381).
 
-## Agent-Building Heuristics
+3. **Memory administration and provisioning**  
+   The module also supports direct CRUD-style operations such as [`create_memory()`](memory/memory_bank.py#L250), [`update_memory()`](memory/memory_bank.py#L285), [`delete_memory()`](memory/memory_bank.py#L227), and resource provisioning through [`create_memory_bank()`](memory/memory_bank.py#L432).
 
-The agent loader is where the repository decides whether a YAML entry becomes a generic agent or is dispatched to a bespoke constructor. The core flow is driven by [`build_agents_from_yaml`](agents/loader.py#L147), which first parses the YAML via [`load_agents_yaml`](agents/loader.py#L133), then resolves tools and custom builders, and finally falls back to [`_build_generic`](agents/loader.py#L181) when no special-case builder exists.
+The design is intentionally defensive: almost every public operation catches exceptions and degrades gracefully, returning `None`, `False`, `0`, `[]`, or `""` instead of raising, which makes the memory layer safe to use in request/response paths and fire-and-forget callbacks. This behavior is strongly reflected in the tests under [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1).
 
-A key detail is environment substitution. [`_resolve_env_vars`](agents/loader.py#L125) supports `${VAR:-default}` patterns using `os.environ`, so YAML values can remain portable across environments without requiring pre-rendering. This is a small but important heuristic: config is treated as partially templated, not static.
+> **Sources:** `memory/memory_bank.py` · L1–L470 · [`memory.memory_bank`](memory/memory_bank.py#L1), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
 
-Tool selection is also heuristic-driven. [`_tool_factories`](agents/loader.py#L47) builds a lookup table of tool constructors from `settings`, then the builder logic maps YAML tool names to callables. If a tool name is unknown, the implementation logs a warning and skips it rather than failing the entire agent build. This makes the loader resilient to partially migrated configurations.
+## Algorithm Descriptions
 
-The custom-builder shortcut is explicit in [`_custom_builders`](agents/loader.py#L107), which returns the set of known domain-specific constructors. If the YAML `name` matches one of those known builders, the loader uses it; otherwise [`_build_generic`](agents/loader.py#L181) synthesizes an `LlmAgent` from the YAML fields. This gives the system a two-tier policy:
+### 1. Vertex AI Client Resolution and Compatibility Shim
 
-1. Prefer bespoke agents when the repository knows how to build them.
-2. Otherwise, interpret YAML as a generic `LlmAgent` spec.
+The helper [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) resolves a `vertexai.Client` while handling SDK compatibility and configuration fallback.
 
-The generic builder also sorts / normalizes tool references and emits warnings when tools are unavailable. That means build success is based on “best effort” completeness rather than strict schema enforcement.
+- **Input**: optional `project` and `location` arguments
+- **Steps**:
+  1. If `project` or `location` are omitted, call `get_settings()` to read defaults from configuration.
+  2. Read `vertex_project` and `vertex_location` from settings via `getattr(...)`.
+  3. Construct and return a `vertexai.Client`.
+  4. If the SDK is too old or the expected client class is unavailable, raise an `ImportError` with a helpful message.
+- **Output**: a configured Vertex AI client instance
+- **Complexity**: O(1) time and space; the work is configuration lookup and object construction
+- **Code Reference**: [`_get_vertexai_client()`](memory/memory_bank.py#L41) in `memory/memory_bank.py`
 
-### Key Function Table
+This is not an algorithm in the mathematical sense, but it is a key **initialization pipeline** that ensures downstream memory operations can be written against a single client abstraction.
 
-| Function | Inputs | Outputs | Decision Logic | Edge Cases |
+> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`get_settings`](memory/memory_bank.py#L41)
+
+---
+
+### 2. Conversation Turn Distillation
+
+The [`HermesMemoryBank.generate_memories()`](memory/memory_bank.py#L105) method converts one user turn plus one agent response into durable memories.
+
+- **Input**:
+  - `user_id`
+  - `user_text`
+  - `agent_text`
+  - optional `agent_name`
+- **Steps**:
+  1. Lazily initialize the Vertex client with [`_ensure_client()`](memory/memory_bank.py#L98).
+  2. Build the SDK request for the `generate` operation.
+  3. Wrap the blocking SDK call in `asyncio.to_thread(...)` so the async event loop is not blocked.
+  4. Log debug details.
+  5. Swallow any exception and log it rather than failing the caller.
+- **Output**: `None` on success or failure; the effect is side-effectful persistence inside Vertex AI
+- **Complexity**: O(1) wrapper work; actual SDK cost is external/network-bound
+- **Code Reference**: [`HermesMemoryBank.generate_memories()`](memory/memory_bank.py#L105)
+
+The tests show two important behavioral constraints: the client must be lazily initialized, and exceptions must be swallowed rather than propagated (`TestGenerateMemories` in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L48)).
+
+> **Sources:** `memory/memory_bank.py` · L105–L141 · [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105), [`HermesMemoryBank._ensure_client`](memory/memory_bank.py#L98)
+
+---
+
+### 3. Event Normalization and Batched Memory Ingestion
+
+The [`HermesMemoryBank.ingest_events()`](memory/memory_bank.py#L143) pipeline is the most production-oriented ingestion path.
+
+- **Input**:
+  - `user_id`
+  - `events`: a list of dictionaries containing `role` and `text`
+- **Steps**:
+  1. Initialize the client lazily.
+  2. Iterate through the event list and normalize event roles.
+  3. Convert `role == "agent"` into the SDK’s expected `"model"` role.
+  4. Preserve `user` events as-is.
+  5. Submit the normalized event batch to the SDK’s `ingest_events` RPC using `asyncio.to_thread(...)`.
+  6. Log and swallow exceptions.
+- **Output**: `None`; the memory bank batches and persists events internally
+- **Complexity**: O(n) time and O(n) space for event normalization, where `n` is the number of events
+- **Code Reference**: [`HermesMemoryBank.ingest_events()`](memory/memory_bank.py#L143)
+
+This function is the clearest example of an internal **data transformation pipeline**: a small schema-normalization pass over raw event dictionaries before handing them to the backend. The tests explicitly verify role normalization from `agent` to `model` in [`TestIngestEvents.test_normalises_agent_role_to_model`](tests/memory/test_memory_bank.py#L351).
+
+> **Sources:** `memory/memory_bank.py` · L143–L185 · [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143)
+
+---
+
+### 4. Bulk Memory Purge
+
+The [`HermesMemoryBank.purge_memories()`](memory/memory_bank.py#L187) method deletes all memories belonging to a user.
+
+- **Input**:
+  - `user_id`
+  - `dry_run`
+- **Steps**:
+  1. Initialize the client lazily.
+  2. Enumerate memories for the user.
+  3. Count the candidate memories.
+  4. If `dry_run` is enabled, return the count without deleting anything.
+  5. Otherwise invoke the SDK purge operation in a background thread.
+  6. Log and swallow exceptions.
+- **Output**: number of memories deleted, or would be deleted in dry-run mode
+- **Complexity**: O(n) time to enumerate memories; O(1) additional space aside from the returned list
+- **Code Reference**: [`HermesMemoryBank.purge_memories()`](memory/memory_bank.py#L187)
+
+The dry-run branch is important operationally: it gives administrators a safe way to estimate the impact of a purge before executing it. The tests validate both execution and dry-run behavior in [`TestPurgeMemories`](tests/memory/test_memory_bank.py#L373).
+
+> **Sources:** `memory/memory_bank.py` · L187–L225 · [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187)
+
+---
+
+### 5. Single-Memory CRUD Operations
+
+The module includes three straightforward CRUD-like operations: [`delete_memory()`](memory/memory_bank.py#L227), [`create_memory()`](memory/memory_bank.py#L250), and [`update_memory()`](memory/memory_bank.py#L285).
+
+#### Delete Memory
+- **Input**: full `memory_resource_name`
+- **Steps**:
+  1. Initialize the client lazily.
+  2. Call the SDK delete operation in a thread.
+  3. Return `True` on success; `False` on failure.
+- **Output**: boolean success flag
+- **Complexity**: O(1)
+
+#### Create Memory
+- **Input**: `user_id`, `fact`
+- **Steps**:
+  1. Initialize the client lazily.
+  2. Call the SDK create operation in a thread.
+  3. Extract `resource_name` from the returned object using `getattr(...)`.
+  4. Return the resource name or `None` on failure.
+- **Output**: created memory resource name or `None`
+- **Complexity**: O(1)
+
+#### Update Memory
+- **Input**: `memory_resource_name`, `new_fact`
+- **Steps**:
+  1. Initialize the client lazily.
+  2. Call the SDK update operation in a thread.
+  3. Return `True` on success; `False` on failure.
+- **Output**: boolean success flag
+- **Complexity**: O(1)
+
+These methods are thin adapters over backend SDK methods, but they still matter because they enforce uniform error handling and isolate the rest of the application from SDK details.
+
+> **Sources:** `memory/memory_bank.py` · L227–L313 · [`HermesMemoryBank.delete_memory`](memory/memory_bank.py#L227), [`HermesMemoryBank.create_memory`](memory/memory_bank.py#L250), [`HermesMemoryBank.update_memory`](memory/memory_bank.py#L285)
+
+---
+
+### 6. Memory Retrieval and Fact Extraction
+
+The [`HermesMemoryBank.fetch_memories()`](memory/memory_bank.py#L331) method retrieves relevant memory records for a query.
+
+- **Input**:
+  - `user_id`
+  - `query`
+  - `top_k`
+- **Steps**:
+  1. Lazily initialize the client.
+  2. Call the SDK retrieval method using the query and `top_k`.
+  3. Iterate over returned memory objects.
+  4. Extract `fact` attributes when present.
+  5. Fall back to `str(memory)` if the object lacks a `fact` field.
+  6. Return the collected fact strings.
+  7. Return `[]` on any error.
+- **Output**: list of memory strings
+- **Complexity**: O(k) time and O(k) space, where `k` is the number of retrieved memories
+- **Code Reference**: [`HermesMemoryBank.fetch_memories()`](memory/memory_bank.py#L331)
+
+This is a simple but important post-processing step: the backend may return structured memory objects, but this method guarantees prompt-friendly plain text output. Tests cover both the normal path and the fallback stringification path in [`TestFetchMemories`](tests/memory/test_memory_bank.py#L106).
+
+> **Sources:** `memory/memory_bank.py` · L331–L367 · [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331)
+
+---
+
+### 7. Prompt Formatting with Token Budgeting
+
+The [`HermesMemoryBank.format_for_prompt()`](memory/memory_bank.py#L381) method transforms retrieved memories into a compact system prompt snippet.
+
+- **Input**:
+  - `user_id`
+  - `query`
+  - `max_tokens`
+- **Steps**:
+  1. Call [`fetch_memories()`](memory/memory_bank.py#L331) to retrieve relevant memories.
+  2. If none are returned, emit an empty string.
+  3. Build a prompt header and append memory lines incrementally.
+  4. Track the cumulative size against the provided token budget.
+  5. Stop appending once the budget would be exceeded.
+  6. Join the lines into a single formatted string.
+- **Output**: a prompt snippet, or `""` when no memories are available
+- **Complexity**: O(k) time and O(k) space for `k` candidate memories
+- **Code Reference**: [`HermesMemoryBank.format_for_prompt()`](memory/memory_bank.py#L381)
+
+This is the clearest internal **packing algorithm** in the module. While the code’s token estimate is not visible in the analysis as a full tokenizer-based implementation, the tests show the contract: respect the `max_tokens` budget and preserve the expected header formatting.
+
+> **Sources:** `memory/memory_bank.py` · L381–L406 · [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381)
+
+---
+
+### 8. Memory Bank Build and Resource Provisioning
+
+The top-level convenience functions [`build_memory_bank()`](memory/memory_bank.py#L411) and [`create_memory_bank()`](memory/memory_bank.py#L432) implement configuration-driven instantiation and resource provisioning.
+
+#### Build Memory Bank
+- **Input**: implicit configuration from `get_settings()`
+- **Steps**:
+  1. Read `MEMORY_BANK_RESOURCE_NAME` from settings.
+  2. Return `None` if not configured.
+  3. Construct a [`HermesMemoryBank`](memory/memory_bank.py#L79).
+  4. Swallow errors and return `None`.
+- **Output**: `HermesMemoryBank` instance or `None`
+- **Complexity**: O(1)
+
+#### Create Memory Bank
+- **Input**:
+  - `project`
+  - `location`
+  - `display_name`
+- **Steps**:
+  1. Resolve a Vertex client with [`_get_vertexai_client()`](memory/memory_bank.py#L41).
+  2. List existing Agent Engine resources.
+  3. Return the existing resource if the display name already matches.
+  4. Otherwise create a new lightweight Agent Engine dedicated to memory storage.
+  5. Return the new resource name.
+- **Output**: resource name string
+- **Complexity**: O(n) over existing engines for the list-and-match step
+- **Code Reference**: [`build_memory_bank()`](memory/memory_bank.py#L411), [`create_memory_bank()`](memory/memory_bank.py#L432)
+
+The provisioning flow is idempotent in spirit: the implementation checks existing engines before creating a new one. This matters for deploy-time scripts and makes repeated invocations safe.
+
+> **Sources:** `memory/memory_bank.py` · L411–L470 · [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+
+## Data Structures
+
+The implementation is light on custom schema types, but there are still a few key internal data structures worth documenting.
+
+| Structure | Kind | Purpose | Key Fields / Shape | Evidence |
 |---|---|---|---|---|
-| [`_resolve_env_vars`](agents/loader.py#L125) | Raw YAML text | YAML text with substitutions applied | Replaces `${VAR:-default}` from `os.environ` | Missing env vars fall back to defaults |
-| [`_tool_factories`](agents/loader.py#L47) | `settings` | Tool factory map | Builds tool constructors from runtime config | Tools may be unavailable depending on settings |
-| [`_custom_builders`](agents/loader.py#L107) | None | Builder map | Declares known domain-specific agent constructors | Unknown names are not errors |
-| [`build_agents_from_yaml`](agents/loader.py#L147) | `settings`, `yaml_path` | List of `LlmAgent` instances | YAML parsing → custom builder lookup → generic fallback | Invalid / partial entries are skipped with warnings |
-| [`_build_generic`](agents/loader.py#L181) | Config dict, `settings`, `tool_map` | `LlmAgent` | Converts YAML fields into agent constructor args | Unknown tools logged and omitted |
+| [`HermesMemoryBank`](memory/memory_bank.py#L79) | class | Facade over Agent Engine memories | `resource_name`, lazy `client` | [`HermesMemoryBank`](memory/memory_bank.py#L79) |
+| Event dicts | runtime dict schema | Input to batched ingestion | `{"role": "user" \| "agent" \| "model", "text": "..."}` | [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143) |
+| Memory objects | SDK-returned objects | Retrieval results from Vertex AI | May expose `fact`; otherwise stringified | [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) |
+| Settings object | config object | Source of `vertex_project`, `vertex_location`, `MEMORY_BANK_RESOURCE_NAME` | Accessed via `getattr(...)` | [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411) |
 
-### Flowchart: YAML-to-Agent Resolution
+### Class Diagram
+
+```mermaid
+classDiagram
+    class HermesMemoryBank {
+        +resource_name
+        +generate_memories(user_id, user_text, agent_text, agent_name)
+        +ingest_events(user_id, events)
+        +purge_memories(user_id, dry_run)
+        +delete_memory(memory_resource_name)
+        +create_memory(user_id, fact)
+        +update_memory(memory_resource_name, new_fact)
+        +retrieve_profiles(user_id)
+        +fetch_memories(user_id, query, top_k)
+        +list_revisions(user_id)
+        +format_for_prompt(user_id, query, max_tokens)
+    }
+```
+
+The class diagram is intentionally simple because the module is not built around a deep object hierarchy. Instead, [`HermesMemoryBank`](memory/memory_bank.py#L79) serves as an operational facade with a handful of specialized processing methods.
+
+> **Sources:** `memory/memory_bank.py` · L79–L470 · [`HermesMemoryBank`](memory/memory_bank.py#L79)
+
+## Processing Pipeline
+
+The end-to-end pipeline starts with application configuration, moves through lazy client initialization, and then branches into ingestion or retrieval depending on the runtime need.
 
 ```mermaid
 flowchart TD
-    A[load_agents_yaml] --> B[parse YAML]
-    B --> C[_custom_builders]
-    B --> D[_tool_factories]
-    C --> E{custom builder exists?}
-    E -- yes --> F[call bespoke build_* function]
-    E -- no --> G[_build_generic]
-    G --> H[resolve model via get_model]
-    G --> I[map tools by name]
-    I --> J{tool known?}
-    J -- yes --> K[include tool]
-    J -- no --> L[warn and skip]
-    F --> M[append agent]
-    H --> M
-    K --> M
-    L --> M
+    A[Settings / config] --> B[build_memory_bank]
+    A --> C[create_memory_bank]
+    B --> D[HermesMemoryBank]
+    D --> E[_ensure_client]
+    E --> F[_get_vertexai_client]
+    D --> G[generate_memories]
+    D --> H[ingest_events]
+    D --> I[fetch_memories]
+    I --> J[format_for_prompt]
+    D --> K[purge_memories]
+    D --> L[create_memory]
+    D --> M[update_memory]
+    D --> N[delete_memory]
+    C --> O[Vertex AI Agent Engine]
+    G --> O
+    H --> O
+    I --> O
+    K --> O
+    L --> O
+    M --> O
+    N --> O
+    J --> P[System prompt snippet]
 ```
 
-> **Sources:** `agents/loader.py` · L47–L203 · [`_tool_factories`](agents/loader.py#L47) · [`_custom_builders`](agents/loader.py#L107) · [`_resolve_env_vars`](agents/loader.py#L125) · [`load_agents_yaml`](agents/loader.py#L133) · [`build_agents_from_yaml`](agents/loader.py#L147) · [`_build_generic`](agents/loader.py#L181)
+### End-to-End Interpretation
 
-## Webhook Verification Flow
+1. Configuration is read from settings.
+2. [`build_memory_bank()`](memory/memory_bank.py#L411) may create a ready-to-use facade if a memory bank resource exists.
+3. If the caller needs provisioning, [`create_memory_bank()`](memory/memory_bank.py#L432) creates or reuses a backend Agent Engine resource.
+4. Runtime operations on [`HermesMemoryBank`](memory/memory_bank.py#L79) lazily initialize the SDK client through [`_ensure_client()`](memory/memory_bank.py#L98) and [`_get_vertexai_client()`](memory/memory_bank.py#L41).
+5. Conversation data is either:
+   - distilled and persisted via [`generate_memories()`](memory/memory_bank.py#L105), or
+   - normalized and ingested in batches via [`ingest_events()`](memory/memory_bank.py#L143).
+6. At session start, relevant memories are retrieved via [`fetch_memories()`](memory/memory_bank.py#L331) and packed by [`format_for_prompt()`](memory/memory_bank.py#L381) into prompt context.
 
-The webhook code uses explicit cryptographic verification before any agent execution is triggered. This is not just input validation; it is the security boundary that decides whether the request is eligible to reach the agent runtime.
+This pipeline is deliberately **failure-tolerant**: the implementation favors returning empty/default values over surfacing backend failures into the application flow.
 
-### Slack signature verification
+> **Sources:** `memory/memory_bank.py` · L41–L470 · [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432), [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381)
 
-[`_verify_slack_signature`](connectors/slack.py#L44) implements Slack’s HMAC-SHA256 request verification. The flow is:
+## Notes on Observability and Test Coverage
 
-1. Extract the timestamp and raw body.
-2. Recompute the expected signature from the signing secret and request contents.
-3. Reject requests if the timestamp is too old.
-4. Use constant-time comparison to avoid timing leaks.
+The test suite in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1) gives strong evidence about the intended algorithmic behavior:
 
-The function’s design shows two orthogonal checks:
-- **freshness** via timestamp skew protection
-- **authenticity** via signature matching
+- lazy client initialization
+- event role normalization
+- dry-run purge behavior
+- fallback stringification for retrieved memory objects
+- token-budget-aware prompt formatting
+- idempotent memory bank creation logic
 
-The webhook entrypoint [`slack_webhook`](connectors/slack.py#L68) then handles distinct Slack payload classes:
-- `url_verification` challenge during app setup
-- message events for DMs and app mentions
+One gap is that the repository snapshot does not include production callers, so the exact upstream request flow into [`HermesMemoryBank`](memory/memory_bank.py#L79) is not visible here. However, the API surface and tests clearly establish how the memory processing logic is meant to behave.
 
-It ignores the rest rather than trying to be a generic event processor.
-
-### Teams token verification
-
-[`_verify_teams_token`](connectors/teams.py#L66) validates the Bot Framework JWT using a cached JWKS retrieved by [`_get_jwks`](connectors/teams.py#L50). The algorithm is standard token verification with a repository-specific policy check layered on top:
-
-1. Inspect token header to select the key id.
-2. Pull the matching JWK from the cached set.
-3. Decode and verify the JWT signature and claims.
-4. Confirm the token is intended for the configured app identity.
-
-The webhook [`teams_webhook`](connectors/teams.py#L93) only processes `Activity` type `message`; all other activity types are acknowledged silently. That means the routing policy is intentionally narrow and conservative.
-
-### Verification comparison
-
-| Function | Input | Output | Security Check | Failure Mode |
-|---|---|---|---|---|
-| [`_verify_slack_signature`](connectors/slack.py#L44) | `signing_secret`, `timestamp`, `raw_body`, `signature` | `bool` | HMAC-SHA256 + timestamp freshness | Rejects forged or stale requests |
-| [`_verify_teams_token`](connectors/teams.py#L66) | JWT `token`, `app_id` | `bool` | JWKS-backed JWT verification | Rejects invalid / mis-scoped tokens |
-
-### Sequence diagram: webhook gating
-
-```mermaid
-sequenceDiagram
-    participant U as ExternalPlatform
-    participant W as Webhook
-    participant V as Verify
-    participant R as run_agent
-
-    U->>W: POST webhook payload
-    W->>V: verify signature / token
-    alt verification fails
-        V-->>W: reject
-    else verification passes
-        W->>R: dispatch message
-        R-->>W: agent response
-        W-->>U: reply payload
-    end
-```
-
-> **Sources:** `connectors/slack.py` · L44–L153 · [`_verify_slack_signature`](connectors/slack.py#L44) · [`slack_webhook`](connectors/slack.py#L68) · `connectors/teams.py` · L50–L185 · [`_get_jwks`](connectors/teams.py#L50) · [`_verify_teams_token`](connectors/teams.py#L66) · [`teams_webhook`](connectors/teams.py#L93)
-
-## Evaluation Scoring
-
-The offline evaluator in [`score_response`](eval/metrics.py#L23) uses a deliberately simple, fully local scoring model. Its logic is keyword-centric, which makes the result deterministic and easy to reproduce without any model calls.
-
-The scoring behavior is centered on three dimensions represented by [`EvalMetrics`](eval/metrics.py#L13):
-- groundedness
-- task completion
-- safety
-- overall score as an aggregate
-
-The function computes these from the response text and expected keywords. The graph evidence shows case-insensitive comparisons, explicit length-based heuristics, and averaging. The evaluation is therefore not semantic in the LLM sense; it is a rule-based proxy metric.
-
-A notable edge case is the empty keyword set: the implementation treats that as full groundedness rather than a failure, which avoids penalizing prompts that do not define any keyword targets. This is consistent with the test evidence, but the underlying code path in the graph is the important part: the scorer must be able to return sensible values when one or more dimensions are intentionally unspecified.
-
-`log_quality_score` in [`eval/online_monitor.py`](eval/online_monitor.py#L21) takes the same metric object and writes a row to BigQuery asynchronously. The function is explicitly documented as failing silently, which means quality telemetry must never interfere with user-facing latency or correctness.
-
-### Key Function Table
-
-| Function | Inputs | Outputs | Heuristic / Logic | Edge Cases |
-|---|---|---|---|---|
-| [`score_response`](eval/metrics.py#L23) | `response`, `expected_keywords`, `context` | [`EvalMetrics`](eval/metrics.py#L13) | Case-insensitive keyword matching, length-based completion, safety checks, averaging | Empty keyword lists, short responses |
-| [`log_quality_score`](eval/online_monitor.py#L21) | `user_id`, `agent_name`, `query`, `response`, `metrics`, `config` | None | Asynchronous BigQuery insert | Any failure is swallowed |
-| [`build_online_monitor`](eval/online_monitor.py#L58) | None | `MonitorConfig` or `None` | Enabled only when project config exists | Returns `None` cleanly when disabled |
-
-### Metrics decision flow
-
-```mermaid
-flowchart TD
-    A[score_response] --> B[normalize response text]
-    B --> C[compare against expected keywords]
-    C --> D{any keywords present?}
-    D -- no --> E[groundedness = full]
-    D -- yes --> F[compute keyword match ratio]
-    F --> G[derive groundedness score]
-    B --> H[compute completion heuristic]
-    B --> I[compute safety heuristic]
-    G --> J[average into overall score]
-    H --> J
-    I --> J
-    J --> K[EvalMetrics]
-```
-
-> **Sources:** `eval/metrics.py` · L13–L52 · [`EvalMetrics`](eval/metrics.py#L13) · [`score_response`](eval/metrics.py#L23) · `eval/online_monitor.py` · L21–L66 · [`log_quality_score`](eval/online_monitor.py#L21) · [`build_online_monitor`](eval/online_monitor.py#L58)
-
-## Data-Processing and Routing Logic
-
-Several modules implement compact but nontrivial data-processing pipelines. These are worth reading together because they share a pattern: normalize early, discard invalid records quietly, and preserve ordering or priority where it matters.
-
-### Memory budgeting and prompt assembly
-
-[`build_context_summary`](memory/context_budget.py#L37) constructs a prompt-ready summary from a user profile plus a ranked skill list. The process is budget-aware:
-- the profile is included first as Tier 1 if present
-- then skills are admitted in priority order
-- once the token budget is exhausted, additional items are dropped
-
-[`prioritise_memory`](memory/context_budget.py#L94) performs the trimming step. Its semantics are simple but important: it assumes the caller has already ranked items in priority order, and it returns the largest prefix that fits the budget. This preserves determinism and avoids trying to reshuffle the ranking inside the function.
-
-### Cross-corpus retrieval and deduplication
-
-[`retrieve_cross_corpus`](memory/cross_corpus.py#L64) queries multiple RAG corpora, merges all candidate results, sorts them by score, and then deduplicates them through [`_deduplicate`](memory/cross_corpus.py#L53). The algorithm is intentionally tolerant:
-- each corpus query is isolated by [`_query_corpus`](memory/cross_corpus.py#L27)
-- failures on one corpus return an empty list instead of aborting the whole search
-- duplicate text is removed using normalized text keys
-
-This means the overall query path is “fail-soft” across corpora while still returning a ranked final set.
-
-### Skill loading and parsing
-
-[`load_skills_from_dir`](memory/skill_loader.py#L42) scans `*.md` files via [`_iter_skill_files`](memory/skill_loader.py#L77), ignores `TEMPLATE.md`, and parses each candidate through [`_parse_skill_file`](memory/skill_loader.py#L85). The parsing logic is defensive:
-- files with no frontmatter are silently skipped as likely docs/notes
-- frontmatter present but missing required fields raises a warning-worthy error
-- procedure steps are extracted through [`_extract_procedure`](memory/skill_loader.py#L133)
-
-This approach separates “not a skill file” from “malformed skill file,” which improves operational ergonomics.
-
-### RAG skill serialization and versioning
-
-[`Skill.to_rag_text`](memory/skill_models.py#L34) serializes a skill into a text blob suitable for corpus ingestion. Later, [`_parse_rag_text`](memory/skill_store.py#L73) reconstructs the object from that representation. On top of that, [`upsert_skill`](memory/skill_store.py#L115) uses a near-duplicate heuristic: it searches existing entries, and if one with the same `skill_id` exceeds a version threshold, it archives the older version before inserting the new one.
-
-That makes versioning a content-similarity decision rather than a pure ID overwrite.
-
-### Summary table
-
-| Function | Processed Data | Main Output | Routing / Normalization Rule | Edge Cases |
-|---|---|---|---|---|
-| [`build_context_summary`](memory/context_budget.py#L37) | Profile + skills | Prompt string | Tiered inclusion under token budget | Returns empty string if nothing fits |
-| [`prioritise_memory`](memory/context_budget.py#L94) | Ranked items | Trimmed list | Keeps priority order intact | Empty input / zero budget |
-| [`retrieve_cross_corpus`](memory/cross_corpus.py#L64) | Multiple corpora | Deduplicated contexts | Merge → sort → dedupe | One corpus can fail independently |
-| [`load_skills_from_dir`](memory/skill_loader.py#L42) | Markdown files | `Skill` list | Skip templates and non-skill docs | Warnings for malformed frontmatter |
-| [`upsert_skill`](memory/skill_store.py#L115) | New `Skill` | Inserted / archived version | Duplicate detection by similarity | Falls back on archive-first behavior |
-
-### Flowchart: cross-corpus retrieval
-
-```mermaid
-flowchart TD
-    A[retrieve_cross_corpus] --> B[for each corpus]
-    B --> C[_query_corpus]
-    C --> D{query succeeded?}
-    D -- no --> E[return empty list]
-    D -- yes --> F[collect RetrievedContext]
-    F --> G[merge results]
-    G --> H[sort by score]
-    H --> I[_deduplicate]
-    I --> J[truncate to top_k]
-```
-
-> **Sources:** `memory/context_budget.py` · L37–L111 · [`build_context_summary`](memory/context_budget.py#L37) · [`prioritise_memory`](memory/context_budget.py#L94) · `memory/cross_corpus.py` · L21–L94 · [`RetrievedContext`](memory/cross_corpus.py#L21) · [`_query_corpus`](memory/cross_corpus.py#L27) · [`_deduplicate`](memory/cross_corpus.py#L53) · [`retrieve_cross_corpus`](memory/cross_corpus.py#L64) · `memory/skill_loader.py` · L42–L154 · [`load_skills_from_dir`](memory/skill_loader.py#L42) · [`_iter_skill_files`](memory/skill_loader.py#L77) · [`_parse_skill_file`](memory/skill_loader.py#L85) · [`_extract_procedure`](memory/skill_loader.py#L133) · `memory/skill_models.py` · L15–L61 · [`Skill`](memory/skill_models.py#L15) · [`Skill.to_rag_text`](memory/skill_models.py#L34) · `memory/skill_store.py` · L29–L171 · [`_get_corpus_name`](memory/skill_store.py#L29) · [`_parse_rag_text`](memory/skill_store.py#L73) · [`upsert_skill`](memory/skill_store.py#L115)
-
-## Routing Logic in Connector Replies
-
-The connector-side routing logic is intentionally narrow: each platform gets its own message extraction and reply strategy, but both converge on the same agent execution entrypoint [`run_agent`](connectors/runner.py#L34).
-
-### Slack
-
-[`slack_webhook`](connectors/slack.py#L68) extracts message content from the event payload, ignores non-message events, and replies using Slack’s API. The helper [`_split_text`](connectors/slack.py#L146) breaks long replies into chunks so the platform can accept them without exceeding message-size constraints. This is a simple linear chunking algorithm: it appends slices up to a limit and emits a sequence of text chunks.
-
-### Teams
-
-[`teams_webhook`](connectors/teams.py#L93) only responds to `message` activities and ignores other activity types. Once a response is produced, [`_send_teams_reply`](connectors/teams.py#L150) posts a Bot Framework activity back to the conversation. The response path includes a normalization step that strips protocol prefixes and handles the reply threading identifiers.
-
-### Telegram
-
-[`telegram_webhook`](connectors/telegram.py#L61) follows the same pattern: accept only text message updates, run the agent, then reply via [`_send_message`](connectors/telegram.py#L40). Its own [`_split_text`](connectors/telegram.py#L50) mirrors the Slack chunking utility, which suggests the project treats long-response fragmentation as a platform-level concern rather than an agent concern.
-
-> **Sources:** `connectors/runner.py` · L28–L87 · [`_platform_session_id`](connectors/runner.py#L28) · [`run_agent`](connectors/runner.py#L34) · `connectors/slack.py` · L68–L153 · [`slack_webhook`](connectors/slack.py#L68) · [`_split_text`](connectors/slack.py#L146) · `connectors/teams.py` · L93–L185 · [`teams_webhook`](connectors/teams.py#L93) · [`_send_teams_reply`](connectors/teams.py#L150) · `connectors/telegram.py` · L40–L100 · [`_send_message`](connectors/telegram.py#L40) · [`_split_text`](connectors/telegram.py#L50) · [`telegram_webhook`](connectors/telegram.py#L61)
+> **Sources:** `tests/memory/test_memory_bank.py` · L32–L490 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L48), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L106), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L163), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L263)
