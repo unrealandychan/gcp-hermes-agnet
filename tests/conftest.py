@@ -90,8 +90,8 @@ _adk_memory = _make_module("google.adk.memory")
 _genai_types = _make_module("google.genai.types", Content=MagicMock(), Part=MagicMock())
 
 # ── vertexai ──────────────────────────────────────────────────────────────────
-_vertexai = _make_module("vertexai", init=MagicMock())
-_vertexai.__path__ = []  # make it look like a package
+_vertexai_placeholder = None  # replaced below after Client mock is set up
+_vertexai__path_placeholder = []  # __path__ set on real _vertexai below
 _vertexai_preview = _make_module("vertexai.preview")
 _vertexai_preview.__path__ = []
 _vertexai_preview_rag = _make_module(
@@ -107,6 +107,26 @@ _vertexai_agent_engines = _make_module(
     create=MagicMock(),
     AdkApp=MagicMock(),
 )
+
+# ── vertexai.Client (new SDK >= 1.112 memory API) ─────────────────────────────
+_mock_memories = MagicMock()
+_mock_memories.generate = MagicMock()
+_mock_memories.ingest_events = MagicMock()
+_mock_memories.retrieve = MagicMock(return_value=iter([]))
+_mock_memories.list = MagicMock(return_value=iter([]))
+_mock_memories.create = MagicMock()
+_mock_memories.update = MagicMock()
+_mock_memories.delete = MagicMock()
+_mock_memories.purge = MagicMock()
+_mock_agent_engines_ns = MagicMock()
+_mock_agent_engines_ns.memories = _mock_memories
+_mock_agent_engines_ns.list = MagicMock(return_value=iter([]))
+_mock_agent_engines_ns.create = MagicMock()
+_mock_vertexai_client_instance = MagicMock()
+_mock_vertexai_client_instance.agent_engines = _mock_agent_engines_ns
+_MockVertexaiClient = MagicMock(return_value=_mock_vertexai_client_instance)
+_vertexai = _make_module("vertexai", init=MagicMock(), Client=_MockVertexaiClient)
+_vertexai.__path__ = []  # make it look like a package
 _vertexai_preview_reasoning = _make_module(
     "vertexai.preview.reasoning_engines",
     AdkApp=MagicMock(),

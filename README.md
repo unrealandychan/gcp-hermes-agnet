@@ -13,7 +13,7 @@ A production-grade, self-learning multi-agent system built on Google's Agent Dev
 See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for the full changelog.
 
 **Latest additions:**
-- 🧠 **Memory Bank** — full CRUD via 8 native VertexAiMemoryBank methods (generate, ingest_events, fetch, retrieve_profiles, purge, create, update, delete)
+- 🧠 **Memory Bank** — full CRUD via 8 native AgentEngine MemoryBank methods (generate, ingest_events, fetch, purge, create, update, delete)
 - 🛡️ **PolicyEngine** wired into every `/chat` — prompt + response governance (block/redact)
 - 🔀 **Cross-Corpus RAG** — async parallel retrieval across multiple Vertex AI RAG corpora
 - 🗑️ **Teardown wizard** — delete all PoC GCP resources in one command
@@ -34,7 +34,7 @@ This PoC implements all key capabilities from the [Google Cloud Enterprise Agent
 | **Model Armor** | `tools/model_armor.py` — every `/chat` prompt screened | ✅ |
 | **MCP (Model Context Protocol)** | `tools/mcp_connector.py` | ✅ |
 | **Agent Observability (Cloud Trace)** | `gateway/observability.py` | ✅ |
-| **VertexAiMemoryBank (long-term memory)** | `memory/memory_bank.py` — generate, ingest, fetch, purge, create, update, delete, retrieve_profiles | ✅ |
+| **AgentEngine MemoryBank (long-term memory)** | `memory/memory_bank.py` — generate, ingest, fetch, purge, create, update, delete, retrieve_profiles | ✅ |
 | **Agent Evaluation Service** | `eval/metrics.py`, `eval/run_eval.py`, `eval/online_monitor.py` | ✅ |
 | **Semantic Governance Policies** | `governance/policy_engine.py` wired into /chat prompt+response | ✅ |
 | **Agent Registry** | `registry/agent_registry.py`, `scripts/register_agents.py` | ✅ |
@@ -80,7 +80,7 @@ This PoC implements all key capabilities from the [Google Cloud Enterprise Agent
                    ┌──────────────▼───────────────────────────┐
   Self-Learning    │  SkillExtractor  (LlmAgent)               │
   (memory/)        │  Skill Store     (Vertex AI RAG)          │
-                   │  Memory Bank     (VertexAiMemoryBank)     │
+                   │  Memory Bank     (AgentEngine MemoryBank)     │
                    │  • generate/ingest (fire-and-forget)      │
                    │  • fetch / retrieve_profiles              │
                    │  • purge / create / update / delete       │
@@ -505,7 +505,7 @@ After every agent interaction:
 
 ## Memory API
 
-The `/memories` endpoints expose the full VertexAiMemoryBank CRUD surface:
+The `/memories` endpoints expose the full AgentEngine MemoryBank CRUD surface:
 
 ### GET /memories/{user_id}
 
@@ -569,7 +569,7 @@ hermes-gcp/
 │   ├── agent_gateway.py   # Governed routing via Agent Gateway
 │   └── tasks.py           # Long-running task store
 ├── memory/
-│   ├── memory_bank.py     # VertexAiMemoryBank wrapper (8 methods)
+│   ├── memory_bank.py     # AgentEngine MemoryBank wrapper (SDK >= 1.112)
 │   ├── cross_corpus.py    # Async parallel multi-corpus RAG
 │   ├── skill_loader.py    # Load skills/*.md into RAG
 │   ├── skill_learning.py  # After-agent callback — extract + persist skills
@@ -674,7 +674,7 @@ See `.github/workflows/ci.yml`.
 | `gateway/observability.py` | `tests/gateway/test_observability.py` | `_NoopTracer`, `_NoopSpan`, `get_tracer`, `setup_tracing` (with/without packages), `instrument_fastapi`, `agent_span` |
 | `gateway/main.py` `/chat` | `tests/gateway/test_main_chat.py` | Model Armor block → 400, PolicyEngine block → 400, allowed prompt → 200, no runner → 503, session auth |
 | `agents/` | `tests/agents/test_agent_builds.py` | All agent builder functions — correct name, tools list, sub-agents |
-| `memory/memory_bank.py` | `tests/memory/test_memory_bank.py` | generate, ingest_events, fetch, retrieve_profiles, purge, create, update, delete, graceful degradation |
+| `memory/memory_bank.py` | `tests/memory/test_memory_bank.py` | generate, ingest_events, fetch, purge, create, update, delete, graceful degradation |
 | `memory/cross_corpus.py` | `tests/memory/test_cross_corpus.py` | async parallel retrieval, asyncio.gather + asyncio.to_thread |
 | `governance/policy_engine.py` | `tests/governance/test_policy_engine.py` | check_prompt (block), check_response (redact), policy loading |
 | `eval/` | `tests/eval/` | metrics scoring, online monitor BigQuery logging, get_settings() usage |

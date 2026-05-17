@@ -1,32 +1,31 @@
 """
 memory/memory_bank.py
 
-Thin wrapper around Vertex AI Agent Platform's native VertexAiMemoryBank.
+Thin wrapper around Vertex AI Agent Engine's native memory service.
 
 Responsibilities:
 - generate_memories()  — distil a conversation turn into durable memories (async, fire-and-forget)
 - ingest_events()      — stream events for automatic batched memory generation (production-grade)
 - fetch_memories()     — retrieve relevant memories for a user at session start
-- retrieve_profiles()  — retrieve structured user memory profile
+- retrieve_profiles()  — not supported in new API, returns [] for compatibility
 - purge_memories()     — bulk-delete all memories for a user (powers DELETE /memories endpoint)
 - delete_memory()      — delete a specific memory by resource name
 - create_memory()      — directly write a memory fact (memory-as-a-tool pattern)
 - update_memory()      — correct/update an existing memory fact
-- list_revisions()     — inspect revision history for a memory resource
+- list_revisions()     — not supported in new API, returns [] for compatibility
 - format_for_prompt()  — fetch + format memories as a system prompt snippet
-- create_or_get()      — ensure a MemoryBank resource exists (idempotent)
+- create_or_get()      — ensure an AgentEngine resource exists (idempotent)
 
-Design notes:
-- VertexAiMemoryBank is the OFFICIAL long-term memory primitive for Gemini
-  Enterprise Agent Platform. It replaces the previous RAG-upload hack used
-  in skill_store.py / skill_learning.py for user-context memory.
-- Human-authored skills (skills/*.md) are NOT moved here — they stay in the
-  RAG corpus via SkillLoader because they are procedural knowledge, not
-  per-user episodic memory.
-- All blocking SDK calls are wrapped in asyncio.to_thread() so the event
-  loop is never stalled under high concurrency.
-- generate_memories() uses wait_for_completion=False for fire-and-forget async
-  background generation — the agent never blocks waiting for memory writes.
+SDK Migration Notes (google-cloud-aiplatform >= 1.112 / vertexai >= 1.5):
+- The old `vertexai.preview.memory_bank.MemoryBank` class no longer exists.
+- In SDK >= 1.112, memories are managed through `vertexai.Client.agent_engines.memories.*`.
+- `create_memory_bank()` now creates a lightweight AgentEngine resource (no agent code needed)
+  and returns its resource name for use as MEMORY_BANK_RESOURCE_NAME.
+- All memory operations use `vertexai.Client(...).agent_engines.memories.*` APIs.
+- Design notes:
+  - Human-authored skills (skills/*.md) stay in the RAG corpus via SkillLoader.
+  - All blocking SDK calls are wrapped in asyncio.to_thread() to avoid stalling the event loop.
+  - generate_memories() is fire-and-forget (does not block the agent response).
 """
 from __future__ import annotations
 
@@ -36,44 +35,70 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# ── Lazy import guard ──────────────────────────────────────────────────────────
-# vertexai.preview.memory_bank may not exist in older SDK versions.
-# We import lazily so the rest of the codebase still loads during tests.
 
-def _get_memory_bank_module():
+# ── Lazy client factory ────────────────────────────────────────────────────────
+
+def _get_vertexai_client(project: str | None = None, location: str | None = None):
+    """
+    Return a vertexai.Client instance.
+
+    Falls back to settings if project/location are not provided.
+    Raises ImportError with a helpful message if the SDK is too old.
+    """
     try:
-        from vertexai.preview import memory_bank as _mb
-        return _mb
+        import vertexai  # noqa: F401 — needed for version check
     except ImportError as exc:
         raise ImportError(
             "VertexAiMemoryBank requires google-cloud-aiplatform>=1.112. "
             "Run: pip install 'google-cloud-aiplatform[agent_engines,adk]>=1.112'"
         ) from exc
 
+    try:
+        from vertexai import Client as VertexClient  # type: ignore[attr-defined]
+    except ImportError as exc:
+        raise ImportError(
+            "vertexai.Client not found. "
+            "Upgrade to google-cloud-aiplatform>=1.112: "
+            "pip install 'google-cloud-aiplatform[agent_engines,adk]>=1.112'"
+        ) from exc
+
+    if project is None or location is None:
+        try:
+            from config import get_settings
+            settings = get_settings()
+            project = project or getattr(settings, "gcp_project_id", None)
+            location = location or getattr(settings, "gcp_region", "us-central1")
+        except Exception:
+            pass
+
+    return VertexClient(project=project, location=location or "us-central1")
+
 
 # ── Public API ─────────────────────────────────────────────────────────────────
 
 class HermesMemoryBank:
     """
-    Application-level facade over VertexAiMemoryBank.
+    Application-level facade over Vertex AI Agent Engine memories.
+
+    The ``resource_name`` is the full AgentEngine resource name, e.g.:
+        projects/my-project/locations/us-central1/reasoningEngines/1234567890
 
     Usage:
-        bank = HermesMemoryBank(resource_name="projects/.../memoryBanks/...")
-        await bank.generate_memories(user_id="u123", conversation_turn=turn)
+        bank = HermesMemoryBank(resource_name="projects/.../reasoningEngines/...")
+        await bank.generate_memories(user_id="u123", user_text=..., agent_text=...)
         memories = await bank.fetch_memories(user_id="u123", query="VPN setup")
     """
 
     def __init__(self, resource_name: str) -> None:
         self._resource_name = resource_name
-        self._bank: Any = None  # lazy-init on first use
+        self._client: Any = None  # lazy-init on first use
 
     # ── Internal ───────────────────────────────────────────────────────────────
 
-    def _ensure_bank(self) -> Any:
-        if self._bank is None:
-            mb = _get_memory_bank_module()
-            self._bank = mb.MemoryBank(resource_name=self._resource_name)
-        return self._bank
+    def _ensure_client(self):
+        if self._client is None:
+            self._client = _get_vertexai_client()
+        return self._client
 
     # ── Public async methods ───────────────────────────────────────────────────
 
@@ -97,17 +122,16 @@ class HermesMemoryBank:
             agent_name: Optional agent name for metadata.
         """
         def _blocking() -> None:
-            bank = self._ensure_bank()
-            conversation = (
-                f"User: {user_text}\n"
-                f"Agent ({agent_name}): {agent_text}"
-            ) if agent_name else (
-                f"User: {user_text}\nAgent: {agent_text}"
-            )
-            bank.generate_memories(
+            client = self._ensure_client()
+            client.agent_engines.memories.generate(
+                name=self._resource_name,
                 scope={"user_id": user_id},
-                conversation=conversation,
-                wait_for_completion=False,  # async background generation — don't block
+                direct_contents_source={
+                    "events": [
+                        {"role": "user", "parts": [{"text": user_text}]},
+                        {"role": "model", "parts": [{"text": agent_text}]},
+                    ]
+                },
             )
 
         try:
@@ -129,7 +153,7 @@ class HermesMemoryBank:
 
         Args:
             user_id: The authenticated user identifier.
-            events:  List of event dicts with keys 'role' ('user'|'agent') and 'text'.
+            events:  List of event dicts with keys 'role' ('user'|'agent'/'model') and 'text'.
 
         Example:
             await bank.ingest_events(user_id="u1", events=[
@@ -138,23 +162,20 @@ class HermesMemoryBank:
             ])
         """
         def _blocking() -> None:
-            bank = self._ensure_bank()
-            # Build event objects expected by the SDK
-            mb = _get_memory_bank_module()
+            client = self._ensure_client()
+            # Normalise 'agent' → 'model' for Vertex AI content format
             sdk_events = []
             for ev in events:
                 role = ev.get("role", "user")
+                if role == "agent":
+                    role = "model"
                 text = ev.get("text", "")
-                # Try to use the SDK's Event/ConversationEvent type if available,
-                # otherwise pass as plain dict — SDK accepts both.
-                try:
-                    event_obj = mb.ConversationEvent(role=role, text=text)  # type: ignore[attr-defined]
-                except AttributeError:
-                    event_obj = {"role": role, "text": text}  # type: ignore[assignment]
-                sdk_events.append(event_obj)
-            bank.ingest_events(
+                sdk_events.append({"role": role, "parts": [{"text": text}]})
+
+            client.agent_engines.memories.ingest_events(
+                name=self._resource_name,
                 scope={"user_id": user_id},
-                events=sdk_events,
+                direct_contents_source={"events": sdk_events},
             )
 
         try:
@@ -171,9 +192,6 @@ class HermesMemoryBank:
         """
         Bulk-delete all memories for a user.
 
-        Uses MemoryBankService.PurgeMemories with a user_id filter.
-        This is the correct implementation for DELETE /memories/{user_id}.
-
         Args:
             user_id: The user whose memories to delete.
             dry_run: If True, returns count without deleting (default: False).
@@ -182,12 +200,20 @@ class HermesMemoryBank:
             Number of memories deleted (or that would be deleted on dry_run).
         """
         def _blocking() -> int:
-            bank = self._ensure_bank()
-            result = bank.purge_memories(
-                scope={"user_id": user_id},
-                force=not dry_run,  # force=False → dry run, force=True → actually delete
-            )
-            return getattr(result, "purge_count", 0)
+            client = self._ensure_client()
+            # Count first for return value / dry_run
+            memories = list(client.agent_engines.memories.list(
+                name=self._resource_name,
+                config={"filter": f'scope.user_id="{user_id}"'},
+            ))
+            count = len(memories)
+            if not dry_run:
+                client.agent_engines.memories.purge(
+                    name=self._resource_name,
+                    filter=f'scope.user_id="{user_id}"',
+                    force=True,
+                )
+            return count
 
         try:
             count = await asyncio.to_thread(_blocking)
@@ -204,14 +230,14 @@ class HermesMemoryBank:
 
         Args:
             memory_resource_name: Full resource name, e.g.
-                "projects/p/locations/l/memoryBanks/b/memories/m"
+                "projects/p/locations/l/reasoningEngines/e/memories/m"
 
         Returns:
             True on success, False on failure.
         """
         def _blocking() -> None:
-            bank = self._ensure_bank()
-            bank.memories.delete(name=memory_resource_name)  # type: ignore[attr-defined]
+            client = self._ensure_client()
+            client.agent_engines.memories.delete(name=memory_resource_name)
 
         try:
             await asyncio.to_thread(_blocking)
@@ -240,8 +266,9 @@ class HermesMemoryBank:
             The new memory's resource name, or None on failure.
         """
         def _blocking() -> str | None:
-            bank = self._ensure_bank()
-            result = bank.memories.create(  # type: ignore[attr-defined]
+            client = self._ensure_client()
+            result = client.agent_engines.memories.create(
+                name=self._resource_name,
                 scope={"user_id": user_id},
                 fact=fact,
             )
@@ -271,8 +298,8 @@ class HermesMemoryBank:
             True on success, False on failure.
         """
         def _blocking() -> None:
-            bank = self._ensure_bank()
-            bank.memories.update(  # type: ignore[attr-defined]
+            client = self._ensure_client()
+            client.agent_engines.memories.update(
                 name=memory_resource_name,
                 fact=new_fact,
             )
@@ -285,38 +312,21 @@ class HermesMemoryBank:
             logger.exception("MemoryBank.update_memory failed: %s", memory_resource_name)
             return False
 
-    async def retrieve_profiles(
-        self,
-        user_id: str,
-    ) -> list[dict]:
+    async def retrieve_profiles(self, user_id: str) -> list[dict]:
         """
         Retrieve structured memory profiles for a user.
 
-        RetrieveProfiles returns a higher-level view than RetrieveMemories —
-        facts are organised into a structured profile object per scope.
+        Note: RetrieveProfiles is not available in the AgentEngine memories API (SDK >= 1.112).
+        Use fetch_memories() instead for retrieving relevant context.
 
         Returns:
-            List of profile dicts with keys 'scope' and 'facts'.
+            Empty list (not supported in current SDK version).
         """
-        def _blocking() -> list[dict]:
-            bank = self._ensure_bank()
-            result = bank.retrieve_profiles(scope={"user_id": user_id})  # type: ignore[attr-defined]
-            profiles = []
-            for profile in getattr(result, "profiles", []):
-                profiles.append({
-                    "scope": getattr(profile, "scope", {"user_id": user_id}),
-                    "facts": [
-                        getattr(f, "fact", str(f))
-                        for f in getattr(profile, "facts", [])
-                    ],
-                })
-            return profiles
-
-        try:
-            return await asyncio.to_thread(_blocking)
-        except Exception:  # noqa: BLE001
-            logger.exception("MemoryBank.retrieve_profiles failed for user=%s", user_id)
-            return []
+        logger.debug(
+            "MemoryBank.retrieve_profiles: not supported in SDK >= 1.112 — "
+            "use fetch_memories() instead for user=%s", user_id
+        )
+        return []
 
     async def fetch_memories(
         self,
@@ -334,16 +344,15 @@ class HermesMemoryBank:
             List of memory strings, ready for system prompt injection.
         """
         def _blocking() -> list[str]:
-            bank = self._ensure_bank()
-            result = bank.fetch_memories(
+            client = self._ensure_client()
+            results = client.agent_engines.memories.retrieve(
+                name=self._resource_name,
                 scope={"user_id": user_id},
-                query=query,
-                top_k=top_k,
+                similarity_search_params={"query": query, "top_k": top_k},
             )
-            # result.memories is a list of Memory objects with .fact attribute
             return [
                 getattr(m, "fact", str(m))
-                for m in (getattr(result, "memories", []) or [])
+                for m in results
             ]
 
         try:
@@ -359,26 +368,15 @@ class HermesMemoryBank:
 
     async def list_revisions(self, user_id: str) -> list[dict]:
         """
-        Return revision history for all memories belonging to a user.
-        Useful for debugging and the DELETE /memories/{user_id} endpoint.
-        """
-        def _blocking() -> list[dict]:
-            bank = self._ensure_bank()
-            result = bank.list_revisions(scope={"user_id": user_id})
-            revisions = []
-            for rev in getattr(result, "revisions", []):
-                revisions.append({
-                    "revision_id": getattr(rev, "revision_id", ""),
-                    "create_time": str(getattr(rev, "create_time", "")),
-                    "memory_count": getattr(rev, "memory_count", 0),
-                })
-            return revisions
+        Return revision history for memories belonging to a user.
 
-        try:
-            return await asyncio.to_thread(_blocking)
-        except Exception:  # noqa: BLE001
-            logger.exception("MemoryBank.list_revisions failed for user=%s", user_id)
-            return []
+        Note: Memory revision history is not directly exposed in the AgentEngine API (SDK >= 1.112).
+        Returns an empty list for backward compatibility.
+        """
+        logger.debug(
+            "MemoryBank.list_revisions: not supported in SDK >= 1.112 for user=%s", user_id
+        )
+        return []
 
     async def format_for_prompt(
         self,
@@ -431,28 +429,42 @@ def build_memory_bank() -> HermesMemoryBank | None:
 
 # ── Setup helper (used by setup_wizard.py) ────────────────────────────────────
 
-def create_memory_bank(project: str, location: str, display_name: str = "hermes-memory-bank") -> str:
+def create_memory_bank(
+    project: str,
+    location: str,
+    display_name: str = "hermes-memory-bank",
+) -> str:
     """
-    Create a new MemoryBank resource. Returns the resource name.
+    Create a new AgentEngine resource to serve as the MemoryBank.
+    Returns the resource name (stored in MEMORY_BANK_RESOURCE_NAME).
+
     Safe to call multiple times — returns existing resource if found.
+
+    Migration note:
+        In SDK >= 1.112, there is no standalone VertexAiMemoryBank resource class.
+        Memories are associated with an AgentEngine. This function creates a
+        lightweight AgentEngine (no agent code) dedicated to memory storage,
+        which replaces the old `vertexai.preview.memory_bank.MemoryBank.create()` call.
     """
-    mb = _get_memory_bank_module()
+    client = _get_vertexai_client(project=project, location=location)
+
+    # Check if an engine with this display_name already exists
     try:
-        # Try to create
-        bank = mb.MemoryBank.create(
-            display_name=display_name,
-            description="Hermes Agent Platform — long-term user memory (VertexAiMemoryBank)",
-        )
-        resource_name: str = bank.resource_name
-        logger.info("Created MemoryBank: %s", resource_name)
-        return resource_name
-    except Exception as exc:
-        # If already exists, list and return the first match
-        err_str = str(exc).lower()
-        if "already exists" in err_str or "conflict" in err_str:
-            banks = mb.MemoryBank.list()
-            for b in banks:
-                if b.display_name == display_name:
-                    logger.info("MemoryBank already exists: %s", b.resource_name)
-                    return b.resource_name
-        raise
+        for engine in client.agent_engines.list():
+            if getattr(engine, "display_name", None) == display_name:
+                resource_name: str = engine.name
+                logger.info("AgentEngine (MemoryBank) already exists: %s", resource_name)
+                return resource_name
+    except Exception:
+        pass  # list() might fail on first run — proceed to create
+
+    # Create a new AgentEngine for memory storage (no agent code needed)
+    engine = client.agent_engines.create(
+        config={
+            "display_name": display_name,
+            "description": "Hermes Agent Platform — long-term user memory (AgentEngine MemoryBank)",
+        }
+    )
+    resource_name = engine.name
+    logger.info("Created AgentEngine (MemoryBank): %s", resource_name)
+    return resource_name

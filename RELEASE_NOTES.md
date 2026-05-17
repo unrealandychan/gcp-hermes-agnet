@@ -5,6 +5,52 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Hotfix] — SDK Migration: VertexAiMemoryBank → AgentEngine Memories API
+
+> **Root cause:** `google-cloud-aiplatform >= 1.112` removed the standalone
+> `vertexai.preview.memory_bank.MemoryBank` class. Memory is now managed via
+> `vertexai.Client.agent_engines.memories.*` on any `AgentEngine` resource.
+> The old import path `from google.cloud.aiplatform.agent_engines import VertexAiMemoryBank`
+> no longer exists in the package, causing a startup `ModuleNotFoundError`.
+
+### memory/memory_bank.py — Full Rewrite (SDK >= 1.112)
+- **Removed** `_get_memory_bank_module()` helper and `vertexai.preview.memory_bank.MemoryBank` usage
+- **Added** `_get_vertexai_client()` factory returning `vertexai.Client` (lazy, cached per instance)
+- `HermesMemoryBank._bank` → `HermesMemoryBank._client`: holds `vertexai.Client` instead of SDK bank object
+- `generate_memories()`: migrated from `bank.generate_memories(conversation=..., scope=..., wait_for_completion=False)` → `client.agent_engines.memories.generate(name=..., scope=..., direct_contents_source={...})`
+- `ingest_events()`: migrated from `bank.ingest_events(events=[ConversationEvent(...)], scope=...)` → `client.agent_engines.memories.ingest_events(name=..., scope=..., direct_contents_source={...})`. Role normalisation: `"agent"` → `"model"` (Vertex AI content format)
+- `fetch_memories()`: migrated from `bank.fetch_memories(scope=..., top_k=...)` → `client.agent_engines.memories.retrieve(name=..., scope=..., similarity_search_params={...})`
+- `purge_memories()`: migrated from `bank.purge_memories(scope=..., force=...)` → list + `client.agent_engines.memories.purge(name=..., filter=..., force=...)`; dry_run now skips purge call entirely
+- `delete_memory()`: migrated from `bank.memories.delete(name=...)` → `client.agent_engines.memories.delete(name=...)`
+- `create_memory()`: migrated from `bank.memories.create(scope=..., fact=...)` → `client.agent_engines.memories.create(name=..., scope=..., fact=...)`
+- `update_memory()`: migrated from `bank.memories.update(name=..., fact=...)` → `client.agent_engines.memories.update(name=..., fact=...)` (unchanged interface)
+- `retrieve_profiles()`: **not supported** in AgentEngine memories API — now returns `[]` with log warning (use `fetch_memories()` instead)
+- `list_revisions()`: **not supported** in AgentEngine memories API — now returns `[]` with log warning
+- `create_memory_bank()`: migrated from `MemoryBank.create(display_name=...)` → `client.agent_engines.create(config={...})`. Idempotency: lists existing engines and returns matching `display_name` instead of creating a duplicate
+- Updated module docstring with full migration notes
+
+### tests/memory/test_memory_bank.py — Full Rewrite
+- All 42 tests rewritten to mock `memory.memory_bank._get_vertexai_client` instead of `_get_memory_bank_module`
+- `_make_mock_client()` helper replaces `_make_mock_module()`: returns `(mock_client, mock_memories)` pair reflecting new SDK shape
+- Tests for `retrieve_profiles` / `list_revisions` updated to assert `== []` (unsupported in new SDK)
+- `TestPurgeMemories.test_dry_run_*`: updated to assert `mock_memories.purge.assert_not_called()` (new dry_run semantics)
+- `TestCreateMemoryBank`: replaced conflict-exception flow with idempotent list-and-match flow
+- **210/210 tests pass**
+
+### tests/conftest.py
+- `vertexai` mock: added `Client=_MockVertexaiClient` with full `agent_engines.memories.*` stub
+- Added `_mock_memories` with stubs for all 8 SDK methods: `generate`, `ingest_events`, `retrieve`, `list`, `create`, `update`, `delete`, `purge`
+- Removed duplicate `_vertexai = _make_module(...)` definition (kept only the one with `Client=`)
+
+### docs/ARCHITECTURE.md
+- Replaced all `VertexAiMemoryBank` references with `AgentEngine MemoryBank`
+
+### README.md
+- Updated component table, architecture ASCII, and memory CRUD section to reflect new SDK class name
+- Removed `retrieve_profiles` from method list (unsupported in SDK >= 1.112)
+
+---
+
 ## [Phase 3] — Memory Bank Complete Implementation + CI
 
 ### Memory Bank — Full CRUD (memory/memory_bank.py)

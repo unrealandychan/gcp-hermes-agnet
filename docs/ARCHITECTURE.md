@@ -96,7 +96,7 @@
 │                        DATA & MEMORY LAYER                          │
 │                                                                     │
 │  ┌─────────────────────┐   ┌──────────────────────┐               │
-│  │ VertexAiMemoryBank  │   │  RAG Corpus           │               │
+│  │ AgentEngine MemoryBank  │   │  RAG Corpus           │               │
 │  │ (episodic memory)   │   │  (procedural skills)  │               │
 │  │  per-user facts     │   │  shared knowledge     │               │
 │  └─────────────────────┘   └──────────────────────┘               │
@@ -142,7 +142,7 @@
 
 | Store | Purpose |
 |-------|---------|
-| **VertexAiMemoryBank** | Episodic per-user memory — facts, preferences, and interaction history |
+| **AgentEngine MemoryBank** | Episodic per-user memory — facts, preferences, and interaction history |
 | **RAG Corpus** | Procedural skill store — reusable, agent-agnostic knowledge chunks |
 | **Firestore** | User profiles and metadata |
 | **BigQuery** | Analytics events and LLM response quality logs |
@@ -178,7 +178,7 @@ Client
 │  AGENT RUNTIME                                           │
 │                                                          │
 │  7.  VertexAiSessionService.get_or_create(session_id)    │
-│  8.  Fetch episodic memories  (VertexAiMemoryBank)       │
+│  8.  Fetch episodic memories  (AgentEngine MemoryBank)       │
 │  9.  Cross-corpus RAG retrieval  (async parallel)        │
 │       ├── RAG Corpus (skills)                            │
 │       └── Domain corpus (agent-specific)                 │
@@ -242,7 +242,7 @@ Hermes uses a **two-tier memory model** that separates *what the user has told u
 │                                                              │
 │  Tier 1: Episodic Memory (per-user)                          │
 │  ┌─────────────────────────────────────────────────────┐    │
-│  │  VertexAiMemoryBank                                  │    │
+│  │  AgentEngine MemoryBank                                  │    │
 │  │  • User facts ("prefers Python", "team = Platform")  │    │
 │  │  • Interaction history summaries                     │    │
 │  │  • User preferences and constraints                  │    │
@@ -271,7 +271,7 @@ Hermes uses a **two-tier memory model** that separates *what the user has told u
 
 ### Memory lifecycle per request
 
-1. **Session start** — `VertexAiMemoryBank` is queried with the incoming message; top-*k* user facts are injected into the system prompt.
+1. **Session start** — `AgentEngine MemoryBank` is queried with the incoming message; top-*k* user facts are injected into the system prompt.
 2. **RAG retrieval** — Cross-corpus retrieval fans out asynchronously across the RAG Corpus and any domain-specific corpora; results are merged and re-ranked before being passed to the agent as context.
 3. **Post-session** — On conversation completion the Self-Learning Loop (§6) may update both tiers.
 
@@ -345,7 +345,7 @@ Completed Interaction
 │     c. Upsert into RAG Corpus                 │
 │  4. Update user memory facts if new           │
 │     personal information was revealed         │
-│     (VertexAiMemoryBank upsert)               │
+│     (AgentEngine MemoryBank upsert)               │
 │  5. Log skill extraction event → BigQuery     │
 └───────────────────────────────────────────────┘
         │
