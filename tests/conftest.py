@@ -49,6 +49,14 @@ class _FakeParallelAgent:
         self.sub_agents = list(sub_agents or [])
 
 
+class _FakeSequentialAgent:
+    """Lightweight stand-in for google.adk.agents.SequentialAgent."""
+    def __init__(self, *, name="", description="", sub_agents=None, **_kw):
+        self.name = name
+        self.description = description
+        self.sub_agents = list(sub_agents or [])
+
+
 # ── google.auth ────────────────────────────────────────────────────────────────
 _google_auth = _make_module("google.auth", default=MagicMock())
 _google_auth_transport = _make_module("google.auth.transport")
@@ -62,6 +70,7 @@ _adk_agents = _make_module(
     LlmAgent=_FakeLlmAgent,
     LoopAgent=_FakeLoopAgent,
     ParallelAgent=_FakeParallelAgent,
+    SequentialAgent=_FakeSequentialAgent,
 )
 _adk_tools = _make_module(
     "google.adk.tools",
@@ -225,6 +234,8 @@ def _register_all():
         "google.adk.runners": _adk_runners,
         "google.adk.sessions": _adk_sessions,
         "google.adk.memory": _adk_memory,
+        "google.adk.models": _make_module("google.adk.models", LiteLlm=MagicMock()),
+        "google.adk.models.lite_llm": _make_module("google.adk.models.lite_llm", LiteLlm=MagicMock()),
         "google.genai": _google_genai,
         "google.genai.types": _genai_types,
         "google.cloud": _google_cloud,

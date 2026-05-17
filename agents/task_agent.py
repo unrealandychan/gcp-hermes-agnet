@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import logging
 
-from google.adk.agents import LlmAgent, ParallelAgent
+from google.adk.agents import LlmAgent, ParallelAgent, SequentialAgent
 
 from config import Settings
 from memory.skill_learning import build_skill_learning_callback
@@ -48,22 +48,26 @@ For every request you:
 2. **Synthesise** — the right agents have already been assembled for this task based on
    your request; they are available as your sub_agents.
 3. **Decide** — parallel vs sequential dispatch:
-   - Independent sub-tasks → transfer to ParallelDispatcher (runs all at once)
+   - Independent sub-tasks → transfer to SequentialPipeline
+     (specialists run in parallel, then AggregatorAgent merges into ONE reply)
    - Dependent sub-tasks   → sequential transfer_to_agent (step by step)
-4. **Aggregate** — combine all results into one cohesive response.
+4. **Done** — SequentialPipeline handles aggregation automatically; you do NOT need to
+   combine results yourself when using the parallel path.
 
 Sub-agents available to you
 ────────────────────────────
-• ParallelDispatcher  — runs ALL synthesised specialist agents SIMULTANEOUSLY.
-                        Use this when sub-tasks are independent.
+• SequentialPipeline  — runs ALL synthesised specialist agents SIMULTANEOUSLY via
+                        ParallelDispatcher, then AggregatorAgent consolidates their
+                        outputs into a single cohesive reply. Use for independent tasks.
 • Individual agents   — use these for sequential dependent steps.
   The exact agents vary per task — check the sub_agents list you have been given.
 
 Decision guide: parallel vs sequential
 ────────────────────────────────────────
-Use ParallelDispatcher when:
+Use SequentialPipeline when:
   ✓ Sub-tasks are fully independent (each needs only the original request)
   ✓ Speed matters and there is no data dependency between tasks
+  ✓ User will receive ONE consolidated answer (AggregatorAgent handles synthesis)
 
 Use sequential transfer_to_agent when:
   ✓ Agent B needs Agent A's output as input
@@ -83,8 +87,8 @@ Example 1 — Onboarding (PARALLEL — independent tasks)
 User: "Onboard John Li, Eng Manager, next Friday. No email yet."
 
 Synthesised agents: HRAgent, ITHelpdeskAgent, AnalyticsAgent
-Decision: all independent → ParallelDispatcher
-Result: HR checklist + IT setup + headcount update delivered together.
+Decision: all independent → SequentialPipeline
+Result: AggregatorAgent delivers one combined HR + IT + headcount reply.
 Final ask: "Please confirm John's email once IT creates it."
 
 ────────────────────────────────────────────────────
@@ -103,8 +107,8 @@ Example 3 — MBR with Finance (PARALLEL)
 User: "Prepare MBR: Q3 revenue by region, headcount, open P1 incidents."
 
 Synthesised agents: AnalyticsAgent, HRAgent, ITHelpdeskAgent, FinanceAgent
-Decision: all independent → ParallelDispatcher
-Result: structured MBR briefing from all four agents.
+Decision: all independent → SequentialPipeline
+Result: AggregatorAgent delivers one structured MBR briefing.
 """
 
 
@@ -121,7 +125,16 @@ def build_task_agent(
     For the static build (deploy time), we use specialist_agents as the
     ParallelDispatcher's children and also expose them for sequential use.
     Each set is built fresh to avoid the ADK dual-parent restriction.
+
+    Parallel flow (independent sub-tasks):
+        SequentialPipeline
+          ├── ParallelDispatcher  (all specialists simultaneously)
+          └── AggregatorAgent     (consolidates into ONE user reply)
+
+    Sequential flow (dependent sub-tasks):
+        TaskAgent → sequential transfer_to_agent (individual specialists)
     """
+    from agents.aggregator import build_aggregator_agent
     from agents.analytics import build_analytics_agent
     from agents.developer import build_developer_agent
     from agents.hr import build_hr_agent
@@ -144,8 +157,23 @@ def build_task_agent(
         sub_agents=parallel_copies,
     )
 
-    # TaskAgent: ParallelDispatcher + originals for sequential fallback
-    task_sub_agents = [parallel_dispatcher] + list(specialist_agents)
+    # AggregatorAgent reads all parallel outputs → one cohesive user reply
+    aggregator = build_aggregator_agent(settings)
+
+    # SequentialPipeline: ParallelDispatcher → AggregatorAgent
+    # This guarantees the user receives exactly ONE consolidated response.
+    sequential_pipeline = SequentialAgent(
+        name="SequentialPipeline",
+        description=(
+            "Runs ParallelDispatcher then AggregatorAgent in sequence. "
+            "Use this for independent multi-domain tasks — all specialists run "
+            "simultaneously, then AggregatorAgent merges results into one reply."
+        ),
+        sub_agents=[parallel_dispatcher, aggregator],
+    )
+
+    # TaskAgent: SequentialPipeline (parallel path) + originals for sequential fallback
+    task_sub_agents = [sequential_pipeline] + list(specialist_agents)
 
     return LlmAgent(
         name="TaskAgent",
@@ -163,17 +191,19 @@ def build_task_agent(
 def build_dynamic_parallel_dispatcher(
     settings: Settings,
     task: str,
-) -> tuple[ParallelAgent, list[LlmAgent]]:
+) -> tuple[SequentialAgent, list[LlmAgent]]:
     """
-    Synthesise a task-specific ParallelAgent + sequential agent list.
+    Synthesise a task-specific SequentialPipeline (ParallelDispatcher +
+    AggregatorAgent) + sequential agent list.
 
     This is called at REQUEST TIME (not deploy time) for true JIT synthesis.
-    Returns (ParallelDispatcher, sequential_agents) ready for dynamic dispatch.
+    Returns (SequentialPipeline, sequential_agents) ready for dynamic dispatch.
 
     Usage in a tool or callback:
-        dispatcher, seq_agents = build_dynamic_parallel_dispatcher(settings, task)
-        # then use dispatcher for parallel, seq_agents for sequential
+        pipeline, seq_agents = build_dynamic_parallel_dispatcher(settings, task)
+        # then use pipeline for parallel, seq_agents for sequential
     """
+    from agents.aggregator import build_aggregator_agent
     from agents.synthesizer import AgentSynthesizer
 
     synthesizer = AgentSynthesizer(settings)
@@ -193,4 +223,15 @@ def build_dynamic_parallel_dispatcher(
         sub_agents=parallel_agents,
     )
 
-    return dispatcher, agents
+    aggregator = build_aggregator_agent(settings)
+
+    pipeline = SequentialAgent(
+        name="DynamicSequentialPipeline",
+        description=(
+            "Dynamic pipeline: ParallelDispatcher → AggregatorAgent. "
+            "Runs all synthesised specialists in parallel, then consolidates."
+        ),
+        sub_agents=[dispatcher, aggregator],
+    )
+
+    return pipeline, agents

@@ -63,6 +63,7 @@ class Settings(BaseSettings):
     agent_model_developer: str = "gemini-2.5-flash"
     agent_model_task_planner: str = "gemini-2.5-flash"
     agent_model_task_executor: str = "gemini-2.5-flash"
+    agent_model_aggregator: str = "gemini-2.5-flash"
     # SkillExtractor runs on every turn — use a lightweight model to cut costs
     agent_model_skill_extractor: str = "gemini-2.5-flash-lite"
 
