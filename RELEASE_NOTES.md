@@ -5,6 +5,61 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Feature] — AggregatorAgent + ADK Web UI Local Debug
+
+### Problem
+When TaskAgent dispatched parallel specialists via `ParallelDispatcher`, each agent
+produced its own reply independently — users could receive multiple fragmented
+responses in the same turn instead of one cohesive answer.
+
+Additionally, local debugging required running the full FastAPI gateway, which needs
+GCP credentials and is harder to inspect than a native ADK dev tool.
+
+### Changes
+
+#### agents/aggregator.py — New file
+- `AggregatorAgent`: an `LlmAgent` that reads all specialist outputs already written
+  to the session and synthesises them into one structured reply (Summary → per-domain
+  sections → Next Steps). No external tools — reads context only.
+
+#### agents/task_agent.py — SequentialPipeline replaces bare ParallelDispatcher
+- Introduced `SequentialAgent("SequentialPipeline")` wrapping
+  `[ParallelDispatcher, AggregatorAgent]` — specialists still run in parallel,
+  but AggregatorAgent always consolidates before responding to the user.
+- `build_dynamic_parallel_dispatcher()` return type changed from `ParallelAgent`
+  to `SequentialAgent` (`DynamicSequentialPipeline`) for runtime JIT synthesis.
+- `_TASK_AGENT_INSTRUCTION` updated: TaskAgent now transfers to `SequentialPipeline`
+  (not `ParallelDispatcher`) for independent multi-domain tasks.
+
+#### config.py
+- Added `agent_model_aggregator: str = "gemini-2.5-flash"` — independently
+  configurable so a lighter/different model can be swapped in for aggregation.
+
+#### tests/conftest.py
+- Added `_FakeSequentialAgent` stub and `SequentialAgent` export.
+- Stubbed `google.adk.models` and `google.adk.models.lite_llm` to prevent
+  test-isolation failures when real package imports pollute `sys.modules`.
+
+#### tests/agents/test_aggregator.py — New file (12 tests)
+- `TestBuildAggregatorAgent`: name, description, no tools
+- `TestBuildTaskAgentSequentialPipeline`: pipeline structure, child order, 4 specialists
+- `TestBuildDynamicParallelDispatcher`: None-on-empty, returns SequentialAgent, ends with AggregatorAgent
+
+#### hermes_app/ — New ADK app entry point
+- `hermes_app/__init__.py` + `hermes_app/agent.py`: exposes `root_agent` for
+  `adk web` / `adk run` / `adk api_server`.
+- Local debug command:
+  ```
+  adk web . --session_service_uri=sqlite:///local_sessions.db --reload_agents
+  ```
+  Opens browser UI at http://localhost:8000 with trace viewer, session history,
+  and live reload. No GCP credentials required.
+
+### Test count
+**222/222 passing** (+12 from this release)
+
+---
+
 ## [Hotfix] — SDK Migration: VertexAiMemoryBank → AgentEngine Memories API
 
 > **Root cause:** `google-cloud-aiplatform >= 1.112` removed the standalone

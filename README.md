@@ -13,11 +13,13 @@ A production-grade, self-learning multi-agent system built on Google's Agent Dev
 See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for the full changelog.
 
 **Latest additions:**
+- 🔀 **AggregatorAgent** — parallel specialist outputs are now consolidated into ONE cohesive reply via `SequentialPipeline` (ParallelDispatcher → AggregatorAgent)
+- 🖥️ **ADK Web UI** — run `adk web .` from project root for a full browser-based debug UI with session management and trace viewer (no custom gateway needed for local dev)
 - 🧠 **Memory Bank** — full CRUD via 8 native AgentEngine MemoryBank methods (generate, ingest_events, fetch, purge, create, update, delete)
 - 🛡️ **PolicyEngine** wired into every `/chat` — prompt + response governance (block/redact)
 - 🔀 **Cross-Corpus RAG** — async parallel retrieval across multiple Vertex AI RAG corpora
 - 🗑️ **Teardown wizard** — delete all PoC GCP resources in one command
-- ✅ **219 tests**, all passing — CI on GitHub Actions (Python 3.11 + 3.12)
+- ✅ **222 tests**, all passing — CI on GitHub Actions (Python 3.11 + 3.12)
 - 🧩 `agents.yaml` — add new agents without touching Python
 - 📚 `skills/` — write skills as Markdown files, no code required
 
@@ -211,7 +213,26 @@ It is **idempotent** — safe to re-run at any time if something fails mid-way.
 
 ---
 
-### After setup — start locally
+### Local debug with ADK Web UI (recommended)
+
+The fastest way to test locally — full browser UI with session management,
+agent trace viewer, and live reload. **No GCP credentials required.**
+
+```bash
+pip install google-adk
+adk web . --session_service_uri=sqlite:///local_sessions.db --reload_agents
+```
+
+Open **http://localhost:8000**, select `hermes_app`, and start chatting.
+
+Features:
+- 🔍 **Trace viewer** — see every agent hand-off, tool call, and LLM response
+- 💬 **Session history** — conversations persist in `local_sessions.db`
+- 🔄 **Live reload** — `--reload_agents` picks up code changes automatically
+
+---
+
+### After setup — start production gateway locally
 
 ```bash
 source .env
