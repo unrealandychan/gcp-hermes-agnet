@@ -39,6 +39,16 @@ def _make_mock_client():
     return mock_client, mock_memories
 
 
+def _make_engine(resource_name: str, display_name: str = "hermes-memory-bank"):
+    """
+    Build a mock AgentEngine that mirrors the SDK >= 1.112 structure:
+      engine.api_resource.name         → resource_name
+      engine.api_resource.display_name → display_name
+    """
+    api_resource = SimpleNamespace(name=resource_name, display_name=display_name)
+    return SimpleNamespace(api_resource=api_resource)
+
+
 def _make_memory(fact: str):
     return SimpleNamespace(fact=fact)
 
@@ -264,8 +274,7 @@ class TestCreateMemoryBank:
 
     def test_creates_and_returns_resource_name(self):
         mock_client, _ = _make_mock_client()
-        new_engine = MagicMock()
-        new_engine.name = "projects/p/locations/us-central1/reasoningEngines/new"
+        new_engine = _make_engine("projects/p/locations/us-central1/reasoningEngines/new")
         mock_client.agent_engines.list.return_value = iter([])
         mock_client.agent_engines.create.return_value = new_engine
         with patch("memory.memory_bank._get_vertexai_client", return_value=mock_client):
@@ -275,9 +284,10 @@ class TestCreateMemoryBank:
 
     def test_returns_existing_engine_when_display_name_matches(self):
         mock_client, _ = _make_mock_client()
-        existing = MagicMock()
-        existing.display_name = "hermes-memory-bank"
-        existing.name = "projects/p/locations/us-central1/reasoningEngines/existing"
+        existing = _make_engine(
+            "projects/p/locations/us-central1/reasoningEngines/existing",
+            display_name="hermes-memory-bank",
+        )
         mock_client.agent_engines.list.return_value = iter([existing])
         with patch("memory.memory_bank._get_vertexai_client", return_value=mock_client):
             result = create_memory_bank(project="p", location="us-central1")
@@ -286,11 +296,8 @@ class TestCreateMemoryBank:
 
     def test_skips_non_matching_display_name_in_list(self):
         mock_client, _ = _make_mock_client()
-        other = MagicMock()
-        other.display_name = "some-other-engine"
-        other.name = "projects/p/reasoningEngines/other"
-        new_engine = MagicMock()
-        new_engine.name = "projects/p/reasoningEngines/new"
+        other = _make_engine("projects/p/reasoningEngines/other", display_name="some-other-engine")
+        new_engine = _make_engine("projects/p/reasoningEngines/new")
         mock_client.agent_engines.list.return_value = iter([other])
         mock_client.agent_engines.create.return_value = new_engine
         with patch("memory.memory_bank._get_vertexai_client", return_value=mock_client):
@@ -302,8 +309,7 @@ class TestCreateMemoryBank:
 
     def test_uses_custom_display_name(self):
         mock_client, _ = _make_mock_client()
-        new_engine = MagicMock()
-        new_engine.name = "projects/p/reasoningEngines/custom"
+        new_engine = _make_engine("projects/p/reasoningEngines/custom", display_name="my-custom-bank")
         mock_client.agent_engines.list.return_value = iter([])
         mock_client.agent_engines.create.return_value = new_engine
         with patch("memory.memory_bank._get_vertexai_client", return_value=mock_client):
@@ -317,8 +323,7 @@ class TestCreateMemoryBank:
     def test_proceeds_to_create_when_list_raises(self):
         mock_client, _ = _make_mock_client()
         mock_client.agent_engines.list.side_effect = Exception("permission denied on list")
-        new_engine = MagicMock()
-        new_engine.name = "projects/p/reasoningEngines/new"
+        new_engine = _make_engine("projects/p/reasoningEngines/new")
         mock_client.agent_engines.create.return_value = new_engine
         with patch("memory.memory_bank._get_vertexai_client", return_value=mock_client):
             result = create_memory_bank(project="p", location="us-central1")

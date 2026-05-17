@@ -448,11 +448,35 @@ def create_memory_bank(
     """
     client = _get_vertexai_client(project=project, location=location)
 
+    def _engine_resource_name(engine) -> str | None:
+        """
+        Extract the resource name from an AgentEngine object.
+
+        In SDK >= 1.112, AgentEngine wraps a ReasoningEngine proto:
+          engine.api_resource.name  →  "projects/.../reasoningEngines/..."
+        Older builds exposed it directly as engine.name.
+        We try both to stay forward-compatible.
+        """
+        # Preferred: go through the underlying proto resource
+        api_resource = getattr(engine, "api_resource", None)
+        if api_resource is not None:
+            name = getattr(api_resource, "name", None)
+            if name:
+                return name
+        # Fallback: some older SDK versions surfaced .name directly
+        return getattr(engine, "name", None)
+
     # Check if an engine with this display_name already exists
     try:
         for engine in client.agent_engines.list():
-            if getattr(engine, "display_name", None) == display_name:
-                resource_name: str = engine.name
+            api_resource = getattr(engine, "api_resource", None)
+            eng_display = (
+                getattr(api_resource, "display_name", None)
+                if api_resource is not None
+                else getattr(engine, "display_name", None)
+            )
+            if eng_display == display_name:
+                resource_name: str = _engine_resource_name(engine)  # type: ignore[assignment]
                 logger.info("AgentEngine (MemoryBank) already exists: %s", resource_name)
                 return resource_name
     except Exception:
@@ -465,6 +489,10 @@ def create_memory_bank(
             "description": "Hermes Agent Platform — long-term user memory (AgentEngine MemoryBank)",
         }
     )
-    resource_name = engine.name
+    resource_name = _engine_resource_name(engine)
+    if not resource_name:
+        raise RuntimeError(
+            f"AgentEngine created but could not extract resource name from object: {engine!r}"
+        )
     logger.info("Created AgentEngine (MemoryBank): %s", resource_name)
     return resource_name
