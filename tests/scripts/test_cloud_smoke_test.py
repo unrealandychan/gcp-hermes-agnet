@@ -1,29 +1,12 @@
 from __future__ import annotations
 
-import importlib.util
-import sys
-from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-
-def _load_module():
-    module_path = (
-        Path(__file__).resolve().parents[2]
-        / "scripts"
-        / "demo"
-        / "cloud_smoke_test.py"
-    )
-    spec = importlib.util.spec_from_file_location("cloud_smoke_test", module_path)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
+from scripts.demo import cloud_smoke_test as mod
 
 
 def test_probe_gateway_success_parses_sse_done():
-    mod = _load_module()
     response = MagicMock()
     response.status_code = 200
     response.text = '\n'.join([
@@ -50,7 +33,6 @@ def test_probe_gateway_success_parses_sse_done():
 
 
 def test_probe_gateway_fails_on_http_error():
-    mod = _load_module()
     response = MagicMock()
     response.status_code = 401
     response.text = "unauthorized"
@@ -73,8 +55,6 @@ def test_probe_gateway_fails_on_http_error():
 
 
 def test_probe_sdk_success_uses_existing_engine_by_name():
-    mod = _load_module()
-
     remote_agent = MagicMock()
     remote_agent.query.return_value = SimpleNamespace(text="ok from cloud")
     sdk_client = MagicMock()
@@ -101,6 +81,5 @@ def test_probe_sdk_success_uses_existing_engine_by_name():
 
 
 def test_main_gateway_missing_url_fails():
-    mod = _load_module()
     exit_code = mod.main(["--mode", "gateway", "--gateway-url", ""])
     assert exit_code == 1

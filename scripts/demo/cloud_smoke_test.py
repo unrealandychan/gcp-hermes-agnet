@@ -97,7 +97,7 @@ def probe_gateway(
     return SmokeResult(True, "gateway", f"gateway chat ok: {preview}")
 
 
-def _extract_text(response: Any) -> str:
+def _extract_response_text(response: Any) -> str:
     if response is None:
         return ""
     if isinstance(response, str):
@@ -130,14 +130,14 @@ def probe_sdk(
         client = client_factory() if client_factory else agent_engines.AgentEngineClient()
         remote_agent = client.get_reasoning_engine(name=reasoning_engine_resource_name)
         response = remote_agent.query(user_id=user_id, message=message)
-        preview = _extract_text(response).strip().replace("\n", " ")[:240] or "<empty>"
+        preview = _extract_response_text(response).strip().replace("\n", " ")[:240] or "<empty>"
         return SmokeResult(True, "sdk", f"sdk query ok: {preview}")
+    except (PermissionError, ConnectionError, TimeoutError, OSError) as exc:
+        return SmokeResult(False, "sdk", f"sdk API/auth error: {exc}")
     except ValueError as exc:
         return SmokeResult(False, "sdk", f"invalid configuration: {exc}")
     except RuntimeError as exc:
         return SmokeResult(False, "sdk", f"sdk runtime error: {exc}")
-    except Exception as exc:  # noqa: BLE001
-        return SmokeResult(False, "sdk", f"sdk probe failed: {exc}")
 
 
 def _detect_mode(requested_mode: str, gateway_url: str) -> str:
