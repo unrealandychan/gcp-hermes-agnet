@@ -22,6 +22,8 @@ import httpx
 import vertexai
 from vertexai import agent_engines
 
+RESPONSE_PREVIEW_MAX_LENGTH = 240
+
 
 @dataclass
 class SmokeResult:
@@ -93,7 +95,7 @@ def probe_gateway(
     if not had_done:
         return SmokeResult(False, "gateway", "SSE stream did not complete (missing done event)")
 
-    preview = (last_text or "<empty>").strip().replace("\n", " ")[:240]
+    preview = (last_text or "<empty>").strip().replace("\n", " ")[:RESPONSE_PREVIEW_MAX_LENGTH]
     return SmokeResult(True, "gateway", f"gateway chat ok: {preview}")
 
 
@@ -130,10 +132,17 @@ def probe_sdk(
         client = client_factory() if client_factory else agent_engines.AgentEngineClient()
         remote_agent = client.get_reasoning_engine(name=reasoning_engine_resource_name)
         response = remote_agent.query(user_id=user_id, message=message)
-        preview = _extract_response_text(response).strip().replace("\n", " ")[:240] or "<empty>"
+        preview = (
+            _extract_response_text(response).strip().replace("\n", " ")[:RESPONSE_PREVIEW_MAX_LENGTH]
+            or "<empty>"
+        )
         return SmokeResult(True, "sdk", f"sdk query ok: {preview}")
-    except (PermissionError, ConnectionError, TimeoutError, OSError) as exc:
-        return SmokeResult(False, "sdk", f"sdk API/auth error: {exc}")
+    except PermissionError as exc:
+        return SmokeResult(False, "sdk", f"sdk permission/auth error: {exc}")
+    except (ConnectionError, TimeoutError) as exc:
+        return SmokeResult(False, "sdk", f"sdk network error: {exc}")
+    except OSError as exc:
+        return SmokeResult(False, "sdk", f"sdk local runtime error: {exc}")
     except ValueError as exc:
         return SmokeResult(False, "sdk", f"invalid configuration: {exc}")
     except RuntimeError as exc:

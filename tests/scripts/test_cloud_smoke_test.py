@@ -83,3 +83,24 @@ def test_probe_sdk_success_uses_existing_engine_by_name():
 def test_main_gateway_missing_url_fails():
     exit_code = mod.main(["--mode", "gateway", "--gateway-url", ""])
     assert exit_code == 1
+
+
+def test_extract_response_text_formats():
+    assert mod._extract_response_text("hello") == "hello"
+    assert mod._extract_response_text({"text": "dict text"}) == "dict text"
+    assert mod._extract_response_text({"output_text": "fallback text"}) == "fallback text"
+    assert mod._extract_response_text(SimpleNamespace(text="obj text")) == "obj text"
+
+
+def test_main_sdk_mode_success():
+    with patch.object(mod, "probe_sdk") as mock_probe:
+        mock_probe.return_value = mod.SmokeResult(ok=True, mode="sdk", detail="ok")
+        exit_code = mod.main([
+            "--mode", "sdk",
+            "--project-id", "p1",
+            "--location", "us-central1",
+            "--reasoning-engine", "projects/p1/locations/us-central1/reasoningEngines/r1",
+        ])
+
+    assert exit_code == 0
+    mock_probe.assert_called_once()
