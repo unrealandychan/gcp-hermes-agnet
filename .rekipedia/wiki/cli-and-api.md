@@ -1,484 +1,392 @@
 ---
 slug: cli-and-api
-title: "Memory Bank CLI and Programmatic API Reference"
+title: "CLI Reference and Programmatic API"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T12:36:19Z
+created_at: 2026-05-18T12:37:13Z
 rekipedia_version: 0.15.1
 ---
 
-# Memory Bank CLI and Programmatic API Reference
+# CLI Reference and Programmatic API
 
 ## Overview
 
-This repository snapshot contains a single implementation module, [`memory.memory_bank`](memory/memory_bank.py#L1), plus a comprehensive test suite in [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1). The code focuses on a `HermesMemoryBank` facade over Vertex AI Agent Engine memories, with helper functions for constructing the client and provisioning the backing Agent Engine resource. The test coverage confirms the supported workflows and the error-handling expectations for each API surface.
+This page documents the repository’s externally useful command-line entry points and programmatic APIs that are visible in the static analysis data. The primary CLI surface is the smoke-test utility [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1) with its [`main(argv)`](scripts/demo/cloud_smoke_test.py#L183) entry point and argument parser [`parse_args(argv)`](scripts/demo/cloud_smoke_test.py#L164). The main programmatic APIs are the agent builders [`build_aggregator_agent(settings)`](agents/aggregator.py#L70), [`build_task_agent(settings, specialist_agents)`](agents/task_agent.py#L115), [`build_dynamic_parallel_dispatcher(settings, task)`](agents/task_agent.py#L191), and the configuration helpers on [`Settings`](config.py#L7). The page also includes a realistic integration workflow showing how configuration, agent construction, and the smoke test fit together.
 
-A notable limitation of the analyzed code is that **no CLI entry points are present in the provided files**: the analysis data shows `entry_points: []` and no command-line wrapper module, `argparse` parser, or console script definition. Accordingly, the CLI section below documents the absence of discovered commands rather than inventing one.
-
-> **Sources:** `memory/memory_bank.py` · L1–L498 · [`memory.memory_bank`](memory/memory_bank.py#L1), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L1–L212 · [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1) · [`parse_args`](scripts/demo/cloud_smoke_test.py#L164) · [`main`](scripts/demo/cloud_smoke_test.py#L183); `agents/aggregator.py` · L70–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70); `agents/task_agent.py` · L115–L237 · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191); `config.py` · L7–L201 · [`Settings`](config.py#L7) · [`get_settings`](config.py#L200)
 
 ## CLI Reference
 
-### No CLI commands were discovered
+The analysis data shows one explicit CLI entry point: the smoke test script [`scripts/demo/cloud_smoke_test.py`](scripts/demo/cloud_smoke_test.py#L1), which is designed to run in either “gateway” or “SDK” mode. Its command-line interface is assembled in [`parse_args(argv)`](scripts/demo/cloud_smoke_test.py#L164), and execution begins in [`main(argv)`](scripts/demo/cloud_smoke_test.py#L183).
 
-The analysis did not identify any CLI commands, subcommands, or console-script entry points in the repository snapshot. There are no command handlers, no `if __name__ == "__main__"` block, and no build metadata in the provided data that would expose a command-line interface. The practical implication is that this code is intended to be consumed as a **programmatic library**, not as a user-facing CLI tool.
+### `cloud_smoke_test.py`
 
-If you need a CLI, the obvious external-facing operations to wrap would be:
+The CLI is not exposed as a `console_scripts` entry in the static data, but the script is clearly intended to be run directly:
 
-- creating the memory bank resource via [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432)
-- constructing a configured facade via [`build_memory_bank()`](memory/memory_bank.py#L411)
-- generating, fetching, purging, or editing memories through [`HermesMemoryBank`](memory/memory_bank.py#L79)
+```bash
+python scripts/demo/cloud_smoke_test.py --help
+```
 
-### Suggested usage pattern for a future CLI
+The parser defined in [`parse_args(argv)`](scripts/demo/cloud_smoke_test.py#L164) registers the following flags and arguments.
 
-Although not present in the codebase, a minimal wrapper would likely expose commands such as:
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `--mode` | string / enum-like | auto-detected by [`_detect_mode(requested_mode, gateway_url)`](scripts/demo/cloud_smoke_test.py#L158) | Chooses the execution path. The script supports gateway probing and SDK probing. |
+| `--gateway-url` | string | unset | HTTP endpoint for the gateway smoke test. If omitted, mode detection may choose SDK mode instead. |
+| `--message` | string | implementation-dependent default from parser | Message sent to the gateway or SDK reasoning engine. |
+| `--bearer-token` | string | unset | Bearer token used when building auth headers for gateway requests via [`_auth_headers`](scripts/demo/cloud_smoke_test.py#L38). |
+| `--api-key` | string | unset | API key used as an alternate credential for gateway auth. |
+| `--timeout-s` | integer | implementation-dependent default from parser | Request timeout used by [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47). |
+| `--project-id` | string | unset | GCP project identifier passed to [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118). |
+| `--location` | string | unset | Vertex AI region used by [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118). |
+| `--reasoning-engine-resource-name` | string | unset | Full reasoning engine resource name passed to [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118). |
+| `--user-id` | string | unset | End-user identifier used for SDK queries. |
 
-- `memory-bank create`
-- `memory-bank fetch`
-- `memory-bank purge`
-- `memory-bank ingest`
+Because the analysis only includes the parser function and not the raw source, the exact defaults for some arguments are not visible here. What is observable is that `main(argv)` uses [`parse_args`](scripts/demo/cloud_smoke_test.py#L164), then derives the effective mode with [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158), and dispatches to either [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) or [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118).
 
-However, those commands are **not evidenced** in the repository snapshot and are not documented here as implemented behavior.
+#### Usage example
+
+```bash
+python scripts/demo/cloud_smoke_test.py \
+  --mode gateway \
+  --gateway-url "https://example.com/gateway" \
+  --message "Hello, world" \
+  --bearer-token "$TOKEN" \
+  --timeout-s 30
+```
+
+Or, for the SDK path:
+
+```bash
+python scripts/demo/cloud_smoke_test.py \
+  --mode sdk \
+  --project-id "my-project" \
+  --location "us-central1" \
+  --reasoning-engine-resource-name "projects/my-project/locations/us-central1/reasoningEngines/123" \
+  --user-id "demo-user" \
+  --message "Summarize the latest task"
+```
+
+### CLI execution flow
+
+The top-level orchestration is:
+
+1. [`main(argv)`](scripts/demo/cloud_smoke_test.py#L183) parses the arguments.
+2. [`_detect_mode(requested_mode, gateway_url)`](scripts/demo/cloud_smoke_test.py#L158) determines which backend to call.
+3. If gateway mode is selected, [`probe_gateway(...)`](scripts/demo/cloud_smoke_test.py#L47) performs an HTTP POST using [`httpx.Client`](scripts/demo/cloud_smoke_test.py#L1).
+4. If SDK mode is selected, [`probe_sdk(...)`](scripts/demo/cloud_smoke_test.py#L118) initializes Vertex AI with [`vertexai.init`](scripts/demo/cloud_smoke_test.py#L1) and queries an [`AgentEngineClient`](scripts/demo/cloud_smoke_test.py#L118) instance.
+
+```mermaid
+flowchart TD
+  Main[main] --> Parse[parse_args]
+  Main --> Detect[_detect_mode]
+  Detect -->|gateway| ProbeG[probe_gateway]
+  Detect -->|sdk| ProbeS[probe_sdk]
+  ProbeG --> Auth[_auth_headers]
+  ProbeG --> Httpx[httpx.Client.post]
+  ProbeS --> Init[vertexai.init]
+  ProbeS --> Engine[AgentEngineClient.query]
+```
+
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L38–L212 · [`_auth_headers`](scripts/demo/cloud_smoke_test.py#L38) · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) · [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158) · [`parse_args`](scripts/demo/cloud_smoke_test.py#L164) · [`main`](scripts/demo/cloud_smoke_test.py#L183)
 
 ## Programmatic API
 
-### `_get_vertexai_client(project, location)`
+The repository exposes several public functions and a configuration class that are intended for programmatic consumption. The analysis does not show explicit `__all__` exports, so the APIs below are inferred from naming, docstrings, call relationships, and test coverage.
 
-- **Signature:** [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41)
-- **Purpose:** Returns a `vertexai.Client` instance, using explicit `project` and `location` values when provided, or falling back to settings.
-- **Behavior:** The docstring states that it raises `ImportError` with a helpful message if the installed SDK is too old. The function calls `get_settings()` and reads settings via `getattr`, which means it is resilient to missing config attributes.
-- **Return value:** A Vertex AI client instance.
+### `SmokeResult`
 
-**Parameters**
+[`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32) is a dataclass-like result container used by both [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) and [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118).
 
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `project` | unspecified | none | Explicit GCP project ID; if falsy, settings are used instead |
-| `location` | unspecified | none | Explicit Vertex AI region; if falsy, settings are used instead |
-
-**Example usage**
+- **Signature:** class `SmokeResult`
+- **Parameters:** not visible in the analysis payload
+- **Return value:** instances carry the outcome of the probe, including the response text or error state
+- **Example usage:**
 
 ```python
-from memory.memory_bank import _get_vertexai_client
+from scripts.demo.cloud_smoke_test import SmokeResult
 
-client = _get_vertexai_client(project="my-project", location="us-central1")
+result = SmokeResult(ok=True, text="done")
+print(result)
 ```
 
-> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`get_settings`](memory/memory_bank.py#L41), [`VertexClient`](memory/memory_bank.py#L41)
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L32–L35 · [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32)
 
-### `HermesMemoryBank`
+### `probe_gateway(gateway_url, message, bearer_token, api_key, timeout_s)`
 
-- **Signature:** [`HermesMemoryBank`](memory/memory_bank.py#L79)
-- **Purpose:** Application-level facade over Vertex AI Agent Engine memories.
-- **Design:** The class encapsulates lazy client initialization through [`_ensure_client()`](memory/memory_bank.py#L98) and provides async methods for memory lifecycle operations.
-- **Return value:** Class instance.
+[`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) sends a request to the gateway and parses a streamed response. The call relationships show it uses [`_auth_headers`](scripts/demo/cloud_smoke_test.py#L38), [`httpx.Client`](scripts/demo/cloud_smoke_test.py#L1), and response parsing utilities such as `splitlines()`, `startswith()`, and JSON loading.
 
-**Constructor**
+- **Signature:** `probe_gateway(gateway_url, message, bearer_token, api_key, timeout_s)`
+- **Parameters:**
+  
+  | Parameter | Meaning |
+  |-----------|---------|
+  | `gateway_url` | URL of the gateway endpoint to probe |
+  | `message` | Prompt or input sent to the gateway |
+  | `bearer_token` | Optional bearer token for authorization |
+  | `api_key` | Optional API key for authorization |
+  | `timeout_s` | HTTP timeout in seconds |
 
-- **Signature:** [`__init__(self, resource_name)`](memory/memory_bank.py#L92)
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `resource_name` | string-like | required | Full Agent Engine resource name, e.g. `projects/my-project/locations/us-central1/reasoningEngines/1234567890` |
-
-**Example usage**
+- **Return value:** [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32)
+- **Example usage:**
 
 ```python
-from memory.memory_bank import HermesMemoryBank
+from scripts.demo.cloud_smoke_test import probe_gateway
 
-bank = HermesMemoryBank(
-    resource_name="projects/my-project/locations/us-central1/reasoningEngines/1234567890"
+result = probe_gateway(
+    gateway_url="https://example.com/gateway",
+    message="Ping",
+    bearer_token="secret-token",
+    api_key=None,
+    timeout_s=30,
 )
+print(result.text)
 ```
 
-> **Sources:** `memory/memory_bank.py` · L79–L94 · [`HermesMemoryBank`](memory/memory_bank.py#L79)
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L38–L102 · [`_auth_headers`](scripts/demo/cloud_smoke_test.py#L38) · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) · [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32)
 
-### `HermesMemoryBank.generate_memories(self, user_id, user_text, agent_text, agent_name)`
+### `probe_sdk(project_id, location, reasoning_engine_resource_name, user_id, message, client_factory)`
 
-- **Signature:** [`generate_memories(self, user_id, user_text, agent_text, agent_name)`](memory/memory_bank.py#L105)
-- **Purpose:** Distills a conversation turn into durable memories.
-- **Operational notes:** The docstring states this is called from `skill_learning_callback` in a fire-and-forget pattern after every agent turn. The implementation wraps blocking SDK work in `asyncio.to_thread`.
-- **Return value:** Not explicitly documented in the analysis data; the method is used as an async side-effect operation.
+[`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) is the programmatic SDK path. It initializes Vertex AI, obtains a reasoning engine with [`get_reasoning_engine`](scripts/demo/cloud_smoke_test.py#L118), and queries it. The analysis also shows that `client_factory` is used to construct an [`AgentEngineClient`](scripts/demo/cloud_smoke_test.py#L118), which makes the function easy to test and mock.
 
-**Parameters**
+- **Signature:** `probe_sdk(project_id, location, reasoning_engine_resource_name, user_id, message, client_factory)`
+- **Parameters:**
+  
+  | Parameter | Meaning |
+  |-----------|---------|
+  | `project_id` | GCP project ID |
+  | `location` | Vertex AI region |
+  | `reasoning_engine_resource_name` | Resource name or engine identifier |
+  | `user_id` | User identifier passed to the engine query |
+  | `message` | Query text |
+  | `client_factory` | Factory used to instantiate the SDK client |
 
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `user_id` | string-like | required | Authenticated user identifier |
-| `user_text` | string-like | required | User message text |
-| `agent_text` | string-like | required | Agent response text |
-| `agent_name` | string-like | optional | Optional agent name for metadata |
-
-**Example usage**
-
-```python
-await bank.generate_memories(
-    user_id="u123",
-    user_text="I use a VPN for work",
-    agent_text="I'll remember that preference.",
-    agent_name="Hermes",
-)
-```
-
-> **Sources:** `memory/memory_bank.py` · L105–L141 · [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105)
-
-### `HermesMemoryBank.ingest_events(self, user_id, events)`
-
-- **Signature:** [`ingest_events(self, user_id, events)`](memory/memory_bank.py#L143)
-- **Purpose:** Streams conversation events to Memory Bank for automatic batched memory generation.
-- **Operational notes:** The docstring explicitly describes this as more production-grade than `generate_memories()` because the SDK batches events and triggers generation automatically via the IngestEvents RPC. The tests confirm that event roles are normalized so `agent` becomes `model`.
-- **Return value:** Not explicitly documented in the analysis data; the method operates via SDK side effects.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `user_id` | string-like | required | Authenticated user identifier |
-| `events` | list[dict] | required | Event dictionaries containing `role` and `text` keys |
-
-**Example usage**
+- **Return value:** [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32)
+- **Example usage:**
 
 ```python
-await bank.ingest_events(
-    user_id="u1",
-    events=[
-        {"role": "user", "text": "How do I reset my VPN?"},
-        {"role": "agent", "text": "Go to Settings > VPN > Reset."},
-    ],
-)
-```
+from scripts.demo.cloud_smoke_test import probe_sdk
 
-> **Sources:** `memory/memory_bank.py` · L143–L185 · [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143)
+def make_client():
+    from vertexai.preview.reasoning_engines import AgentEngineClient
+    return AgentEngineClient()
 
-### `HermesMemoryBank.purge_memories(self, user_id, dry_run)`
-
-- **Signature:** [`purge_memories(self, user_id, dry_run)`](memory/memory_bank.py#L187)
-- **Purpose:** Bulk-deletes all memories for a user.
-- **Behavior:** If `dry_run` is true, the method returns the count of memories that would be deleted without making the destructive API call.
-- **Return value:** Number of memories deleted, or would-be deleted on dry run.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `user_id` | string-like | required | User whose memories should be deleted |
-| `dry_run` | bool | required | If true, count only; do not delete |
-
-**Example usage**
-
-```python
-deleted = await bank.purge_memories(user_id="u123", dry_run=True)
-print(f"Would delete {deleted} memories")
-```
-
-> **Sources:** `memory/memory_bank.py` · L187–L225 · [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187)
-
-### `HermesMemoryBank.delete_memory(self, memory_resource_name)`
-
-- **Signature:** [`delete_memory(self, memory_resource_name)`](memory/memory_bank.py#L227)
-- **Purpose:** Deletes a specific memory by full resource name.
-- **Return value:** `True` on success, `False` on failure.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `memory_resource_name` | string-like | required | Full resource name, e.g. `projects/p/locations/l/reasoningEngines/e/memories/m` |
-
-**Example usage**
-
-```python
-ok = await bank.delete_memory(
-    "projects/p/locations/l/reasoningEngines/e/memories/m"
-)
-```
-
-> **Sources:** `memory/memory_bank.py` · L227–L248 · [`HermesMemoryBank.delete_memory`](memory/memory_bank.py#L227)
-
-### `HermesMemoryBank.create_memory(self, user_id, fact)`
-
-- **Signature:** [`create_memory(self, user_id, fact)`](memory/memory_bank.py#L250)
-- **Purpose:** Writes a memory fact directly, bypassing LLM extraction/consolidation.
-- **Use case:** The docstring identifies this as useful for a “memory-as-a-tool” pattern where the agent explicitly chooses what to remember.
-- **Return value:** New memory resource name, or `None` on failure.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `user_id` | string-like | required | User this memory belongs to |
-| `fact` | string | required | Plain-text fact to store |
-
-**Example usage**
-
-```python
-memory_name = await bank.create_memory(
-    user_id="u123",
-    fact="Prefers concise answers with examples.",
-)
-```
-
-> **Sources:** `memory/memory_bank.py` · L250–L283 · [`HermesMemoryBank.create_memory`](memory/memory_bank.py#L250)
-
-### `HermesMemoryBank.update_memory(self, memory_resource_name, new_fact)`
-
-- **Signature:** [`update_memory(self, memory_resource_name, new_fact)`](memory/memory_bank.py#L285)
-- **Purpose:** Updates an existing memory with corrected content.
-- **Return value:** `True` on success, `False` on failure.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `memory_resource_name` | string-like | required | Full resource name of the memory to update |
-| `new_fact` | string | required | Corrected or updated fact text |
-
-**Example usage**
-
-```python
-ok = await bank.update_memory(
-    memory_resource_name="projects/p/locations/l/reasoningEngines/e/memories/m",
-    new_fact="Prefers concise answers and prefers code samples in Python.",
-)
-```
-
-> **Sources:** `memory/memory_bank.py` · L285–L313 · [`HermesMemoryBank.update_memory`](memory/memory_bank.py#L285)
-
-### `HermesMemoryBank.retrieve_profiles(self, user_id)`
-
-- **Signature:** [`retrieve_profiles(self, user_id)`](memory/memory_bank.py#L315)
-- **Purpose:** Backward-compatibility stub for structured memory profiles.
-- **Behavior:** The docstring states this API is not available in the current Agent Engine memories API (SDK >= 1.112), so it returns an empty list.
-- **Return value:** Empty list.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `user_id` | string-like | required | User identifier |
-
-**Example usage**
-
-```python
-profiles = await bank.retrieve_profiles(user_id="u123")
-# profiles is always []
-```
-
-> **Sources:** `memory/memory_bank.py` · L315–L329 · [`HermesMemoryBank.retrieve_profiles`](memory/memory_bank.py#L315)
-
-### `HermesMemoryBank.fetch_memories(self, user_id, query, top_k)`
-
-- **Signature:** [`fetch_memories(self, user_id, query, top_k)`](memory/memory_bank.py#L331)
-- **Purpose:** Retrieves the most relevant memories for a user.
-- **Operational notes:** The docstring says this is called at session start by `PreloadMemoryTool` to inject context into the system prompt. Tests verify it passes `top_k` and scope information to the SDK and that it gracefully degrades to `str(memory)` when a memory object lacks a `fact` attribute.
-- **Return value:** List of memory strings.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `user_id` | string-like | required | User identifier |
-| `query` | string | required | Search query for retrieval |
-| `top_k` | integer | required | Number of memories to retrieve |
-
-**Example usage**
-
-```python
-memories = await bank.fetch_memories(
-    user_id="u123",
-    query="VPN setup",
-    top_k=5,
-)
-```
-
-> **Sources:** `memory/memory_bank.py` · L331–L367 · [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331)
-
-### `HermesMemoryBank.list_revisions(self, user_id)`
-
-- **Signature:** [`list_revisions(self, user_id)`](memory/memory_bank.py#L369)
-- **Purpose:** Returns revision history for a user’s memories.
-- **Behavior:** The docstring states revision history is not directly exposed in the current SDK, so this returns an empty list for backward compatibility.
-- **Return value:** Empty list.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `user_id` | string-like | required | User identifier |
-
-**Example usage**
-
-```python
-revisions = await bank.list_revisions(user_id="u123")
-```
-
-> **Sources:** `memory/memory_bank.py` · L369–L379 · [`HermesMemoryBank.list_revisions`](memory/memory_bank.py#L369)
-
-### `HermesMemoryBank.format_for_prompt(self, user_id, query, max_tokens)`
-
-- **Signature:** [`format_for_prompt(self, user_id, query, max_tokens)`](memory/memory_bank.py#L381)
-- **Purpose:** Fetches memories and formats them as a system prompt snippet.
-- **Behavior:** Returns an empty string when no memories are found or when the memory bank is unavailable. The docstring states the caller in `gateway/main.py` injects the resulting text into the session prompt, although that file is not present in the analysis data.
-- **Return value:** Prompt-formatted string.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `user_id` | string-like | required | User identifier |
-| `query` | string | required | Search query used to fetch memories |
-| `max_tokens` | integer | required | Token budget for the formatted snippet |
-
-**Example usage**
-
-```python
-snippet = await bank.format_for_prompt(
-    user_id="u123",
-    query="work preferences",
-    max_tokens=200,
-)
-if snippet:
-    system_prompt = f"{snippet}\n\nYou are a helpful assistant."
-```
-
-> **Sources:** `memory/memory_bank.py` · L381–L406 · [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381)
-
-### `build_memory_bank()`
-
-- **Signature:** [`build_memory_bank()`](memory/memory_bank.py#L411)
-- **Purpose:** Builds a `HermesMemoryBank` from settings.
-- **Behavior:** Returns `None` if `MEMORY_BANK_RESOURCE_NAME` is not configured, enabling graceful degradation.
-- **Return value:** `HermesMemoryBank` instance or `None`.
-
-**Parameters**
-
-None.
-
-**Example usage**
-
-```python
-from memory.memory_bank import build_memory_bank
-
-bank = build_memory_bank()
-if bank is None:
-    print("Memory Bank not configured")
-```
-
-> **Sources:** `memory/memory_bank.py` · L411–L427 · [`build_memory_bank`](memory/memory_bank.py#L411)
-
-### `create_memory_bank(project, location, display_name)`
-
-- **Signature:** [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432)
-- **Purpose:** Creates a new Agent Engine resource to serve as the MemoryBank.
-- **Behavior:** Safe to call multiple times; returns an existing resource if one with the same display name is found. The migration note explains that in SDK >= 1.112 there is no standalone `VertexAiMemoryBank` class, so the function creates a lightweight Agent Engine dedicated to memory storage.
-- **Return value:** The resource name of the created or existing Agent Engine.
-
-**Parameters**
-
-| Parameter | Type | Default | Description |
-|--------|------|---------|-------------|
-| `project` | string-like | required | GCP project |
-| `location` | string-like | required | Vertex AI region |
-| `display_name` | string | required | Human-readable name used to find or create the engine |
-
-**Example usage**
-
-```python
-from memory.memory_bank import create_memory_bank
-
-resource_name = create_memory_bank(
-    project="my-project",
+result = probe_sdk(
+    project_id="my-project",
     location="us-central1",
-    display_name="Hermes Memory Bank",
+    reasoning_engine_resource_name="projects/my-project/locations/us-central1/reasoningEngines/123",
+    user_id="demo-user",
+    message="Summarize this session",
+    client_factory=make_client,
 )
-print(resource_name)
+print(result.text)
 ```
 
-> **Sources:** `memory/memory_bank.py` · L432–L498 · [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L118–L155 · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) · [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32)
+
+### `build_aggregator_agent(settings)`
+
+[`build_aggregator_agent`](agents/aggregator.py#L70) constructs the `AggregatorAgent`, described in its docstring as the component that “consolidates parallel outputs.” The relationship data shows it calls `LlmAgent` and `get_model`.
+
+- **Signature:** `build_aggregator_agent(settings)`
+- **Parameters:**
+  
+  | Parameter | Meaning |
+  |-----------|---------|
+  | `settings` | Application configuration object, typically [`Settings`](config.py#L7) |
+
+- **Return value:** an ADK `LlmAgent` instance configured for aggregation
+- **Example usage:**
+
+```python
+from config import get_settings
+from agents.aggregator import build_aggregator_agent
+
+settings = get_settings()
+aggregator = build_aggregator_agent(settings)
+```
+
+> **Sources:** `agents/aggregator.py` · L70–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70); `config.py` · L200–L201 · [`get_settings`](config.py#L200)
+
+### `build_task_agent(settings, specialist_agents)`
+
+[`build_task_agent`](agents/task_agent.py#L115) creates the higher-level task orchestration agent. Its docstring is especially informative: it supports both a static deploy-time build and a sequential fallback path, and it composes a [`SequentialAgent`](agents/task_agent.py#L115) that contains a [`ParallelAgent`](agents/task_agent.py#L115) plus the [`AggregatorAgent`](agents/aggregator.py#L70). The builder also wires in a skill-learning callback.
+
+- **Signature:** `build_task_agent(settings, specialist_agents)`
+- **Parameters:**
+  
+  | Parameter | Meaning |
+  |-----------|---------|
+  | `settings` | Application settings |
+  | `specialist_agents` | Default specialist agent set used for fallback sequential/parallel composition |
+
+- **Return value:** a top-level task agent object composed from specialists and aggregator pipeline
+- **Example usage:**
+
+```python
+from config import get_settings
+from agents.task_agent import build_task_agent
+
+settings = get_settings()
+specialists = []  # supply agent instances from your deployment setup
+task_agent = build_task_agent(settings, specialists)
+```
+
+> **Sources:** `agents/task_agent.py` · L115–L188 · [`build_task_agent`](agents/task_agent.py#L115) · `agents/aggregator.py` · L70–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70)
+
+### `build_dynamic_parallel_dispatcher(settings, task)`
+
+[`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) is the request-time JIT synthesis API. Its docstring explains that it returns a `SequentialPipeline` plus a sequential agent list, and the tests show it can return `None` when no agents are synthesized.
+
+- **Signature:** `build_dynamic_parallel_dispatcher(settings, task)`
+- **Parameters:**
+  
+  | Parameter | Meaning |
+  |-----------|---------|
+  | `settings` | Application settings |
+  | `task` | Task description or request context used by [`AgentSynthesizer`](agents/task_agent.py#L191) |
+
+- **Return value:** either `None` or a tuple like `(SequentialPipeline, sequential_agents)`
+- **Example usage:**
+
+```python
+from config import get_settings
+from agents.task_agent import build_dynamic_parallel_dispatcher
+
+settings = get_settings()
+pipeline_and_agents = build_dynamic_parallel_dispatcher(settings, task="draft a response")
+if pipeline_and_agents is None:
+    print("No synthesized agents available")
+else:
+    pipeline, sequential_agents = pipeline_and_agents
+    print(pipeline, sequential_agents)
+```
+
+> **Sources:** `agents/task_agent.py` · L191–L237 · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)
+
+### `Settings`
+
+[`Settings`](config.py#L7) is the repository’s configuration class and inherits from `BaseSettings`. It provides reusable environment/configuration logic for the rest of the codebase.
+
+- **Signature:** class `Settings(BaseSettings)`
+- **Parameters:** configuration fields are defined in `config.py` but not enumerated in the analysis payload
+- **Return value:** a configuration instance populated from environment and defaults
+- **Example usage:**
+
+```python
+from config import Settings
+
+settings = Settings()
+print(settings.cors_origins_list())
+```
+
+#### `Settings.cors_origins_list(self)`
+
+- **Signature:** `cors_origins_list(self)`
+- **Parameters:** none
+- **Return value:** list of trimmed CORS origin strings
+- **Example usage:**
+
+```python
+origins = settings.cors_origins_list()
+```
+
+#### `Settings.inject_litellm_env(self)`
+
+- **Signature:** `inject_litellm_env(self)`
+- **Parameters:** none
+- **Return value:** none
+- **Example usage:**
+
+```python
+settings.inject_litellm_env()
+```
+
+This method is explicitly documented in the source as exporting provider API keys into process environment variables so LiteLLM can pick them up automatically.
+
+#### `Settings.validate_rag_regions(self)`
+
+- **Signature:** `validate_rag_regions(self)`
+- **Parameters:** none
+- **Return value:** list of warning strings
+- **Example usage:**
+
+```python
+warnings = settings.validate_rag_regions()
+for warning in warnings:
+    print(warning)
+```
+
+> **Sources:** `config.py` · L7–L201 · [`Settings`](config.py#L7) · [`Settings.cors_origins_list`](config.py#L143) · [`Settings.inject_litellm_env`](config.py#L146) · [`Settings.validate_rag_regions`](config.py#L166)
 
 ## Integration Examples
 
-### End-to-end workflow: provision, store, retrieve, and format
+The most realistic workflow in this repository is:
 
-A realistic integration pattern is:
+1. Load application settings with [`get_settings`](config.py#L200) or instantiate [`Settings`](config.py#L7) directly.
+2. Validate/prepare environment with [`Settings.inject_litellm_env`](config.py#L146) and [`Settings.validate_rag_regions`](config.py#L166).
+3. Build the agent stack with [`build_aggregator_agent`](agents/aggregator.py#L70), [`build_task_agent`](agents/task_agent.py#L115), or [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191).
+4. Smoke-test the deployment using [`scripts.demo.cloud_smoke_test.main`](scripts/demo/cloud_smoke_test.py#L183) or its lower-level helpers.
 
-1. Provision a Memory Bank resource with [`create_memory_bank()`](memory/memory_bank.py#L432).
-2. Build a facade with [`HermesMemoryBank`](memory/memory_bank.py#L79).
-3. Record user/agent interactions with [`ingest_events()`](memory/memory_bank.py#L143) or [`generate_memories()`](memory/memory_bank.py#L105).
-4. Retrieve relevant memories with [`fetch_memories()`](memory/memory_bank.py#L331).
-5. Convert them into a prompt snippet with [`format_for_prompt()`](memory/memory_bank.py#L381).
-
-```python
-import asyncio
-from memory.memory_bank import HermesMemoryBank, create_memory_bank
-
-async def main():
-    resource_name = create_memory_bank(
-        project="my-project",
-        location="us-central1",
-        display_name="Hermes Memory Bank",
-    )
-
-    bank = HermesMemoryBank(resource_name=resource_name)
-
-    await bank.ingest_events(
-        user_id="u123",
-        events=[
-            {"role": "user", "text": "I’m setting up a new VPN."},
-            {"role": "agent", "text": "I can help with that."},
-        ],
-    )
-
-    memories = await bank.fetch_memories(
-        user_id="u123",
-        query="VPN setup",
-        top_k=5,
-    )
-
-    prompt_snippet = await bank.format_for_prompt(
-        user_id="u123",
-        query="VPN setup",
-        max_tokens=200,
-    )
-
-    print(memories)
-    print(prompt_snippet)
-
-asyncio.run(main())
-```
-
-### Operational workflow: direct writes and cleanup
-
-For admin or tool-driven workflows, you can bypass extraction and manage memories directly:
+### Example: deploy-time agent wiring plus smoke test
 
 ```python
-async def admin_workflow(bank: HermesMemoryBank):
-    memory_name = await bank.create_memory(
-        user_id="u123",
-        fact="Prefers short answers and Python examples.",
-    )
+from config import get_settings
+from agents.aggregator import build_aggregator_agent
+from agents.task_agent import build_task_agent
+from scripts.demo.cloud_smoke_test import probe_gateway
 
-    if memory_name:
-        await bank.update_memory(
-            memory_resource_name=memory_name,
-            new_fact="Prefers concise answers with Python snippets.",
-        )
+settings = get_settings()
+settings.inject_litellm_env()
 
-    deleted_count = await bank.purge_memories(user_id="u123", dry_run=False)
-    print(f"Deleted {deleted_count} memories")
+warnings = settings.validate_rag_regions()
+if warnings:
+    for warning in warnings:
+        print(f"Config warning: {warning}")
+
+aggregator = build_aggregator_agent(settings)
+task_agent = build_task_agent(settings, specialist_agents=[])
+
+result = probe_gateway(
+    gateway_url="https://example.com/gateway",
+    message="Hello from integration test",
+    bearer_token=None,
+    api_key="my-api-key",
+    timeout_s=20,
+)
+
+print("Aggregator:", aggregator)
+print("Task agent:", task_agent)
+print("Smoke result:", result.text)
 ```
 
-### CLI/API combined workflow
+### Example: request-time dynamic synthesis
 
-Because no CLI is present in the analyzed files, there is no real command-line integration to demonstrate. If a CLI were added in the future, the intended flow would likely mirror the programmatic calls above:
+```python
+from config import get_settings
+from agents.task_agent import build_dynamic_parallel_dispatcher
 
-- a `create` command would wrap [`create_memory_bank()`](memory/memory_bank.py#L432)
-- a `fetch` command would wrap [`fetch_memories()`](memory/memory_bank.py#L331)
-- a `purge` command would wrap [`purge_memories()`](memory/memory_bank.py#L187)
+settings = get_settings()
+synth = build_dynamic_parallel_dispatcher(settings, task="write a release note")
+if synth is None:
+    print("Fallback to default task handling")
+else:
+    pipeline, seq_agents = synth
+    print("Pipeline:", pipeline)
+    print("Sequential agents:", seq_agents)
+```
 
-At present, consumers should call the API directly from application code or orchestration scripts.
+### Recommended workflow pattern
 
-> **Sources:** `memory/memory_bank.py` · L105–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`create_memory_bank`](memory/memory_bank.py#L432), [`build_memory_bank`](memory/memory_bank.py#L411), [`format_for_prompt`](memory/memory_bank.py#L381)
+| Step | API | Purpose |
+|------|-----|---------|
+| 1 | [`get_settings`](config.py#L200) | Load configuration consistently |
+| 2 | [`Settings.inject_litellm_env`](config.py#L146) | Export provider credentials |
+| 3 | [`Settings.validate_rag_regions`](config.py#L166) | Catch region mismatches early |
+| 4 | [`build_task_agent`](agents/task_agent.py#L115) | Construct the orchestrating agent |
+| 5 | [`main`](scripts/demo/cloud_smoke_test.py#L183) or [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) | Verify the deployment end-to-end |
+
+The test suite corroborates these integration points: `tests/scripts/test_cloud_smoke_test.py` exercises [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118), [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105), and [`main`](scripts/demo/cloud_smoke_test.py#L183), while `tests/agents/test_aggregator.py` validates the agent builders.
+
+> **Sources:** `config.py` · L7–L201 · [`Settings`](config.py#L7) · [`get_settings`](config.py#L200); `agents/aggregator.py` · L70–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70); `agents/task_agent.py` · L115–L237 · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191); `scripts/demo/cloud_smoke_test.py` · L32–L212 · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) · [`main`](scripts/demo/cloud_smoke_test.py#L183)

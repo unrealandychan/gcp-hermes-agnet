@@ -1,185 +1,157 @@
 ---
 slug: testing
-title: "Testing Strategy and Test Execution"
+title: "Testing Strategy and How to Run Tests"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T12:37:29Z
+created_at: 2026-05-18T12:38:06Z
 rekipedia_version: 0.15.1
 ---
 
-# Testing Strategy and Test Execution
-
-This repository currently exposes a focused test surface around the memory subsystem, with implementation in [`memory/memory_bank.py`](memory/memory_bank.py#L1) and tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1). The available analysis does **not** include any CI configuration files or explicit test command metadata, so this page documents what is observable from the codebase and calls out the gaps where necessary.
+# Testing Strategy and How to Run Tests
 
 ## Testing Philosophy
 
-The tests for [`HermesMemoryBank`](memory/memory_bank.py#L79) are designed around **behavioral contract testing** with aggressive mocking of the Vertex AI SDK. The implementation wraps a remote service, so the suite avoids live cloud calls and instead verifies:
+The repository’s test suite is intentionally focused on two high-value areas: agent construction logic and the cloud smoke-test utility. In other words, the tests validate that the system’s orchestration objects are built with the right shape and that the external connectivity probe behaves correctly under mocked success and failure conditions.
 
-- request construction and argument passing,
-- error swallowing and graceful degradation,
-- lazy client initialization,
-- transformation logic for memories and prompt formatting,
-- SDK compatibility behavior for the newer Vertex AI client model.
+The core agent-building path is exercised through [`build_aggregator_agent`](agents/aggregator.py#L70), [`build_task_agent`](agents/task_agent.py#L115), and [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191). The tests assert structural properties rather than deep runtime behavior: for example, that the aggregator is an `LlmAgent`, that it has a description, that it has no tools, and that the task pipeline is composed of a `SequentialAgent` containing a `ParallelAgent` followed by an aggregator. This is a strong fit for unit testing because these builders are configuration-heavy and deterministic.
 
-The central helper [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) is validated indirectly through the facade methods that depend on it, especially [`HermesMemoryBank._ensure_client`](memory/memory_bank.py#L98) and [`build_memory_bank()`](memory/memory_bank.py#L411). The tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1) are intentionally structured to isolate the code under test from external services using `unittest.mock` primitives.
+The cloud smoke-test path is exercised via [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118), [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105), and [`main`](scripts/demo/cloud_smoke_test.py#L183). These tests mock HTTP responses, SDK clients, and CLI argument handling to validate parsing and control flow without requiring actual Google Cloud or Vertex AI access.
 
-From the available evidence, there is no explicit coverage target configured in the repository snapshot. However, the breadth of unit tests suggests the intended goal is to cover the public behavior of [`HermesMemoryBank`](memory/memory_bank.py#L79) rather than internal implementation details. The current suite exercises nearly every public method: `generate_memories`, `ingest_events`, `purge_memories`, `delete_memory`, `create_memory`, `update_memory`, `retrieve_profiles`, `fetch_memories`, `list_revisions`, `format_for_prompt`, plus the factory functions `build_memory_bank` and `create_memory_bank`.  
+There is no explicit coverage tooling or target recorded in the analysis data, so coverage goals are inferred from the test design rather than measured thresholds. The observable goal is to cover the “shape” and branching behavior of the orchestration code, plus the CLI’s error handling and response parsing. One gap is the helper [`_make_module`](tests/conftest.py#L22), which is used extensively by the test scaffolding but is not directly tested; the analysis flags this as a knowledge gap.
 
-> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/memory/test_memory_bank.py` · L1–L495 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173)
+> **Sources:** `tests/agents/test_aggregator.py` · `tests/scripts/test_cloud_smoke_test.py` · `tests/conftest.py` · [`build_aggregator_agent`](agents/aggregator.py#L70) · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) · [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105) · [`main`](scripts/demo/cloud_smoke_test.py#L183)
 
 ## Test Structure
 
-The test layout in the provided snapshot is minimal but clear:
+The test layout is conventional and clearly separated by feature area:
 
-| Directory / File | Purpose |
-|---|---|
-| `tests/memory/test_memory_bank.py` | Unit-style tests for the memory bank facade and factory functions |
-| `memory/memory_bank.py` | Implementation under test |
+| Directory / File | Purpose | Notes |
+|---|---|---|
+| `tests/agents/test_aggregator.py` | Agent-builder tests | Covers [`build_aggregator_agent`](agents/aggregator.py#L70), [`build_task_agent`](agents/task_agent.py#L115), and [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) |
+| `tests/scripts/test_cloud_smoke_test.py` | Smoke-test CLI tests | Covers gateway and SDK probe logic in [`scripts/demo/cloud_smoke_test.py`](scripts/demo/cloud_smoke_test.py#L1) |
+| `tests/conftest.py` | Shared fixtures and fakes | Provides lightweight stand-ins for external ADK/FastAPI/Starlette-related types |
 
-The tests are organized by behavior into `unittest.TestCase` subclasses:
+The `tests/conftest.py` file is especially important because it installs fake implementations such as [`_FakeLlmAgent`](tests/conftest.py#L30), [`_FakeParallelAgent`](tests/conftest.py#L44), [`_FakeSequentialAgent`](tests/conftest.py#L52), and [`_FakeEventSourceResponse`](tests/conftest.py#L186). This allows tests to run without importing or instantiating the real cloud/runtime dependencies. The helper [`_register_all`](tests/conftest.py#L222) appears to register multiple module stubs into `sys.modules`, and the analysis notes that `_make_module` is heavily used by this scaffolding.
 
-- [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58)
-- [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116)
-- [`TestListRevisions`](tests/memory/test_memory_bank.py#L160)
-- [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173)
-- [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222)
-- [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)
-- [`TestIngestEvents`](tests/memory/test_memory_bank.py#L335)
-- [`TestPurgeMemories`](tests/memory/test_memory_bank.py#L378)
-- [`TestDeleteMemory`](tests/memory/test_memory_bank.py#L411)
-- [`TestCreateMemory`](tests/memory/test_memory_bank.py#L434)
-- [`TestUpdateMemory`](tests/memory/test_memory_bank.py#L460)
-- [`TestRetrieveProfiles`](tests/memory/test_memory_bank.py#L487)
+The tests are grouped by production module rather than by test type, which makes it easy to find the checks that map to a given implementation file.
 
-The test file also defines reusable fixtures/helpers:
-
-- [`_make_mock_client()`](tests/memory/test_memory_bank.py#L32) builds a mock `vertexai.Client` and associated `memories` surface.
-- [`_make_engine()`](tests/memory/test_memory_bank.py#L42) constructs a mock AgentEngine object.
-- [`_make_memory()`](tests/memory/test_memory_bank.py#L52) creates simple memory objects with a `.fact` field.
-
-These helpers are the backbone of the suite, allowing the tests to simulate the structure expected by the SDK >= 1.112 without invoking the real API.
-
-> **Sources:** `tests/memory/test_memory_bank.py` · L32–L53 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), [`_make_engine`](tests/memory/test_memory_bank.py#L42), [`_make_memory`](tests/memory/test_memory_bank.py#L52) · `tests/memory/test_memory_bank.py` · L58–L495 · test classes listed above
+> **Sources:** `tests/agents/test_aggregator.py` · `tests/scripts/test_cloud_smoke_test.py` · `tests/conftest.py` · [`_FakeLlmAgent`](tests/conftest.py#L30) · [`_FakeParallelAgent`](tests/conftest.py#L44) · [`_FakeSequentialAgent`](tests/conftest.py#L52) · [`_FakeEventSourceResponse`](tests/conftest.py#L186) · [`_register_all`](tests/conftest.py#L222)
 
 ## Running Tests
 
-The analysis payload does **not** include any recorded `test_commands`, so there is no authoritative repository-specific command list to reproduce verbatim. Based on the observed layout, the practical commands below are the standard ways to run the available tests with `pytest`.
+No explicit `test_commands` were present in the analysis payload, so the commands below follow standard Python/pytest conventions and are the most likely way to run the existing suite.
 
 ```bash
 # unit tests
-pytest tests/memory/test_memory_bank.py
+pytest tests/agents tests/scripts
 
 # integration tests
-pytest -m integration
+pytest tests/scripts/test_cloud_smoke_test.py
 
 # with coverage
-pytest --cov=memory --cov-report=term-missing
+pytest --cov=agents --cov=scripts --cov=hermes_app --cov=config --cov-report=term-missing
 ```
 
-If you only want to run the memory-bank suite, target the file directly. If the project later adds broader test coverage, the `pytest -m integration` form is a conventional way to separate slower, environment-dependent tests from fast unit tests.
-
-To run a single test or class within this file:
+If you want to run the full suite, use:
 
 ```bash
-pytest tests/memory/test_memory_bank.py::TestFetchMemories
-pytest tests/memory/test_memory_bank.py::TestFormatForPrompt::test_respects_max_tokens_budget
+pytest
 ```
 
-This is especially useful when iterating on behavior around [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) or [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381).
+For a single file or test function, pytest’s node selection is the most convenient approach:
 
-> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173)
+```bash
+pytest tests/agents/test_aggregator.py::TestBuildAggregatorAgent::test_no_tools
+pytest tests/scripts/test_cloud_smoke_test.py::test_probe_gateway_success_parses_sse_done
+```
+
+The `tests/scripts/test_cloud_smoke_test.py` module is especially suitable for focused runs because it tests discrete code paths in [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118), and [`main`](scripts/demo/cloud_smoke_test.py#L183).
+
+> **Sources:** `tests/agents/test_aggregator.py` · `tests/scripts/test_cloud_smoke_test.py` · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) · [`main`](scripts/demo/cloud_smoke_test.py#L183)
 
 ## Test Categories
 
 ### Unit Tests
 
-The current suite is overwhelmingly unit-oriented. The tests mock the Vertex AI client and assert that the implementation passes the right arguments to SDK methods such as `generate`, `retrieve`, `ingest_events`, `purge`, `delete`, `create`, and `update` on the client’s `memories` interface.
+The unit tests live primarily in [`tests/agents/test_aggregator.py`](tests/agents/test_aggregator.py#L1). They verify the structure of the agent graph produced by the builder functions:
 
-Key fixtures and mocks:
+- [`TestBuildAggregatorAgent`](tests/agents/test_aggregator.py#L27) checks that [`build_aggregator_agent`](agents/aggregator.py#L70) returns an LLM-style agent, has an appropriate description, and has no tools.
+- [`TestBuildTaskAgentSequentialPipeline`](tests/agents/test_aggregator.py#L45) asserts that [`build_task_agent`](agents/task_agent.py#L115) produces a `SequentialAgent` with two children, where the first is a `ParallelAgent` and the second is the aggregator.
+- [`TestBuildDynamicParallelDispatcher`](tests/agents/test_aggregator.py#L86) validates the request-time synthesis behavior of [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191), including the “no agents found” branch and the “pipeline ends with aggregator” branch.
 
-- [`_make_mock_client()`](tests/memory/test_memory_bank.py#L32) returns a `(mock_client, mock_memories)` pair.
-- [`patch`](tests/memory/test_memory_bank.py#L1) is used extensively to replace [`_get_vertexai_client`](memory/memory_bank.py#L41), config access, and other runtime dependencies.
-- `MagicMock` and `SimpleNamespace` are used to imitate SDK objects and response payloads.
+These tests rely on shared fakes from [`tests/conftest.py`](tests/conftest.py#L1), including fake agent classes that stand in for `google.adk.agents.LlmAgent`, `ParallelAgent`, and `SequentialAgent`. They also use `monkeypatch` to swap out synthesis behavior and to force specific runtime paths.
 
-Important behaviors covered at the unit level include:
+#### Key fixtures and mocks
 
-- lazy initialization in [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105),
-- normalizing event roles in [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143),
-- returning `[]` or `""` when SDK calls fail in [`fetch_memories`](memory/memory_bank.py#L331) and [`format_for_prompt`](memory/memory_bank.py#L381),
-- no-op compatibility behavior in [`retrieve_profiles`](memory/memory_bank.py#L315) and [`list_revisions`](memory/memory_bank.py#L369),
-- configuration-based factory behavior in [`build_memory_bank`](memory/memory_bank.py#L411),
-- resource creation/reuse logic in [`create_memory_bank`](memory/memory_bank.py#L432).
+- [`settings`](tests/agents/test_aggregator.py#L17) fixture constructs a [`Settings`](config.py#L7) object for agent builders.
+- Fake ADK agents from [`tests/conftest.py`](tests/conftest.py#L30) keep the tests isolated from the real SDK.
+- `monkeypatch` is used to override synthesis results and to emulate edge cases.
 
-A notable pattern is that many methods are tested for **failure suppression**: if the underlying SDK raises, the facade generally returns a safe fallback rather than propagating the exception. This is verified in several tests such as [`TestGenerateMemories.test_exception_is_swallowed`](tests/memory/test_memory_bank.py#L92), [`TestFetchMemories.test_returns_empty_list_on_error`](tests/memory/test_memory_bank.py#L129), and [`TestPurgeMemories.test_returns_zero_on_exception`](tests/memory/test_memory_bank.py#L400).
-
-> **Sources:** `tests/memory/test_memory_bank.py` · L32–L495 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)
+> **Sources:** `tests/agents/test_aggregator.py` · `tests/conftest.py` · [`build_aggregator_agent`](agents/aggregator.py#L70) · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) · [`Settings`](config.py#L7)
 
 ### Integration Tests
 
-No true integration tests are visible in the provided snapshot. There are no test files that appear to exercise the live Vertex AI backend, and no CI or environment-specific test harness is present in the analysis.
+The integration-style tests are concentrated in [`tests/scripts/test_cloud_smoke_test.py`](tests/scripts/test_cloud_smoke_test.py#L1). They exercise the smoke-test utility’s behavior as a command-line-facing integration point, but with external systems mocked:
 
-What the suite does exercise is a **lightweight integration seam**: the contract between [`HermesMemoryBank`](memory/memory_bank.py#L79) and the Vertex AI client shape that the code expects. For example:
+- [`test_probe_gateway_success_parses_sse_done`](tests/scripts/test_cloud_smoke_test.py#L9) verifies that [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) parses server-sent-event output and extracts a final result.
+- [`test_probe_gateway_fails_on_http_error`](tests/scripts/test_cloud_smoke_test.py#L35) checks error handling when the gateway responds with an HTTP failure.
+- [`test_probe_sdk_success_uses_existing_engine_by_name`](tests/scripts/test_cloud_smoke_test.py#L57) validates that [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) uses an existing reasoning engine by name.
+- [`test_main_gateway_missing_url_fails`](tests/scripts/test_cloud_smoke_test.py#L83) verifies CLI validation in [`main`](scripts/demo/cloud_smoke_test.py#L183).
+- [`test_extract_response_text_formats`](tests/scripts/test_cloud_smoke_test.py#L88) covers [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105).
+- [`test_main_sdk_mode_success`](tests/scripts/test_cloud_smoke_test.py#L95) checks the top-level flow in SDK mode.
 
-- [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273) simulates pre-existing engines versus creation paths.
-- [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116) checks that SDK results are translated into plain strings.
-- [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173) verifies the prompt snippet produced from retrieved memories.
+These tests are more integration-like because they validate how the CLI and probe functions cooperate, but they still avoid real cloud calls via mocks.
 
-So while the repository snapshot does not include external integration tests, it does validate the interface boundary that a real integration test would rely on.
-
-> **Sources:** `tests/memory/test_memory_bank.py` · L116–L330 · [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173)
+> **Sources:** `tests/scripts/test_cloud_smoke_test.py` · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) · [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105) · [`main`](scripts/demo/cloud_smoke_test.py#L183)
 
 ## Writing New Tests
 
-When adding tests for this subsystem, follow the existing conventions in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1):
+When adding new tests, follow the existing layout and keep tests close to the module they exercise:
 
-### Placement and Naming
+| Production file | Put new tests in |
+|---|---|
+| `agents/aggregator.py` | `tests/agents/test_aggregator.py` |
+| `agents/task_agent.py` | `tests/agents/test_aggregator.py` unless a dedicated file is introduced |
+| `scripts/demo/cloud_smoke_test.py` | `tests/scripts/test_cloud_smoke_test.py` |
+| shared fixtures | `tests/conftest.py` |
 
-- Put new tests under `tests/memory/` near the code they exercise.
-- Use `test_*.py` file names and `Test*` class names.
-- Prefer one test class per public method or closely related behavior group.
+A few conventions are visible in the current suite:
 
-### Fixture Style
+1. **Prefer structural assertions for agent builders.**  
+   The tests for [`build_task_agent`](agents/task_agent.py#L115) do not try to execute real agent workflows; they verify composition, counts, and ordering.
 
-- Reuse helpers like [`_make_mock_client()`](tests/memory/test_memory_bank.py#L32) and [`_make_engine()`](tests/memory/test_memory_bank.py#L42) instead of constructing ad hoc mocks.
-- Keep fixtures small and declarative; they should mirror the SDK surface expected by [`HermesMemoryBank`](memory/memory_bank.py#L79).
-- Use `SimpleNamespace` for lightweight record-like payloads and `MagicMock` for call assertions.
+2. **Use fakes instead of live dependencies.**  
+   The helpers in [`tests/conftest.py`](tests/conftest.py#L1) exist specifically to avoid importing heavy runtime services.
 
-### Behavioral Conventions
+3. **Patch behavior at the narrowest seam.**  
+   For example, tests for [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) monkeypatch the synthesis layer instead of reconstructing the whole app.
 
-- Test externally visible behavior, not internal implementation detail.
-- Cover both the happy path and the graceful-failure path.
-- If a method normalizes data, assert the normalized result, as seen in [`TestIngestEvents.test_normalises_agent_role_to_model`](tests/memory/test_memory_bank.py#L356).
-- If a method truncates or budgets output, assert the boundary condition, as seen in [`TestFormatForPrompt.test_respects_max_tokens_budget`](tests/memory/test_memory_bank.py#L204).
+4. **Name tests after the observable behavior.**  
+   Test names like `test_dynamic_pipeline_ends_with_aggregator` are descriptive and make failures easy to interpret.
 
-### Running a Single Test
-
-Use `pytest` node IDs to run a focused test:
+To run a single test while iterating:
 
 ```bash
-pytest tests/memory/test_memory_bank.py::TestCreateMemoryBank::test_uses_custom_display_name
-pytest tests/memory/test_memory_bank.py::TestUpdateMemory::test_calls_memories_update
+pytest tests/agents/test_aggregator.py::TestBuildDynamicParallelDispatcher::test_dynamic_pipeline_ends_with_aggregator
+pytest tests/scripts/test_cloud_smoke_test.py::test_main_sdk_mode_success
 ```
 
-This is the fastest way to iterate on a specific code path in [`create_memory_bank`](memory/memory_bank.py#L432) or [`HermesMemoryBank.update_memory`](memory/memory_bank.py#L285).
+If you need to create new fixtures or stubs, place them in [`tests/conftest.py`](tests/conftest.py#L1) so they are available across the suite. Be aware that the analysis identified [`_make_module`](tests/conftest.py#L22) as a helper with no direct test coverage despite being called frequently.
 
-> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), [`_make_engine`](tests/memory/test_memory_bank.py#L42), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273), [`TestUpdateMemory`](tests/memory/test_memory_bank.py#L460)
+> **Sources:** `tests/agents/test_aggregator.py` · `tests/scripts/test_cloud_smoke_test.py` · `tests/conftest.py` · [`_make_module`](tests/conftest.py#L22) · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)
 
 ## CI/CD
 
-No CI configuration files were found in the provided evidence, and the `ci_files` list is empty. As a result, the repository snapshot does **not** reveal:
+No CI configuration files were found in the provided analysis data, and `ci_files` is empty. That means there is no observable pipeline definition to document from the repository snapshot. Based on the current evidence, we can only say that CI/CD configuration was not present in the inspected files.
 
-- which test commands are run in CI,
-- whether coverage is enforced,
-- whether integration tests are gated separately,
-- whether matrix builds or Python-version splits exist.
+If CI is added later, the most likely useful checks would be:
 
-If CI is added later, the most likely pattern for this codebase would be:
-1. install dependencies,
-2. run the `pytest` suite,
-3. optionally run coverage for the memory subsystem,
-4. publish test/coverage artifacts.
+- `pytest` for the full suite
+- `pytest --cov ...` for coverage reporting
+- lint/static analysis for Python formatting and import correctness
+- optional smoke-test execution against staging endpoints
 
-For now, treat local `pytest` execution as the source of truth for validating changes to [`memory/memory_bank.py`](memory/memory_bank.py#L1).
+For now, the repository’s test strategy appears to rely on local pytest execution plus mocked external services, with no documented automation pipeline in-tree.
 
-> **Sources:** No CI files were present in the analysis (`ci_files: []`)
+> **Sources:** `ci_files` from analysis payload · `tests/agents/test_aggregator.py` · `tests/scripts/test_cloud_smoke_test.py`

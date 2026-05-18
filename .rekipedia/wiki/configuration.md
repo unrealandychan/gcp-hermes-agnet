@@ -1,137 +1,209 @@
 ---
 slug: configuration
-title: "Configuration Reference for Hermes Memory Bank"
+title: "Configuration Reference"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T12:38:29Z
+created_at: 2026-05-18T12:37:50Z
 rekipedia_version: 0.15.1
 ---
 
-# Configuration Reference for Hermes Memory Bank
-
-## Overview
-
-This repository snapshot is centered on the memory subsystem implemented in [`memory/memory_bank.py`](memory/memory_bank.py#L1). Based on the analysis data, the configuration surface is intentionally small: the code reads runtime settings via a `config` module and uses those values to build and operate a Vertex AI-backed memory bank. The primary observable configuration key is `MEMORY_BANK_RESOURCE_NAME`, which determines whether a reusable memory bank can be instantiated or whether the system degrades gracefully and returns `None` from [`build_memory_bank`](memory/memory_bank.py#L411).
-
-A notable constraint of this snapshot is that no standalone configuration files were detected in `files_seen`; only implementation and test Python files are present. As a result, there are no YAML, TOML, JSON, or `.env` files to enumerate. The configuration below is derived from the runtime behavior visible in [`_get_vertexai_client`](memory/memory_bank.py#L41-L74), [`build_memory_bank`](memory/memory_bank.py#L411-L427), and [`create_memory_bank`](memory/memory_bank.py#L432-L498), as well as the test coverage in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1-L495).
+# Configuration Reference
 
 ## Configuration Files
 
-No dedicated configuration files were found in this repository slice.
+The repository exposes a single explicit configuration module, [`config.py`](config.py#L1), which defines the runtime settings model used by the application and agent-building code. Based on the provided analysis data, there are **no discovered YAML, TOML, JSON, or `.env` config files** in `files_seen`; the configuration surface is centered on environment-driven settings and programmatic defaults in [`Settings`](config.py#L7).
 
-| File | Purpose | Evidence |
-|------|---------|----------|
-| _None detected_ | No YAML/TOML/JSON/.env files are present in `files_seen`. Runtime configuration appears to be sourced from a Python `config` module rather than file-based config. | [`memory/memory_bank.py`](memory/memory_bank.py#L1-L498), [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1-L495) |
+In practice, this means:
 
-> **Sources:** `memory/memory_bank.py` · L1–L498 · [`memory.memory_bank`](memory/memory_bank.py#L1) · `tests/memory/test_memory_bank.py` · L1–L495 · [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1)
+- **File-based configuration is not present in the analyzed repository snapshot**
+- **Runtime configuration is primarily environment-variable driven**
+- Startup entry points such as [`agent.py`](agent.py#L1) and [`hermes_app.agent`](hermes_app/agent.py#L1) load environment state via `dotenv` and then consume [`get_settings()`](config.py#L200)
+
+### Observed configuration-related files
+
+| File | Purpose |
+|------|---------|
+| [`config.py`](config.py#L1) | Central settings model and validation logic |
+| [`agent.py`](agent.py#L1) | Entry-point bootstrap that loads env state before orchestrator startup |
+| [`hermes_app/agent.py`](hermes_app/agent.py#L1) | App bootstrap that also loads env state before importing runtime modules |
+
+> **Sources:** `config.py` · L1–L201 · [`Settings`](config.py#L7), [`get_settings`](config.py#L200); `agent.py` · L1–L?; `hermes_app/agent.py` · L1–L?
 
 ## Configuration Reference
 
-The analysis exposes one explicitly observable setting and one implied optional runtime input. The table below is limited to what can be supported from the code and tests.
+The analysis data only exposes the [`Settings`](config.py#L7) class and three methods, but not the field declarations themselves. As a result, this section is split into two parts:
 
-### `config.MEMORY_BANK_RESOURCE_NAME`
+1. **What is directly observable** from the static analysis
+2. **What is implied** by the runtime and validation helpers
 
-This setting is accessed indirectly through [`get_settings`](memory/memory_bank.py#L41-L74) and [`build_memory_bank`](memory/memory_bank.py#L411-L427). When it is missing or empty, [`build_memory_bank`](memory/memory_bank.py#L411-L427) returns `None`, allowing the application to continue without memory-backed personalization.
+### `Settings` model
 
-| Key | Type | Default | Required | Description |
-|-----|------|---------|----------|-------------|
-| `MEMORY_BANK_RESOURCE_NAME` | string | `None` / empty | No | Full Vertex AI Agent Engine resource name used to connect to an existing memory bank, e.g. `projects/.../locations/.../reasoningEngines/...`. If unset or blank, memory bank construction is skipped and the feature is disabled gracefully. |
+[`Settings`](config.py#L7) inherits from [`BaseSettings`](config.py#L7), so configuration values are resolved from environment variables and defaults according to `pydantic_settings` conventions. The class also includes helpers for CORS parsing, LiteLLM environment injection, and RAG region validation.
 
-### `project` and `location` parameters for client construction
-
-These are not file-based configuration keys, but they are configuration inputs that affect runtime behavior in [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41-L74) and [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432-L498). If the caller does not supply them, `_get_vertexai_client` falls back to settings values via `get_settings()`.
+#### Directly observable fields and behaviors
 
 | Key | Type | Default | Required | Description |
 |-----|------|---------|----------|-------------|
-| `project` | string | Settings fallback | No | Google Cloud project used when creating a Vertex AI client or Agent Engine resource. If omitted, the function falls back to configured settings. |
-| `location` | string | Settings fallback | No | Vertex AI region used for client/resource creation. If omitted, the function falls back to configured settings. |
-| `display_name` | string | Internal default (not fully visible in analysis) | No | Human-readable name for a newly created memory-bank Agent Engine. Tests show the function supports a custom `display_name` and searches existing engines by this value. |
+| `cors_origins_list` | computed property / helper | N/A | No | Parses a comma-separated CORS origin string into a list via [`Settings.cors_origins_list`](config.py#L143) |
+| `inject_litellm_env()` | method | N/A | No | Exports provider API keys into process environment variables for LiteLLM via [`Settings.inject_litellm_env`](config.py#L146) |
+| `validate_rag_regions()` | method | N/A | No | Validates that configured RAG corpus resource names match the configured GCP region via [`Settings.validate_rag_regions`](config.py#L166) |
 
-> **Sources:** `memory/memory_bank.py` · L41–L74, L411–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41) · [`build_memory_bank`](memory/memory_bank.py#L411) · [`create_memory_bank`](memory/memory_bank.py#L432)
+#### Configuration keys implied by validation helpers
+
+The code references specific setting names in logic, but the symbol extraction does not include field declarations or exact defaults. The following keys are therefore **inferred from method bodies and import relationships**, not fully enumerated as field definitions in the analysis payload:
+
+| Key | Type | Default | Required | Description |
+|-----|------|---------|----------|-------------|
+| `cors_origins` | string or list-like string | Not visible in analysis | Unknown | Parsed by [`Settings.cors_origins_list`](config.py#L143) into a list of origins |
+| provider API key fields | string | Not visible in analysis | Unknown | Consumed by [`Settings.inject_litellm_env`](config.py#L146) and exported into `os.environ` for LiteLLM |
+| RAG corpus resource name fields | string | Not visible in analysis | Unknown | Checked by [`Settings.validate_rag_regions`](config.py#L166) for region consistency |
+| `gcp_location` | string | Not visible in analysis | Unknown | Used as the reference region in [`Settings.validate_rag_regions`](config.py#L166) |
+
+Because the field definitions are not present in the analysis data, I cannot truthfully list more keys or defaults without inventing them.
+
+### Runtime consumers of settings
+
+The settings model is consumed by the agent builders:
+
+- [`build_aggregator_agent(settings)`](agents/aggregator.py#L70) in [`agents/aggregator.py`](agents/aggregator.py#L1)
+- [`build_task_agent(settings, specialist_agents)`](agents/task_agent.py#L115) in [`agents/task_agent.py`](agents/task_agent.py#L1)
+- [`build_dynamic_parallel_dispatcher(settings, task)`](agents/task_agent.py#L191) in the same module
+
+This makes `config.py` a shared dependency for the runtime agent graph.
+
+> **Sources:** `config.py` · L7–L201 · [`Settings`](config.py#L7), [`Settings.cors_origins_list`](config.py#L143), [`Settings.inject_litellm_env`](config.py#L146), [`Settings.validate_rag_regions`](config.py#L166), [`get_settings`](config.py#L200); `agents/aggregator.py` · L1–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70); `agents/task_agent.py` · L1–L237 · [`build_task_agent`](agents/task_agent.py#L115), [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)
 
 ## Configuration Examples
 
-Because no standalone config files were found, the examples below show the minimum observable runtime configuration in a Python-centric style.
+Because the analysis data does not expose the concrete field list from [`Settings`](config.py#L7), the examples below are intentionally conservative and only demonstrate the **configuration patterns evidenced by the code**: environment-driven startup, comma-separated CORS origins, provider key injection, and RAG region alignment.
 
 ### Minimal configuration
 
-This is the smallest viable setup for enabling memory support: define the memory bank resource name in the settings layer and let the code build a `HermesMemoryBank` from it.
+```dotenv
+# Minimal runtime environment
+GCP_LOCATION=us-central1
+CORS_ORIGINS=https://example.com
 
-```python
-# config.py (conceptual example based on runtime behavior)
-MEMORY_BANK_RESOURCE_NAME = "projects/my-project/locations/us-central1/reasoningEngines/1234567890"
+# Provider credentials expected by the settings model
+OPENAI_API_KEY=...
+ANTHROPIC_API_KEY=...
 ```
-
-With that value present, [`build_memory_bank`](memory/memory_bank.py#L411-L427) can return a [`HermesMemoryBank`](memory/memory_bank.py#L79-L406) instance; without it, the function returns `None`.
 
 ### Full-featured configuration
 
-A fuller setup includes explicit client/resource parameters and a custom display name for provisioning a new backend via [`create_memory_bank`](memory/memory_bank.py#L432-L498).
+```dotenv
+# Application/runtime
+GCP_LOCATION=us-central1
+CORS_ORIGINS=https://app.example.com,https://admin.example.com
 
-```python
-# config.py (conceptual example based on runtime behavior)
-MEMORY_BANK_RESOURCE_NAME = "projects/my-project/locations/us-central1/reasoningEngines/1234567890"
-PROJECT = "my-project"
-LOCATION = "us-central1"
+# LiteLLM/provider integration
+OPENAI_API_KEY=...
+ANTHROPIC_API_KEY=...
+GOOGLE_API_KEY=...
 
-# When provisioning a new memory bank, the call may use:
-# create_memory_bank(project=PROJECT, location=LOCATION, display_name="hermes-memory-bank")
+# RAG-related resources must match GCP_LOCATION region
+RAG_CORPUS_RESOURCE_NAME_1=projects/.../locations/us-central1/...
+RAG_CORPUS_RESOURCE_NAME_2=projects/.../locations/us-central1/...
+
+# Optional operational settings
+LOG_LEVEL=INFO
 ```
 
-This matches the code path that resolves project/location from explicit arguments or settings, then creates or reuses an Agent Engine resource before returning its resource name.
+These examples are illustrative rather than exhaustive. The only guaranteed behavior from the analysis is that [`Settings.cors_origins_list`](config.py#L143) parses comma-separated origins, [`Settings.inject_litellm_env`](config.py#L146) pushes provider keys into the environment, and [`Settings.validate_rag_regions`](config.py#L166) compares corpus resource locations against the configured region.
 
-> **Sources:** `memory/memory_bank.py` · L41–L74, L411–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41) · [`build_memory_bank`](memory/memory_bank.py#L411) · [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `config.py` · L143–L196 · [`Settings.cors_origins_list`](config.py#L143), [`Settings.inject_litellm_env`](config.py#L146), [`Settings.validate_rag_regions`](config.py#L166)
 
 ## Runtime Configuration
 
-The available runtime overrides are inferred from the function signatures and the tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1-L495).
+The repository snapshot shows two bootstrap paths that load environment state before creating runtime objects:
 
-### Explicit function arguments
+- [`agent.py`](agent.py#L1)
+- [`hermes_app/agent.py`](hermes_app/agent.py#L1)
 
-The following inputs override settings-based defaults when the functions are called directly:
+Both import `dotenv` and `os`, which strongly indicates that `.env`-style variables are loaded at process start before [`config`](config.py#L1) is consumed.
 
-| Override | Applies to | Behavior |
-|----------|------------|----------|
-| `project` | [`_get_vertexai_client`](memory/memory_bank.py#L41-L74), [`create_memory_bank`](memory/memory_bank.py#L432-L498) | If provided, it takes precedence over values from `get_settings()`. |
-| `location` | [`_get_vertexai_client`](memory/memory_bank.py#L41-L74), [`create_memory_bank`](memory/memory_bank.py#L432-L498) | If provided, it takes precedence over values from `get_settings()`. |
-| `display_name` | [`create_memory_bank`](memory/memory_bank.py#L432-L498) | Changes the friendly name used to search for existing Agent Engine resources before creating a new one. |
-| `dry_run` | [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187-L225) | Prevents deletion and returns the count of memories that would be deleted. |
-| `top_k` | [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331-L367) | Controls how many relevant memories the SDK should return. |
-| `max_tokens` | [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381-L406) | Caps prompt-snippet size when formatting fetched memories. |
+### Observed override mechanisms
 
-### Environment variables
+| Override mechanism | Evidence | Notes |
+|-------------------|----------|------|
+| Environment variables | [`config.py`](config.py#L1), [`agent.py`](agent.py#L1), [`hermes_app/agent.py`](hermes_app/agent.py#L1) | Primary runtime source of truth |
+| `.env` files via `dotenv` | [`agent.py`](agent.py#L1), [`hermes_app/agent.py`](hermes_app/agent.py#L1) | Loaded during bootstrap, though no concrete `.env` file is present in `files_seen` |
+| CLI flags | [`scripts/demo/cloud_smoke_test.py`](scripts/demo/cloud_smoke_test.py#L164) | Present only for the smoke-test script, not the main app settings model |
 
-No environment-variable parser or `.env` file was visible in the provided analysis. However, because the code relies on a `config` module, environment variables may still be used indirectly by that module. That mechanism is not evidenced here, so it should be treated as an implementation detail outside the analyzed files.
+### CLI flags in the smoke test script
 
-### CLI flags
+The entry point [`parse_args(argv)`](scripts/demo/cloud_smoke_test.py#L164) defines the following command-line parameters:
 
-No CLI entry points or command-line flags are present in the analysis data. There is no evidence of direct command-line overrides for configuration in this snapshot.
+| Flag | Type | Default | Required | Description |
+|------|------|---------|----------|-------------|
+| `--mode` | string/enum-like | auto-detected | No | Selects gateway or SDK probing mode via [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158) |
+| `--gateway-url` | string | environment-derived / inferred | No | Gateway endpoint used by [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) |
+| `--message` | string | not visible in analysis | No | Prompt passed to either gateway or SDK probe |
+| `--bearer-token` | string | not visible in analysis | No | Authorization header input for gateway requests |
+| `--api-key` | string | not visible in analysis | No | API key auth alternative for gateway requests |
+| `--project-id` | string | not visible in analysis | No | Vertex AI project ID used by [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) |
+| `--location` | string | not visible in analysis | No | Vertex AI location used by [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) |
+| `--reasoning-engine-resource-name` | string | not visible in analysis | No | Reasoning Engine resource identifier used by [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) |
+| `--user-id` | string | not visible in analysis | No | User identifier passed to the SDK query |
+| `--timeout-s` | int | not visible in analysis | No | HTTP timeout used by [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) |
 
-> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41) · [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187) · [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) · [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381) · [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/memory/test_memory_bank.py` · L1–L495
+The smoke test’s main flow is:
+
+```mermaid
+sequenceDiagram
+    participant CLI as parse_args
+    participant Main as main
+    participant Mode as _detect_mode
+    participant GW as probe_gateway
+    participant SDK as probe_sdk
+
+    CLI->>Main: argv
+    Main->>Mode: requested_mode, gateway_url
+    alt gateway mode
+        Main->>GW: gateway_url, message, bearer_token, api_key, timeout_s
+    else sdk mode
+        Main->>SDK: project_id, location, reasoning_engine_resource_name, user_id, message, client_factory
+    end
+```
+
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L158–L212 · [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158), [`parse_args`](scripts/demo/cloud_smoke_test.py#L164), [`main`](scripts/demo/cloud_smoke_test.py#L183), [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118); `agent.py` · L1–L?; `hermes_app/agent.py` · L1–L?
 
 ## Validation
 
-There is no evidence of Pydantic models, JSON Schema, or formal config-file validation in the provided repository slice. Validation appears to be done defensively at runtime through conditional checks and exception handling in the Python code.
+Validation is implemented in [`config.py`](config.py#L1) using **Pydantic settings**:
 
-### Observed validation and fallback behavior
+- [`Settings`](config.py#L7) inherits from [`BaseSettings`](config.py#L7), so value resolution, type coercion, and environment-variable binding are handled by `pydantic_settings`
+- [`Settings.cors_origins_list`](config.py#L143) performs manual parsing of a comma-separated string into individual origins
+- [`Settings.inject_litellm_env`](config.py#L146) mutates `os.environ` so downstream LiteLLM integration can read provider credentials
+- [`Settings.validate_rag_regions`](config.py#L166) performs domain-specific validation that corpus resource locations match `gcp_location`
 
-- [`build_memory_bank`](memory/memory_bank.py#L411-L427) checks whether `MEMORY_BANK_RESOURCE_NAME` is present. If it is missing or empty, the function returns `None`.
-- [`_get_vertexai_client`](memory/memory_bank.py#L41-L74) falls back to settings when `project` or `location` are not passed explicitly.
-- Several methods wrap SDK calls in `try/except` blocks and degrade gracefully:
-  - [`generate_memories`](memory/memory_bank.py#L105-L141) swallows exceptions and logs debug output.
-  - [`fetch_memories`](memory/memory_bank.py#L331-L367) returns an empty list on failure.
-  - [`format_for_prompt`](memory/memory_bank.py#L381-L406) returns an empty string if no memories are available or retrieval fails.
-  - [`purge_memories`](memory/memory_bank.py#L187-L225) returns `0` on exception.
-  - [`delete_memory`](memory/memory_bank.py#L227-L248), [`create_memory`](memory/memory_bank.py#L250-L283), and [`update_memory`](memory/memory_bank.py#L285-L313) return failure indicators rather than propagating SDK exceptions.
-- [`create_memory_bank`](memory/memory_bank.py#L432-L498) searches existing engines before creating a new one and raises a `RuntimeError` only when the SDK returns an unexpected result shape.
+### Validation behavior observed
 
-### Test evidence for validation paths
+| Validation step | Implementation | Outcome |
+|----------------|----------------|---------|
+| Type coercion and environment binding | [`BaseSettings`](config.py#L7) via `pydantic_settings` | Automatic |
+| CORS origin normalization | [`Settings.cors_origins_list`](config.py#L143) | Splits and trims a comma-separated list |
+| LiteLLM env injection | [`Settings.inject_litellm_env`](config.py#L146) | Copies provider keys into process env |
+| RAG region consistency | [`Settings.validate_rag_regions`](config.py#L166) | Returns warning strings when corpus region mismatches `gcp_location` |
 
-The tests explicitly exercise the fallback and failure behavior:
-- missing/empty `MEMORY_BANK_RESOURCE_NAME` returns `None` in [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222-L268)
-- SDK errors are swallowed in [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58-L111), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116-L155), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173-L217), [`TestPurgeMemories`](tests/memory/test_memory_bank.py#L378-L406), [`TestDeleteMemory`](tests/memory/test_memory_bank.py#L411-L429), [`TestCreateMemory`](tests/memory/test_memory_bank.py#L434-L455), and [`TestUpdateMemory`](tests/memory/test_memory_bank.py#L460-L482)
+### Startup validation intent
 
-In short, configuration validation is pragmatic rather than schema-driven: values are checked just enough to decide whether to enable memory support, and operational errors are contained to preserve application availability.
+The docstring on [`Settings.validate_rag_regions`](config.py#L166) explicitly recommends calling it at startup “to catch cross-region mismatches before the first request.” That implies validation is expected to happen early in the lifecycle rather than lazily during request handling.
 
-> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41) · [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105) · [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) · [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381) · [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187) · [`build_memory_bank`](memory/memory_bank.py#L411) · [`create_memory_bank`](memory/memory_bank.py#L432)
+### What is not visible in the analysis
+
+The analysis payload does not show:
+
+- exact setting field names on [`Settings`](config.py#L7)
+- default values for those fields
+- whether validation is enforced through Pydantic field validators, model validators, or only helper methods
+- whether `get_settings()` caches the model instance via `functools`
+
+So the safest conclusion is that configuration validation is a **hybrid** of Pydantic settings parsing plus explicit runtime helper checks.
+
+> **Sources:** `config.py` · L7–L201 · [`Settings`](config.py#L7), [`Settings.cors_origins_list`](config.py#L143), [`Settings.inject_litellm_env`](config.py#L146), [`Settings.validate_rag_regions`](config.py#L166), [`get_settings`](config.py#L200)
+
+## Notes on Coverage Gaps
+
+This repository snapshot is configuration-light from a file perspective. Although the code clearly depends on runtime settings, the analysis data does not include any explicit YAML/TOML/JSON config files or the full field declarations inside [`Settings`](config.py#L7). If you want a complete key-by-key reference with defaults and requiredness, the next step would be to inspect the source of [`config.py`](config.py#L1) directly.

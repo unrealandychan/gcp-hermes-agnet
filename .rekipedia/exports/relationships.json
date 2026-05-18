@@ -1,2305 +1,1969 @@
 [
   {
-    "from": "memory.memory_bank",
+    "from": "scripts.demo.cloud_smoke_test",
     "to": "__future__",
     "kind": "imports",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 1.0,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "memory.memory_bank",
-    "to": "asyncio",
+    "from": "scripts.demo.cloud_smoke_test",
+    "to": "argparse",
     "kind": "imports",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 1.0,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "memory.memory_bank",
+    "from": "scripts.demo.cloud_smoke_test",
+    "to": "json",
+    "kind": "imports",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "scripts.demo.cloud_smoke_test",
     "to": "logging",
     "kind": "imports",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 1.0,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "memory.memory_bank",
+    "from": "scripts.demo.cloud_smoke_test",
+    "to": "os",
+    "kind": "imports",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "scripts.demo.cloud_smoke_test",
+    "to": "sys",
+    "kind": "imports",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "scripts.demo.cloud_smoke_test",
+    "to": "dataclasses",
+    "kind": "imports",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "scripts.demo.cloud_smoke_test",
     "to": "typing",
     "kind": "imports",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 1.0,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "memory.memory_bank",
+    "from": "scripts.demo.cloud_smoke_test",
+    "to": "httpx",
+    "kind": "imports",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "scripts.demo.cloud_smoke_test",
     "to": "vertexai",
     "kind": "imports",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 1.0,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "memory.memory_bank",
+    "from": "scripts.demo.cloud_smoke_test",
     "to": "vertexai",
     "kind": "imports",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 1.0,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "memory.memory_bank",
-    "to": "config",
-    "kind": "imports",
-    "file": "memory/memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "memory.memory_bank",
-    "to": "config",
-    "kind": "imports",
-    "file": "memory/memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_get_vertexai_client",
-    "to": "VertexClient",
+    "from": "probe_gateway",
+    "to": "_auth_headers",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_get_vertexai_client",
-    "to": "ImportError",
+    "from": "probe_gateway",
+    "to": "splitlines",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_get_vertexai_client",
-    "to": "ImportError",
+    "from": "probe_gateway",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_get_vertexai_client",
-    "to": "get_settings",
+    "from": "probe_gateway",
+    "to": "rstrip",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_get_vertexai_client",
-    "to": "getattr",
+    "from": "probe_gateway",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "_get_vertexai_client",
-    "to": "getattr",
+    "from": "probe_gateway",
+    "to": "strip",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "HermesMemoryBank._ensure_client",
-    "to": "_get_vertexai_client",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.generate_memories",
-    "to": "_ensure_client",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.generate_memories",
-    "to": "generate",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.generate_memories",
-    "to": "debug",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.generate_memories",
-    "to": "to_thread",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.generate_memories",
-    "to": "exception",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.ingest_events",
-    "to": "_ensure_client",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.ingest_events",
-    "to": "ingest_events",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.ingest_events",
-    "to": "debug",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.ingest_events",
+    "from": "probe_gateway",
     "to": "get",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "HermesMemoryBank.ingest_events",
-    "to": "get",
+    "from": "probe_gateway",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "HermesMemoryBank.ingest_events",
-    "to": "append",
+    "from": "probe_gateway",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "HermesMemoryBank.ingest_events",
-    "to": "to_thread",
+    "from": "probe_gateway",
+    "to": "replace",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "HermesMemoryBank.ingest_events",
-    "to": "len",
+    "from": "probe_gateway",
+    "to": "Client",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "HermesMemoryBank.ingest_events",
-    "to": "exception",
+    "from": "probe_gateway",
+    "to": "post",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "HermesMemoryBank.purge_memories",
-    "to": "_ensure_client",
+    "from": "probe_gateway",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "HermesMemoryBank.purge_memories",
-    "to": "list",
+    "from": "probe_gateway",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "HermesMemoryBank.purge_memories",
-    "to": "len",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.purge_memories",
-    "to": "info",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.purge_memories",
-    "to": "list",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.purge_memories",
-    "to": "purge",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.purge_memories",
-    "to": "to_thread",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.purge_memories",
-    "to": "exception",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.delete_memory",
-    "to": "_ensure_client",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.delete_memory",
-    "to": "delete",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.delete_memory",
-    "to": "debug",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.delete_memory",
-    "to": "to_thread",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.delete_memory",
-    "to": "exception",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.create_memory",
-    "to": "_ensure_client",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.create_memory",
-    "to": "create",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.create_memory",
-    "to": "getattr",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.create_memory",
-    "to": "debug",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.create_memory",
-    "to": "to_thread",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.create_memory",
-    "to": "exception",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.update_memory",
-    "to": "_ensure_client",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.update_memory",
-    "to": "update",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.update_memory",
-    "to": "debug",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.update_memory",
-    "to": "to_thread",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.update_memory",
-    "to": "exception",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.retrieve_profiles",
-    "to": "debug",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.fetch_memories",
-    "to": "_ensure_client",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.fetch_memories",
-    "to": "retrieve",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.fetch_memories",
-    "to": "debug",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.fetch_memories",
-    "to": "getattr",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.fetch_memories",
-    "to": "to_thread",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.fetch_memories",
-    "to": "len",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.fetch_memories",
-    "to": "exception",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.fetch_memories",
-    "to": "str",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.list_revisions",
-    "to": "debug",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.format_for_prompt",
-    "to": "join",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.format_for_prompt",
-    "to": "fetch_memories",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.format_for_prompt",
-    "to": "append",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.format_for_prompt",
-    "to": "len",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "HermesMemoryBank.format_for_prompt",
-    "to": "len",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "build_memory_bank",
-    "to": "get_settings",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "build_memory_bank",
-    "to": "getattr",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "build_memory_bank",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "build_memory_bank",
-    "to": "info",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "build_memory_bank",
-    "to": "exception",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "_get_vertexai_client",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "create",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "_engine_resource_name",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "info",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "getattr",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "getattr",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "list",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "RuntimeError",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "getattr",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "getattr",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "getattr",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "getattr",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "_engine_resource_name",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "create_memory_bank",
-    "to": "info",
-    "kind": "calls",
-    "file": "memory/memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.memory.test_memory_bank",
-    "to": "__future__",
-    "kind": "imports",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.memory.test_memory_bank",
-    "to": "types",
-    "kind": "imports",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.memory.test_memory_bank",
-    "to": "unittest.mock",
-    "kind": "imports",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.memory.test_memory_bank",
-    "to": "pytest",
-    "kind": "imports",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.memory.test_memory_bank",
-    "to": "memory.memory_bank",
-    "kind": "imports",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.memory.test_memory_bank",
-    "to": "config",
-    "kind": "imports",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.memory.test_memory_bank",
-    "to": "config",
-    "kind": "imports",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.memory.test_memory_bank",
-    "to": "config",
-    "kind": "imports",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "tests.memory.test_memory_bank",
-    "to": "config",
-    "kind": "imports",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 1.0,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_make_mock_client",
-    "to": "MagicMock",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_make_mock_client",
-    "to": "MagicMock",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_make_mock_client",
-    "to": "MagicMock",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_make_engine",
-    "to": "SimpleNamespace",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_make_engine",
-    "to": "SimpleNamespace",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "_make_memory",
-    "to": "SimpleNamespace",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_calls_memories_generate",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_calls_memories_generate",
-    "to": "assert_called_once",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_calls_memories_generate",
-    "to": "any",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_calls_memories_generate",
-    "to": "any",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_calls_memories_generate",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_calls_memories_generate",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_calls_memories_generate",
-    "to": "generate_memories",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_with_agent_name_in_events",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_with_agent_name_in_events",
-    "to": "next",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_with_agent_name_in_events",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_with_agent_name_in_events",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_success_with_agent_name_in_events",
-    "to": "generate_memories",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_exception_is_swallowed",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_exception_is_swallowed",
-    "to": "RuntimeError",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_exception_is_swallowed",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_exception_is_swallowed",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_exception_is_swallowed",
-    "to": "generate_memories",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_client_is_lazily_initialised",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_client_is_lazily_initialised",
-    "to": "assert_called_once",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_client_is_lazily_initialised",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_client_is_lazily_initialised",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestGenerateMemories.test_client_is_lazily_initialised",
-    "to": "generate_memories",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_fact_strings",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_fact_strings",
-    "to": "iter",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_fact_strings",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_fact_strings",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_fact_strings",
-    "to": "_make_memory",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_fact_strings",
-    "to": "_make_memory",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_fact_strings",
-    "to": "fetch_memories",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_empty_list_on_error",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_empty_list_on_error",
-    "to": "Exception",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_empty_list_on_error",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_empty_list_on_error",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_returns_empty_list_on_error",
-    "to": "fetch_memories",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_passes_top_k_and_scope_to_sdk",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_passes_top_k_and_scope_to_sdk",
-    "to": "iter",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_passes_top_k_and_scope_to_sdk",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_passes_top_k_and_scope_to_sdk",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_passes_top_k_and_scope_to_sdk",
-    "to": "fetch_memories",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
-    "to": "__new__",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
-    "to": "iter",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
-    "to": "isinstance",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
-    "to": "len",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
-    "to": "fetch_memories",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestListRevisions.test_returns_empty_list",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestListRevisions.test_returns_empty_list",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestListRevisions.test_returns_empty_list",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestListRevisions.test_returns_empty_list",
-    "to": "list_revisions",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_formatted_string_with_header",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_formatted_string_with_header",
-    "to": "iter",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_formatted_string_with_header",
+    "from": "probe_gateway",
     "to": "startswith",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestFormatForPrompt.test_returns_formatted_string_with_header",
-    "to": "patch",
+    "from": "probe_gateway",
+    "to": "loads",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestFormatForPrompt.test_returns_formatted_string_with_header",
-    "to": "HermesMemoryBank",
+    "from": "probe_gateway",
+    "to": "str",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestFormatForPrompt.test_returns_formatted_string_with_header",
-    "to": "_make_memory",
+    "from": "probe_gateway",
+    "to": "removeprefix",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestFormatForPrompt.test_returns_formatted_string_with_header",
-    "to": "_make_memory",
+    "from": "probe_gateway",
+    "to": "get",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestFormatForPrompt.test_returns_formatted_string_with_header",
-    "to": "format_for_prompt",
+    "from": "probe_gateway",
+    "to": "str",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_no_memories",
-    "to": "_make_mock_client",
+    "from": "probe_gateway",
+    "to": "strip",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_no_memories",
-    "to": "iter",
+    "from": "probe_gateway",
+    "to": "get",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_no_memories",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_no_memories",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_no_memories",
-    "to": "format_for_prompt",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_fetch_fails",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_fetch_fails",
-    "to": "Exception",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_fetch_fails",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_fetch_fails",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_returns_empty_string_when_fetch_fails",
-    "to": "format_for_prompt",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_respects_max_tokens_budget",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_respects_max_tokens_budget",
-    "to": "iter",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_respects_max_tokens_budget",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_respects_max_tokens_budget",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_respects_max_tokens_budget",
-    "to": "_make_memory",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_respects_max_tokens_budget",
-    "to": "_make_memory",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestFormatForPrompt.test_respects_max_tokens_budget",
-    "to": "format_for_prompt",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestBuildMemoryBank.test_returns_none_when_resource_name_not_set",
-    "to": "SimpleNamespace",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestBuildMemoryBank.test_returns_none_when_resource_name_not_set",
-    "to": "build_memory_bank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestBuildMemoryBank.test_returns_none_when_resource_name_is_empty_string",
-    "to": "SimpleNamespace",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestBuildMemoryBank.test_returns_none_when_resource_name_is_empty_string",
-    "to": "build_memory_bank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestBuildMemoryBank.test_returns_hermes_memory_bank_when_configured",
-    "to": "SimpleNamespace",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestBuildMemoryBank.test_returns_hermes_memory_bank_when_configured",
+    "from": "_extract_response_text",
     "to": "isinstance",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestBuildMemoryBank.test_returns_hermes_memory_bank_when_configured",
-    "to": "build_memory_bank",
+    "from": "_extract_response_text",
+    "to": "isinstance",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestBuildMemoryBank.test_returns_none_on_exception",
-    "to": "MagicMock",
+    "from": "_extract_response_text",
+    "to": "getattr",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestBuildMemoryBank.test_returns_none_on_exception",
-    "to": "build_memory_bank",
+    "from": "_extract_response_text",
+    "to": "str",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestBuildMemoryBank.test_returns_none_on_exception",
-    "to": "RuntimeError",
+    "from": "_extract_response_text",
+    "to": "str",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_creates_and_returns_resource_name",
-    "to": "_make_mock_client",
+    "from": "_extract_response_text",
+    "to": "str",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_creates_and_returns_resource_name",
-    "to": "_make_engine",
+    "from": "_extract_response_text",
+    "to": "get",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_creates_and_returns_resource_name",
-    "to": "iter",
+    "from": "_extract_response_text",
+    "to": "get",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_creates_and_returns_resource_name",
-    "to": "assert_called_once",
+    "from": "probe_sdk",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_creates_and_returns_resource_name",
-    "to": "patch",
+    "from": "probe_sdk",
+    "to": "init",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_creates_and_returns_resource_name",
-    "to": "create_memory_bank",
+    "from": "probe_sdk",
+    "to": "get_reasoning_engine",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_returns_existing_engine_when_display_name_matches",
-    "to": "_make_mock_client",
+    "from": "probe_sdk",
+    "to": "query",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_returns_existing_engine_when_display_name_matches",
-    "to": "_make_engine",
+    "from": "probe_sdk",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_returns_existing_engine_when_display_name_matches",
-    "to": "iter",
+    "from": "probe_sdk",
+    "to": "client_factory",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_returns_existing_engine_when_display_name_matches",
-    "to": "assert_not_called",
+    "from": "probe_sdk",
+    "to": "AgentEngineClient",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_returns_existing_engine_when_display_name_matches",
-    "to": "patch",
+    "from": "probe_sdk",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_returns_existing_engine_when_display_name_matches",
-    "to": "create_memory_bank",
+    "from": "probe_sdk",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "to": "_make_mock_client",
+    "from": "probe_sdk",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "to": "_make_engine",
+    "from": "probe_sdk",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "to": "_make_engine",
+    "from": "probe_sdk",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "to": "iter",
+    "from": "probe_sdk",
+    "to": "exception",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "to": "assert_called_once",
+    "from": "probe_sdk",
+    "to": "SmokeResult",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "to": "patch",
+    "from": "probe_sdk",
+    "to": "replace",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "to": "create_memory_bank",
+    "from": "probe_sdk",
+    "to": "strip",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_uses_custom_display_name",
-    "to": "_make_mock_client",
+    "from": "probe_sdk",
+    "to": "_extract_response_text",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_uses_custom_display_name",
-    "to": "_make_engine",
+    "from": "parse_args",
+    "to": "ArgumentParser",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_uses_custom_display_name",
-    "to": "iter",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_uses_custom_display_name",
-    "to": "patch",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_uses_custom_display_name",
-    "to": "create_memory_bank",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_proceeds_to_create_when_list_raises",
-    "to": "_make_mock_client",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_proceeds_to_create_when_list_raises",
-    "to": "Exception",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_proceeds_to_create_when_list_raises",
-    "to": "_make_engine",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_proceeds_to_create_when_list_raises",
-    "to": "patch",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemoryBank.test_proceeds_to_create_when_list_raises",
-    "to": "create_memory_bank",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_calls_memories_ingest_events",
-    "to": "_make_mock_client",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_calls_memories_ingest_events",
-    "to": "assert_called_once",
+    "from": "parse_args",
+    "to": "add_argument",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_calls_memories_ingest_events",
-    "to": "patch",
+    "from": "parse_args",
+    "to": "parse_args",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_calls_memories_ingest_events",
-    "to": "HermesMemoryBank",
+    "from": "parse_args",
+    "to": "get",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_calls_memories_ingest_events",
+    "from": "parse_args",
+    "to": "get",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "parse_args",
+    "to": "get",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "parse_args",
+    "to": "get",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "parse_args",
+    "to": "get",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "parse_args",
+    "to": "get",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "parse_args",
+    "to": "get",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "parse_args",
+    "to": "get",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "parse_args",
+    "to": "int",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "parse_args",
+    "to": "get",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "main",
+    "to": "parse_args",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "main",
+    "to": "_detect_mode",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "main",
+    "to": "print",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "main",
+    "to": "probe_gateway",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "main",
+    "to": "probe_sdk",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "main",
+    "to": "print",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "main",
+    "to": "print",
+    "kind": "calls",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.aggregator",
+    "to": "__future__",
+    "kind": "imports",
+    "file": "agents/aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.aggregator",
+    "to": "google.adk.agents",
+    "kind": "imports",
+    "file": "agents/aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.aggregator",
+    "to": "config",
+    "kind": "imports",
+    "file": "agents/aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.aggregator",
+    "to": "models.provider",
+    "kind": "imports",
+    "file": "agents/aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_aggregator_agent",
+    "to": "LlmAgent",
+    "kind": "calls",
+    "file": "agents/aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_aggregator_agent",
+    "to": "get_model",
+    "kind": "calls",
+    "file": "agents/aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "__future__",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "logging",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "google.adk.agents",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "config",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "memory.skill_learning",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "models.provider",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "agents.aggregator",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "agents.analytics",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "agents.developer",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "agents.hr",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "agents.it_helpdesk",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "agents.aggregator",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "agents.synthesizer",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agents.task_agent",
+    "to": "agents.synthesizer",
+    "kind": "imports",
+    "file": "agents/task_agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "ParallelAgent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "build_aggregator_agent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "SequentialAgent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "LlmAgent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "build_analytics_agent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "build_hr_agent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "build_it_helpdesk_agent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "build_developer_agent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "list",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "get_model",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_task_agent",
+    "to": "build_skill_learning_callback",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_dynamic_parallel_dispatcher",
+    "to": "AgentSynthesizer",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_dynamic_parallel_dispatcher",
+    "to": "synthesise",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_dynamic_parallel_dispatcher",
+    "to": "synthesise",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_dynamic_parallel_dispatcher",
+    "to": "ParallelAgent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_dynamic_parallel_dispatcher",
+    "to": "build_aggregator_agent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_dynamic_parallel_dispatcher",
+    "to": "SequentialAgent",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_dynamic_parallel_dispatcher",
+    "to": "warning",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "build_dynamic_parallel_dispatcher",
+    "to": "_S",
+    "kind": "calls",
+    "file": "agents/task_agent.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "hermes_app.agent",
+    "to": "sys",
+    "kind": "imports",
+    "file": "hermes_app/agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "hermes_app.agent",
+    "to": "os",
+    "kind": "imports",
+    "file": "hermes_app/agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "hermes_app.agent",
+    "to": "dotenv",
+    "kind": "imports",
+    "file": "hermes_app/agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "hermes_app.agent",
+    "to": "config",
+    "kind": "imports",
+    "file": "hermes_app/agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "hermes_app.agent",
+    "to": "agents.orchestrator",
+    "kind": "imports",
+    "file": "hermes_app/agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agent",
+    "to": "os",
+    "kind": "imports",
+    "file": "agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agent",
+    "to": "dotenv",
+    "kind": "imports",
+    "file": "agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agent",
+    "to": "config",
+    "kind": "imports",
+    "file": "agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "agent",
+    "to": "agents.orchestrator",
+    "kind": "imports",
+    "file": "agent.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "config",
+    "to": "functools",
+    "kind": "imports",
+    "file": "config.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "config",
+    "to": "pydantic_settings",
+    "kind": "imports",
+    "file": "config.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "config",
+    "to": "os",
+    "kind": "imports",
+    "file": "config.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "config",
+    "to": "re",
+    "kind": "imports",
+    "file": "config.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings.cors_origins_list",
+    "to": "strip",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings.cors_origins_list",
+    "to": "split",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings.cors_origins_list",
+    "to": "strip",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings.inject_litellm_env",
+    "to": "items",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings.validate_rag_regions",
+    "to": "compile",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings.validate_rag_regions",
+    "to": "items",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings.validate_rag_regions",
+    "to": "search",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings.validate_rag_regions",
+    "to": "group",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings.validate_rag_regions",
+    "to": "append",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "Settings",
+    "to": "BaseSettings",
+    "kind": "inherits",
+    "file": "config.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "get_settings",
+    "to": "Settings",
+    "kind": "calls",
+    "file": "config.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.agents.test_aggregator",
+    "to": "__future__",
+    "kind": "imports",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.agents.test_aggregator",
+    "to": "pytest",
+    "kind": "imports",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.agents.test_aggregator",
+    "to": "agents.aggregator",
+    "kind": "imports",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.agents.test_aggregator",
+    "to": "agents.task_agent",
+    "kind": "imports",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.agents.test_aggregator",
+    "to": "config",
+    "kind": "imports",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.agents.test_aggregator",
+    "to": "tests.conftest",
+    "kind": "imports",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.agents.test_aggregator",
+    "to": "agents.task_agent",
+    "kind": "imports",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.agents.test_aggregator",
+    "to": "tests.conftest",
+    "kind": "imports",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.agents.test_aggregator",
+    "to": "tests.conftest",
+    "kind": "imports",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "settings",
+    "to": "fixture",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "settings",
+    "to": "Settings",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "TestBuildAggregatorAgent.test_returns_llm_agent",
+    "to": "build_aggregator_agent",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "TestBuildAggregatorAgent.test_has_description",
+    "to": "build_aggregator_agent",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "TestBuildAggregatorAgent.test_has_description",
+    "to": "lower",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "TestBuildAggregatorAgent.test_has_description",
+    "to": "lower",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "TestBuildAggregatorAgent.test_no_tools",
+    "to": "build_aggregator_agent",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "TestBuildTaskAgentSequentialPipeline.test_first_sub_agent_is_sequential_pipeline",
+    "to": "build_task_agent",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "TestBuildTaskAgentSequentialPipeline.test_sequential_pipeline_has_two_children",
+    "to": "build_task_agent",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "TestBuildTaskAgentSequentialPipeline.test_sequential_pipeline_has_two_children",
     "to": "len",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_calls_memories_ingest_events",
-    "to": "ingest_events",
+    "from": "TestBuildTaskAgentSequentialPipeline.test_pipeline_first_child_is_parallel_dispatcher",
+    "to": "build_task_agent",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_normalises_agent_role_to_model",
-    "to": "_make_mock_client",
+    "from": "TestBuildTaskAgentSequentialPipeline.test_pipeline_second_child_is_aggregator",
+    "to": "build_task_agent",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_normalises_agent_role_to_model",
-    "to": "patch",
+    "from": "TestBuildTaskAgentSequentialPipeline.test_parallel_dispatcher_has_four_specialists",
+    "to": "build_task_agent",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_normalises_agent_role_to_model",
-    "to": "HermesMemoryBank",
+    "from": "TestBuildTaskAgentSequentialPipeline.test_parallel_dispatcher_has_four_specialists",
+    "to": "len",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_normalises_agent_role_to_model",
-    "to": "ingest_events",
+    "from": "TestBuildTaskAgentSequentialPipeline.test_specialist_agents_appended_for_sequential_fallback",
+    "to": "_FakeLlmAgent",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_exception_is_swallowed",
-    "to": "_make_mock_client",
+    "from": "TestBuildTaskAgentSequentialPipeline.test_specialist_agents_appended_for_sequential_fallback",
+    "to": "build_task_agent",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_exception_is_swallowed",
-    "to": "RuntimeError",
+    "from": "TestBuildTaskAgentSequentialPipeline.test_specialist_agents_appended_for_sequential_fallback",
+    "to": "len",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_exception_is_swallowed",
-    "to": "patch",
+    "from": "TestBuildDynamicParallelDispatcher.test_returns_none_when_no_agents_synthesised",
+    "to": "setattr",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_exception_is_swallowed",
-    "to": "HermesMemoryBank",
+    "from": "TestBuildDynamicParallelDispatcher.test_returns_none_when_no_agents_synthesised",
+    "to": "build_dynamic_parallel_dispatcher",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestIngestEvents.test_exception_is_swallowed",
-    "to": "ingest_events",
+    "from": "TestBuildDynamicParallelDispatcher.test_returns_none_when_no_agents_synthesised",
+    "to": "type",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_calls_purge_with_force_true",
-    "to": "_make_mock_client",
+    "from": "TestBuildDynamicParallelDispatcher.test_returns_sequential_pipeline_when_agents_found",
+    "to": "_FakeLlmAgent",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_calls_purge_with_force_true",
-    "to": "iter",
+    "from": "TestBuildDynamicParallelDispatcher.test_returns_sequential_pipeline_when_agents_found",
+    "to": "setattr",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_calls_purge_with_force_true",
-    "to": "assert_called_once",
+    "from": "TestBuildDynamicParallelDispatcher.test_returns_sequential_pipeline_when_agents_found",
+    "to": "build_dynamic_parallel_dispatcher",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_calls_purge_with_force_true",
-    "to": "patch",
+    "from": "TestBuildDynamicParallelDispatcher.test_dynamic_pipeline_ends_with_aggregator",
+    "to": "_FakeLlmAgent",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_calls_purge_with_force_true",
-    "to": "HermesMemoryBank",
+    "from": "TestBuildDynamicParallelDispatcher.test_dynamic_pipeline_ends_with_aggregator",
+    "to": "setattr",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/agents/test_aggregator.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_calls_purge_with_force_true",
+    "from": "TestBuildDynamicParallelDispatcher.test_dynamic_pipeline_ends_with_aggregator",
+    "to": "build_dynamic_parallel_dispatcher",
+    "kind": "calls",
+    "file": "tests/agents/test_aggregator.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.conftest",
+    "to": "__future__",
+    "kind": "imports",
+    "file": "tests/conftest.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.conftest",
+    "to": "os",
+    "kind": "imports",
+    "file": "tests/conftest.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.conftest",
+    "to": "sys",
+    "kind": "imports",
+    "file": "tests/conftest.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.conftest",
+    "to": "types",
+    "kind": "imports",
+    "file": "tests/conftest.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.conftest",
+    "to": "unittest.mock",
+    "kind": "imports",
+    "file": "tests/conftest.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.conftest",
+    "to": "functools",
+    "kind": "imports",
+    "file": "tests/conftest.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.conftest",
+    "to": "starlette.responses",
+    "kind": "imports",
+    "file": "tests/conftest.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_make_module",
+    "to": "ModuleType",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_make_module",
+    "to": "items",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_make_module",
+    "to": "setattr",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_FakeLlmAgent.__init__",
+    "to": "list",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_FakeLlmAgent.__init__",
+    "to": "list",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_FakeParallelAgent.__init__",
+    "to": "list",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_FakeSequentialAgent.__init__",
+    "to": "list",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_noop_limit",
+    "to": "wraps",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_noop_limit",
+    "to": "func",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_FakeEventSourceResponse.__init__",
+    "to": "__init__",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_FakeEventSourceResponse.__init__",
+    "to": "super",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_FakeEventSourceResponse",
+    "to": "_StarletteResponse",
+    "kind": "inherits",
+    "file": "tests/conftest.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
+    "to": "items",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
+    "to": "_make_module",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
+    "to": "_make_module",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
+    "to": "_make_module",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
+    "to": "_make_module",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
+    "to": "_make_module",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
+    "to": "_make_module",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
+    "to": "_make_module",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
+    "to": "_make_module",
+    "kind": "calls",
+    "file": "tests/conftest.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "_register_all",
     "to": "MagicMock",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/conftest.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_calls_purge_with_force_true",
+    "from": "_register_all",
     "to": "MagicMock",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/conftest.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_calls_purge_with_force_true",
+    "from": "tests.scripts.test_cloud_smoke_test",
+    "to": "__future__",
+    "kind": "imports",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.scripts.test_cloud_smoke_test",
+    "to": "types",
+    "kind": "imports",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.scripts.test_cloud_smoke_test",
+    "to": "unittest.mock",
+    "kind": "imports",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "tests.scripts.test_cloud_smoke_test",
+    "to": "scripts.demo",
+    "kind": "imports",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "test_probe_gateway_success_parses_sse_done",
     "to": "MagicMock",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_calls_purge_with_force_true",
-    "to": "purge_memories",
+    "from": "test_probe_gateway_success_parses_sse_done",
+    "to": "join",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_dry_run_skips_purge_call",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestPurgeMemories.test_dry_run_skips_purge_call",
-    "to": "iter",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestPurgeMemories.test_dry_run_skips_purge_call",
-    "to": "assert_not_called",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestPurgeMemories.test_dry_run_skips_purge_call",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestPurgeMemories.test_dry_run_skips_purge_call",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestPurgeMemories.test_dry_run_skips_purge_call",
+    "from": "test_probe_gateway_success_parses_sse_done",
     "to": "MagicMock",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_dry_run_skips_purge_call",
+    "from": "test_probe_gateway_success_parses_sse_done",
+    "to": "object",
+    "kind": "calls",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "test_probe_gateway_success_parses_sse_done",
+    "to": "probe_gateway",
+    "kind": "calls",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "test_probe_gateway_fails_on_http_error",
     "to": "MagicMock",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_dry_run_skips_purge_call",
-    "to": "purge_memories",
+    "from": "test_probe_gateway_fails_on_http_error",
+    "to": "MagicMock",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_returns_zero_on_exception",
-    "to": "_make_mock_client",
+    "from": "test_probe_gateway_fails_on_http_error",
+    "to": "object",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_returns_zero_on_exception",
-    "to": "RuntimeError",
+    "from": "test_probe_gateway_fails_on_http_error",
+    "to": "probe_gateway",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_returns_zero_on_exception",
-    "to": "patch",
+    "from": "test_probe_sdk_success_uses_existing_engine_by_name",
+    "to": "MagicMock",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestPurgeMemories.test_returns_zero_on_exception",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestPurgeMemories.test_returns_zero_on_exception",
-    "to": "purge_memories",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_calls_memories_delete",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_calls_memories_delete",
-    "to": "assert_called_once_with",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_calls_memories_delete",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_calls_memories_delete",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_calls_memories_delete",
-    "to": "delete_memory",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_returns_false_on_exception",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_returns_false_on_exception",
-    "to": "RuntimeError",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_returns_false_on_exception",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_returns_false_on_exception",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestDeleteMemory.test_returns_false_on_exception",
-    "to": "delete_memory",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestCreateMemory.test_calls_memories_create_and_returns_name",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestCreateMemory.test_calls_memories_create_and_returns_name",
+    "from": "test_probe_sdk_success_uses_existing_engine_by_name",
     "to": "SimpleNamespace",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemory.test_calls_memories_create_and_returns_name",
-    "to": "patch",
+    "from": "test_probe_sdk_success_uses_existing_engine_by_name",
+    "to": "MagicMock",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestCreateMemory.test_calls_memories_create_and_returns_name",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestCreateMemory.test_calls_memories_create_and_returns_name",
-    "to": "create_memory",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestCreateMemory.test_returns_none_on_exception",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestCreateMemory.test_returns_none_on_exception",
-    "to": "RuntimeError",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestCreateMemory.test_returns_none_on_exception",
-    "to": "patch",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestCreateMemory.test_returns_none_on_exception",
-    "to": "HermesMemoryBank",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestCreateMemory.test_returns_none_on_exception",
-    "to": "create_memory",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestUpdateMemory.test_calls_memories_update",
-    "to": "_make_mock_client",
-    "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
-    "confidence": 0.8,
-    "evidence_tag": "EXTRACTED"
-  },
-  {
-    "from": "TestUpdateMemory.test_calls_memories_update",
+    "from": "test_probe_sdk_success_uses_existing_engine_by_name",
     "to": "assert_called_once_with",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestUpdateMemory.test_calls_memories_update",
-    "to": "patch",
+    "from": "test_probe_sdk_success_uses_existing_engine_by_name",
+    "to": "assert_called_once_with",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestUpdateMemory.test_calls_memories_update",
-    "to": "HermesMemoryBank",
+    "from": "test_probe_sdk_success_uses_existing_engine_by_name",
+    "to": "assert_called_once_with",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestUpdateMemory.test_calls_memories_update",
-    "to": "update_memory",
+    "from": "test_probe_sdk_success_uses_existing_engine_by_name",
+    "to": "object",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestUpdateMemory.test_returns_false_on_exception",
-    "to": "_make_mock_client",
+    "from": "test_probe_sdk_success_uses_existing_engine_by_name",
+    "to": "probe_sdk",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestUpdateMemory.test_returns_false_on_exception",
-    "to": "RuntimeError",
+    "from": "test_main_gateway_missing_url_fails",
+    "to": "main",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestUpdateMemory.test_returns_false_on_exception",
-    "to": "patch",
+    "from": "test_extract_response_text_formats",
+    "to": "_extract_response_text",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestUpdateMemory.test_returns_false_on_exception",
-    "to": "HermesMemoryBank",
+    "from": "test_extract_response_text_formats",
+    "to": "_extract_response_text",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestUpdateMemory.test_returns_false_on_exception",
-    "to": "update_memory",
+    "from": "test_extract_response_text_formats",
+    "to": "_extract_response_text",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestRetrieveProfiles.test_returns_empty_list",
-    "to": "_make_mock_client",
+    "from": "test_extract_response_text_formats",
+    "to": "_extract_response_text",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestRetrieveProfiles.test_returns_empty_list",
-    "to": "patch",
+    "from": "test_extract_response_text_formats",
+    "to": "SimpleNamespace",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestRetrieveProfiles.test_returns_empty_list",
-    "to": "HermesMemoryBank",
+    "from": "test_main_sdk_mode_success",
+    "to": "assert_called_once",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   },
   {
-    "from": "TestRetrieveProfiles.test_returns_empty_list",
-    "to": "retrieve_profiles",
+    "from": "test_main_sdk_mode_success",
+    "to": "object",
     "kind": "calls",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "test_main_sdk_mode_success",
+    "to": "SmokeResult",
+    "kind": "calls",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "confidence": 0.8,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "test_main_sdk_mode_success",
+    "to": "main",
+    "kind": "calls",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
     "confidence": 0.8,
     "evidence_tag": "EXTRACTED"
   }

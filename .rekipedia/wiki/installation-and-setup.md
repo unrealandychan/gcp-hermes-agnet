@@ -4,258 +4,310 @@ title: "Installation and Setup Guide"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T12:36:37Z
+created_at: 2026-05-18T12:37:35Z
 rekipedia_version: 0.15.1
 ---
 
 # Installation and Setup Guide
 
-This guide covers how to install, configure, and verify the memory-bank component implemented in [`memory/memory_bank.py`](memory/memory_bank.py#L1). The codebase snapshot available here is focused on a single implementation module and its tests in [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1), so the setup instructions below are based on what is observable in that code rather than on a full repository manifest.
+## Overview
+
+This repository appears to be a Python project centered around an agent orchestration stack, with a command-line smoke test entry point in [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1) and configuration managed through [`config`](config.py#L1) / [`Settings`](config.py#L7). The analysis data does not include a `pyproject.toml`, `requirements.txt`, `Dockerfile`, or explicit build commands, so this guide focuses on what is directly evidenced by the codebase and clearly labels any gaps.
+
+The most important setup-related modules are:
+
+- [`Settings`](config.py#L7) for environment-driven configuration
+- [`hermes_app.agent`](hermes_app/agent.py#L1) and [`agent`](agent.py#L1), which both bootstrap the application from environment and config
+- [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1), the visible executable entry point for verifying cloud connectivity
+- [`build_task_agent`](agents/task_agent.py#L115) and [`build_aggregator_agent`](agents/aggregator.py#L70), which depend on external agent/provider libraries
+
+> **Sources:** `config.py` · L1–L201 · [`Settings`](config.py#L7) · [`get_settings`](config.py#L200)  
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L1–L212 · [`main`](scripts/demo/cloud_smoke_test.py#L183)
+
+---
 
 ## Requirements
 
-### Runtime and platform expectations
+### System Requirements
 
-The implementation in [`memory.memory_bank`](memory/memory_bank.py#L1) is Python-based and uses:
+The repository is Python-based and uses modules such as `argparse`, `httpx`, `vertexai`, and `pydantic_settings` as seen in the import graph for [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1) and [`config`](config.py#L1). Based on those imports, you should expect:
 
-- `asyncio` for async wrappers and background execution
-- `logging` for operational messages
-- `typing` for type annotations
-- `vertexai` for the Vertex AI Agent Engine memory APIs
-- a local `config` module, accessed via `get_settings()` in several entry points
-
-The main facade, [`HermesMemoryBank`](memory/memory_bank.py#L79), is designed to work against Vertex AI Agent Engine memories and expects a resource name such as:
-
-`projects/my-project/locations/us-central1/reasoningEngines/1234567890`
-
-The helper [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) indicates two important setup requirements:
-
-1. The installed Vertex AI SDK must be new enough to provide `VertexClient`.
-2. If `project` / `location` are not supplied, the code falls back to settings from [`get_settings()`](memory/memory_bank.py#L41).
-
-### Python version
-
-No `pyproject.toml`, `package.json`, or explicit build metadata is present in the supplied analysis data, so the exact Python version cannot be confirmed from the repository snapshot. What is clear is that the code uses modern async syntax and `from __future__` imports, so a recent Python 3 release is expected.
-
-### External dependencies
-
-The direct runtime dependency that is clearly evidenced is:
-
-| Dependency | Why it is needed | Evidence |
+| Requirement | Evidence | Notes |
 |---|---|---|
-| `vertexai` | Provides `VertexClient`, memory generation, retrieval, purge, create, update, and delete operations | [`memory/memory_bank.py`](memory/memory_bank.py#L1) |
-| local `config` module | Supplies project/location/resource-name configuration via `get_settings()` | [`memory/memory_bank.py`](memory/memory_bank.py#L41), [`memory/memory_bank.py`](memory/memory_bank.py#L411) |
+| Python runtime | Project modules and tests are Python | No version pin was provided in the analysis |
+| Network access | [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) performs HTTP calls; [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) talks to Vertex AI | Needed for cloud smoke tests |
+| Google Cloud / Vertex AI access | [`vertexai`](scripts/demo/cloud_smoke_test.py#L1) and [`AgentEngineClient`](scripts/demo/cloud_smoke_test.py#L118) are used | Required for SDK mode |
+| External model/provider support | [`build_aggregator_agent`](agents/aggregator.py#L70) and [`build_task_agent`](agents/task_agent.py#L115) call [`get_model`](agents/aggregator.py#L70) / [`get_model`](agents/task_agent.py#L115) | Implies provider configuration is necessary |
 
-The tests additionally rely on:
+### Language and Library Dependencies
 
-- `pytest`
-- `unittest.mock`
-- `types.SimpleNamespace`
+The repository references these third-party packages directly:
 
-> **Sources:** `memory/memory_bank.py` · L1–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411) · `tests/memory/test_memory_bank.py` · L1–L495 · [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222)
+| Package / Namespace | Where observed | Purpose |
+|---|---|---|
+| `pydantic_settings` | [`config`](config.py#L1) | Base settings model via [`Settings`](config.py#L7) |
+| `httpx` | [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1) | Gateway HTTP probing |
+| `vertexai` | [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1) | SDK-based smoke testing |
+| `google.adk.agents` | [`agents.aggregator`](agents/aggregator.py#L1), [`agents.task_agent`](agents/task_agent.py#L1) | Agent construction primitives |
+| `dotenv` | [`agent`](agent.py#L1), [`hermes_app.agent`](hermes_app/agent.py#L1) | Loads environment files at startup |
+
+The analysis does not provide a concrete Python version. If you need the exact supported version, check the repository’s packaging metadata once available.
+
+> **Sources:** `config.py` · L1–L201 · [`Settings`](config.py#L7)  
+> **Sources:** `agents/aggregator.py` · L1–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70)  
+> **Sources:** `agents/task_agent.py` · L1–L237 · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)
+
+---
 
 ## Installation Methods
 
 ### From Source
 
-No build commands were provided in the analysis payload, so the repository’s exact bootstrap steps cannot be reconstructed. However, the code is pure Python and the tests import the module directly, so a source install is likely straightforward.
+No `build_commands` were provided in the analysis payload, so there is no authoritative source for a repo-specific build workflow. However, the code structure suggests the project is meant to be run directly from source after installing dependencies.
 
-A practical source workflow would be:
+A practical source install flow would be:
 
 ```bash
 git clone <repository-url>
-cd <repository-dir>
+cd <repository-directory>
+
+# Create and activate a virtual environment
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -U pip
-python -m pip install vertexai pytest
+
+# Install dependencies once you know the packaging layout
+pip install -U pip
+pip install -e .
 ```
 
-If your environment uses the local `config` module, ensure that package or module is importable before running the code.
+If the project is not packaged for editable installation, install dependencies manually from the runtime imports implied by the analysis:
 
-Because the implementation wraps the SDK calls in `asyncio.to_thread()` in methods like [`generate_memories`](memory/memory_bank.py#L105) and [`fetch_memories`](memory/memory_bank.py#L331), there is no special build step beyond dependency installation.
+```bash
+pip install pydantic-settings httpx python-dotenv vertexai pytest
+```
+
+Then run the project entry points described below.
+
+#### What to expect after install
+
+- [`get_settings`](config.py#L200) can instantiate [`Settings`](config.py#L7)
+- [`agent`](agent.py#L1) or [`hermes_app.agent`](hermes_app/agent.py#L1) can bootstrap the application
+- [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1) can be used to verify connectivity
+
+> **Sources:** `agent.py` · L1–L1 · [`agent`](agent.py#L1)  
+> **Sources:** `hermes_app/agent.py` · L1–L1 · [`hermes_app.agent`](hermes_app/agent.py#L1)  
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L1–L212 · [`main`](scripts/demo/cloud_smoke_test.py#L183)
 
 ### Via Package Manager
 
-No `pyproject.toml`, `setup.py`, `package.json`, or similar packaging manifest is visible in the provided analysis, so there is no repository-specific package-manager install command to cite. If this code is part of a larger Python project, the usual patterns would be:
+No `pyproject.toml`, `setup.py`, or `package.json` was included in the analysis data, so package-manager installation can only be described generically.
+
+If a Python package manifest exists in the actual repository, the expected commands are:
 
 ```bash
+# pip
 pip install .
-# or
+
+# editable development install
+pip install -e .
+
+# uv
 uv pip install .
-```
 
-If the project is published to an index, installation would likely look like:
-
-```bash
+# if the repository publishes a package
 pip install <package-name>
 ```
 
-At minimum, the code requires the Vertex AI SDK compatible with [`VertexClient`](memory/memory_bank.py#L41).
+Because [`config.py`](config.py#L1) uses `pydantic_settings` and the agents import `google.adk.agents`, make sure the package manager resolves those dependencies in the environment where you run the app.
+
+> **Sources:** `config.py` · L1–L201 · [`Settings`](config.py#L7)  
+> **Sources:** `agents/aggregator.py` · L1–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70)
 
 ### Docker
 
-No `Dockerfile` is present in the analysis data, so Docker-based installation cannot be confirmed. If you add container support later, the container should include:
-
-- a Python runtime
-- the Vertex AI SDK
-- whatever provides the local `config` module
-- credentials for Google Cloud / Vertex AI access
-
-A generic container invocation would look like:
+The analysis did not find a `Dockerfile`, so there is no evidence-based Docker workflow to document. If you add one later, the standard pattern would be:
 
 ```bash
-docker build -t hermes-memory-bank .
-docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/gcp.json hermes-memory-bank
+docker build -t hermes-app .
+docker run --rm -it \
+  --env-file .env \
+  hermes-app
 ```
 
-This is illustrative only; the repository snapshot does not prove that the project currently supports Docker.
+For this repository, Docker support is therefore **not confirmed** from the available data.
 
-> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** No Dockerfile present in `files_seen`
+
+---
 
 ## First Run
 
-The primary runtime entry point exposed by the module is the memory facade [`HermesMemoryBank`](memory/memory_bank.py#L79). The first-run flow depends on whether you already have a Memory Bank resource configured.
+The clearest first-run path in the repository is the smoke-test script [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1), whose [`main`](scripts/demo/cloud_smoke_test.py#L183) function selects either gateway mode or SDK mode.
 
-### 1. Configure a memory resource name
+### 1. Configure the environment
 
-The helper [`build_memory_bank()`](memory/memory_bank.py#L411) returns `None` if `MEMORY_BANK_RESOURCE_NAME` is not configured. The tests confirm that both `None` and empty string values are treated as “not configured” in [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222).
+Before first run, prepare the environment variables consumed by [`Settings`](config.py#L7) and any provider credentials needed by [`inject_litellm_env`](config.py#L146). The application bootstrap files [`agent`](agent.py#L1) and [`hermes_app.agent`](hermes_app/agent.py#L1) both import `dotenv`, indicating `.env` loading is part of startup.
 
-So your first step is to ensure the relevant setting exists in your config layer. The code reads from settings via `get_settings()` and then accesses `MEMORY_BANK_RESOURCE_NAME` with `getattr`.
+### 2. Run the smoke test
 
-### 2. Create the Agent Engine-backed memory store if needed
+The smoke test supports two execution paths:
 
-If you do not yet have a resource name, use [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432) to create one. The function is designed to be idempotent:
+- **Gateway mode** via [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47)
+- **SDK mode** via [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118)
 
-- it lists existing engines
-- if one matches the display name, it returns the existing engine’s resource name
-- otherwise it creates a new one
+Example invocations:
 
-This is the most direct “bootstrap” path for a new deployment.
+```bash
+# Gateway mode
+python -m scripts.demo.cloud_smoke_test \
+  --mode gateway \
+  --gateway-url https://<your-gateway-url> \
+  --message "Hello"
 
-### 3. Build the facade
-
-Once configured, call:
-
-```python
-from memory.memory_bank import build_memory_bank
-
-bank = build_memory_bank()
+# SDK mode
+python -m scripts.demo.cloud_smoke_test \
+  --mode sdk \
+  --project-id <gcp-project-id> \
+  --location <gcp-region> \
+  --reasoning-engine-resource-name <engine-resource-name> \
+  --user-id <user-id> \
+  --message "Hello"
 ```
 
-If successful, `bank` will be an instance of [`HermesMemoryBank`](memory/memory_bank.py#L79). If not configured or if creation fails, the function degrades gracefully and returns `None`.
+The script’s [`parse_args`](scripts/demo/cloud_smoke_test.py#L164) defines the required CLI options, while [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158) can infer mode from the presence of `--gateway-url`.
 
-### 4. Use the memory APIs
+### 3. Validate output
 
-The facade exposes methods for common operations:
+[`main`](scripts/demo/cloud_smoke_test.py#L183) prints a result object based on [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32), which includes the status, mode, and extracted text. If the request succeeds, you should see the response summary printed to stdout.
 
-- [`generate_memories`](memory/memory_bank.py#L105) for automatic extraction after a conversation turn
-- [`ingest_events`](memory/memory_bank.py#L143) for batched event ingestion
-- [`fetch_memories`](memory/memory_bank.py#L331) for prompt-time retrieval
-- [`format_for_prompt`](memory/memory_bank.py#L381) for ready-to-inject context strings
-- CRUD-like operations such as [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), and [`delete_memory`](memory/memory_bank.py#L227)
+### 4. Optionally run the application bootstrap
 
-A minimal first-run example would be:
+If your target is the main app rather than the smoke test, the bootstrap entry points are [`agent`](agent.py#L1) and [`hermes_app.agent`](hermes_app/agent.py#L1). Both import configuration and load environment before wiring in `agents.orchestrator`:
 
-```python
-import asyncio
-from memory.memory_bank import build_memory_bank
-
-async def main():
-    bank = build_memory_bank()
-    if bank is None:
-        print("Memory bank not configured")
-        return
-
-    memories = await bank.fetch_memories(user_id="u123", query="VPN setup", top_k=5)
-    print(memories)
-
-asyncio.run(main())
+```bash
+python -m agent
+# or, if the package is installed
+python -m hermes_app.agent
 ```
 
-> **Sources:** `memory/memory_bank.py` · L79–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432) · `tests/memory/test_memory_bank.py` · L222–L330 · [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)
+The exact serving behavior is not visible in the analysis, so treat this as a startup hint rather than a guaranteed server command.
+
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L32–L212 · [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32) · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) · [`parse_args`](scripts/demo/cloud_smoke_test.py#L164) · [`main`](scripts/demo/cloud_smoke_test.py#L183)  
+> **Sources:** `agent.py` · L1–L1 · [`agent`](agent.py#L1)  
+> **Sources:** `hermes_app/agent.py` · L1–L1 · [`hermes_app.agent`](hermes_app/agent.py#L1)
+
+---
 
 ## Environment Variables
 
-The provided analysis does not expose a `.env` file, config module source, or explicit environment-variable declarations. That means we can only infer configuration usage from code.
+The analysis provides the strongest evidence for configuration through [`Settings`](config.py#L7), but not the full field list. Still, several behaviors are explicit:
 
-### Observable configuration inputs
+### Provider / model credentials
 
-The following values are clearly expected to come from settings and may ultimately be sourced from environment variables in the wider application:
+[`Settings.inject_litellm_env`](config.py#L146) exports provider API keys into process environment so LiteLLM can discover them automatically. This means the app likely relies on env vars for model-provider authentication.
 
-| Setting | Used by | Purpose |
-|---|---|---|
-| `MEMORY_BANK_RESOURCE_NAME` | [`build_memory_bank`](memory/memory_bank.py#L411) | Controls whether a `HermesMemoryBank` is instantiated |
-| project / location settings | [`_get_vertexai_client`](memory/memory_bank.py#L41) | Default Vertex AI project and region when explicit args are omitted |
+### CORS origins
 
-The `create_memory_bank` flow also depends on project and location values, and uses a `display_name` to find or create the backing Agent Engine.
+[`Settings.cors_origins_list`](config.py#L143) parses comma-separated origins, so a corresponding environment value is expected for cross-origin configuration.
 
-### Suggested environment setup
+### RAG region validation
 
-If your local config system maps settings to env vars, you will likely need something like:
+[`Settings.validate_rag_regions`](config.py#L166) checks that configured RAG corpus resource names match the application region. This implies environment values for the GCP location and corpus resource names are part of startup configuration.
 
-```bash
-export MEMORY_BANK_RESOURCE_NAME="projects/.../locations/.../reasoningEngines/..."
-export GOOGLE_CLOUD_PROJECT="my-project"
-export GOOGLE_CLOUD_LOCATION="us-central1"
-```
+### Cloud smoke test CLI arguments
 
-This mapping is an informed guess; the exact variable names are not present in the supplied data.
+The smoke test is also configurable via CLI flags rather than env vars:
 
-### SDK compatibility concern
+- `--gateway-url`
+- `--project-id`
+- `--location`
+- `--reasoning-engine-resource-name`
+- `--user-id`
+- `--message`
+- `--timeout-s`
 
-The docstring on [`_get_vertexai_client`](memory/memory_bank.py#L41) explicitly says it “raises ImportError with a helpful message if the SDK is too old.” If you see that error, your environment almost certainly has an outdated Vertex AI SDK and needs an upgrade.
+Because the analysis did not include the actual field names declared on [`Settings`](config.py#L7), this guide avoids inventing exact environment variable names. Use your `.env`, deployment manifests, or the source of [`Settings`](config.py#L7) to confirm the definitive list.
 
-> **Sources:** `memory/memory_bank.py` · L41–L74 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411)
+> **Sources:** `config.py` · L7–L201 · [`Settings`](config.py#L7) · [`Settings.cors_origins_list`](config.py#L143) · [`Settings.inject_litellm_env`](config.py#L146) · [`Settings.validate_rag_regions`](config.py#L166)  
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L164–L180 · [`parse_args`](scripts/demo/cloud_smoke_test.py#L164)
+
+---
 
 ## Troubleshooting
 
-### `build_memory_bank()` returns `None`
+### “Missing dependency” or import errors
 
-This is expected when the memory resource is not configured. The implementation explicitly returns `None` if `MEMORY_BANK_RESOURCE_NAME` is missing or empty. Check:
+If you see errors for `google.adk`, `pydantic_settings`, `httpx`, `vertexai`, or `dotenv`, the environment is likely missing the runtime dependencies implied by the imports in [`agents.aggregator`](agents/aggregator.py#L1), [`agents.task_agent`](agents/task_agent.py#L1), [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1), or [`config`](config.py#L1).
 
-- your settings source
-- whether the environment variable or config entry is actually present
-- whether the resource name string is non-empty and correctly formatted
+Fix:
 
-Relevant behavior is exercised in [`TestBuildMemoryBank`](tests/memory/test_memory_bank.py#L222).
+```bash
+pip install pydantic-settings httpx python-dotenv vertexai pytest
+```
 
-### ImportError mentioning Vertex AI / old SDK
+If the app still fails, verify that the agent SDK package providing `google.adk.agents` is installed in the active virtual environment.
 
-The helper [`_get_vertexai_client`](memory/memory_bank.py#L41) is designed to fail fast if the installed SDK is too old to provide `VertexClient`. Fix by upgrading the Vertex AI package in your environment.
+### Gateway mode fails immediately
 
-### No memories returned from `fetch_memories()`
+[`main`](scripts/demo/cloud_smoke_test.py#L183) uses `_detect_mode` to infer gateway mode only when a gateway URL is present. If you omit `--gateway-url` while expecting gateway behavior, the script may choose SDK mode or fail validation.
 
-[`fetch_memories`](memory/memory_bank.py#L331) returns an empty list on errors and when no results are found. If you are seeing no context:
+Fix:
 
-- verify the user ID is correct
-- verify the query matches known memory content
-- verify the backing Agent Engine has memories stored
-- check logs for swallowed exceptions
+- Pass `--mode gateway`
+- Ensure `--gateway-url` is non-empty
+- Confirm the gateway is reachable from your machine
 
-### `format_for_prompt()` returns an empty string
+### SDK mode cannot find the reasoning engine
 
-[`format_for_prompt`](memory/memory_bank.py#L381) intentionally returns an empty string when there are no memories or when retrieval fails. This is a safe fallback for prompt injection. If you expected content, troubleshoot `fetch_memories()` first.
+[`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) calls `vertexai.init(...)`, then attempts `get_reasoning_engine(...)` and `query(...)`. Failures here usually mean one of:
 
-### Memory generation appears to do nothing
+- wrong `--project-id`
+- wrong `--location`
+- incorrect `--reasoning-engine-resource-name`
+- missing GCP authentication
 
-[`generate_memories`](memory/memory_bank.py#L105) is fire-and-forget and wraps the blocking SDK call in `asyncio.to_thread()`. If it fails, the exception is swallowed after logging a debug message. This means:
+Fix:
 
-- the app won’t crash
-- you must inspect logs to see failures
-- client initialization is lazy, so the first call is also the first real connectivity test
+- Verify `gcloud auth application-default login` or equivalent credentials
+- Confirm the reasoning engine resource name
+- Make sure the region matches the engine
 
-### SDK batch ingestion behaves differently than direct generation
+### Response parsing issues
 
-Use [`ingest_events`](memory/memory_bank.py#L143) when you want the SDK to batch events automatically. The tests show it normalizes event roles, including mapping agent-like roles to model roles. If your event payload does not use the expected `role` and `text` keys, ingestion may not behave as intended.
+The smoke test includes [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105) for extracting human-readable output from different response shapes. If output appears blank or malformed, inspect the raw SDK response or gateway SSE stream.
 
-### Create/update/delete operations fail silently
+The tests in [`tests/scripts/test_cloud_smoke_test.py`](tests/scripts/test_cloud_smoke_test.py#L1) show that the script expects:
+- SSE-style completion markers in gateway mode
+- structured response content in SDK mode
 
-The methods [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`delete_memory`](memory/memory_bank.py#L227), and [`purge_memories`](memory/memory_bank.py#L187) all handle exceptions by logging and returning safe fallback values (`None`, `False`, or `0`). This is deliberate. Troubleshooting should focus on:
+### Region mismatch warnings
 
-- credentials
-- project/region correctness
-- resource names
-- API permissions
+[`Settings.validate_rag_regions`](config.py#L166) is designed to detect cross-region corpus mismatches before the first request. If it reports warnings, align the RAG corpus resource region with `gcp_location`.
 
-> **Sources:** `memory/memory_bank.py` · L105–L406 · [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143), [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381) · `tests/memory/test_memory_bank.py` · L58–L495 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58), [`TestFetchMemories`](tests/memory/test_memory_bank.py#L116), [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)
+### Agent construction fails
+
+If the main app fails during agent assembly, the issue is likely in one of:
+
+- [`build_aggregator_agent`](agents/aggregator.py#L70)
+- [`build_task_agent`](agents/task_agent.py#L115)
+- [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)
+
+These functions depend on provider/model configuration and on `google.adk.agents` classes such as `LlmAgent`, `ParallelAgent`, and `SequentialAgent`. Missing provider credentials or incompatible SDK versions are common causes.
+
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L105–L212 · [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105) · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) · [`main`](scripts/demo/cloud_smoke_test.py#L183)  
+> **Sources:** `agents/aggregator.py` · L70–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70)  
+> **Sources:** `agents/task_agent.py` · L115–L237 · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)  
+> **Sources:** `config.py` · L166–L196 · [`Settings.validate_rag_regions`](config.py#L166)
+
+---
+
+## Notes on Documentation Gaps
+
+The analysis data did **not** include a package manifest, Dockerfile, or concrete build/test commands. This guide therefore documents only evidence-backed setup details and uses conservative examples where necessary. If you want a fully exact installation matrix, the next files to inspect would be:
+
+- `pyproject.toml` or `setup.py` for install commands and Python version constraints
+- `requirements.txt` or lockfiles for dependency pinning
+- `Dockerfile` for container setup
+- the full body of [`Settings`](config.py#L7) for definitive environment variable names
+
+> **Sources:** `files_seen` list provided in analysis payload

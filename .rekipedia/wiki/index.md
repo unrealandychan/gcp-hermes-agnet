@@ -1,116 +1,144 @@
 ---
 slug: index
-title: "Project Overview: Hermes Memory Bank"
+title: "Project Overview"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T12:36:51Z
+created_at: 2026-05-18T12:35:38Z
 rekipedia_version: 0.15.1
 ---
 
-# Project Overview: Hermes Memory Bank
+# Project Overview
 
 ## What is this project?
 
-This repository contains the memory-management layer for Hermes, centered on the [`memory.memory_bank`](memory/memory_bank.py#L1) module and its main facade class, [`HermesMemoryBank`](memory/memory_bank.py#L79). From the code that is present, the project’s purpose is to connect an application to Google Vertex AI Agent Engine memories, letting Hermes store, retrieve, update, and purge user-specific memory facts in a durable backing service.
+This repository appears to be a Python-based agent orchestration system built around Google ADK-style agents, configuration management, and a cloud smoke-test entry point. The top-level bootstrap files [`agent.py`](agent.py#L1) and [`hermes_app.agent`](hermes_app/agent.py#L1) both import [`config`](config.py#L1) and an [`agents.orchestrator`](hermes_app/agent.py#L1) module, indicating that the project’s core purpose is to initialize and serve an application composed of multiple specialized agents. The main agent-building logic is concentrated in [`agents.task_agent`](agents/task_agent.py#L1) and [`agents.aggregator`](agents/aggregator.py#L1), where the system constructs a task-oriented pipeline and a final aggregation step via [`build_task_agent`](agents/task_agent.py#L115) and [`build_aggregator_agent`](agents/aggregator.py#L70).
 
-The design is intentionally practical and production-oriented. The docstrings for [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105), [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143), and [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) show three core workflows:
-- turn-by-turn memory extraction,
-- batched event ingestion,
-- prompt-time memory retrieval.
+At a high level, the project solves a common multi-agent coordination problem: how to route work to specialized sub-agents, optionally execute them in parallel, and then consolidate their outputs into a single response. The docstring on [`build_aggregator_agent`](agents/aggregator.py#L70) explicitly states that it “consolidates parallel outputs,” while [`build_task_agent`](agents/task_agent.py#L115) documents both a parallel flow and a sequential fallback flow. The presence of [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) shows that the system can synthesize task-specific agent groups at request time, which is a strong signal that dynamic orchestration is a first-class goal.
 
-There is also an environment/config-driven construction path via [`build_memory_bank`](memory/memory_bank.py#L411), plus a provisioning helper, [`create_memory_bank`](memory/memory_bank.py#L432), that creates or reuses a dedicated Agent Engine resource to act as the memory store. The companion test module [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1) validates these behaviors extensively.
+The repository also includes a standalone operational utility, [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1), with a public entry point [`main`](scripts/demo/cloud_smoke_test.py#L183). This script validates external deployment connectivity in two modes: a gateway HTTP path via [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) and an SDK path via [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118). In other words, the project is not only an agent framework, but also a deployable system with a built-in way to verify that the cloud integration is alive.
 
-> **Sources:** `memory/memory_bank.py` · L1–L498 · [`memory.memory_bank`](memory/memory_bank.py#L1), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `agent.py` · L1–L1 · [`agent`](agent.py#L1)  
+> `hermes_app/agent.py` · L1–L1 · [`hermes_app.agent`](hermes_app/agent.py#L1)  
+> `agents/aggregator.py` · L1–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70)  
+> `agents/task_agent.py` · L1–L237 · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)  
+> `scripts/demo/cloud_smoke_test.py` · L1–L212 · [`main`](scripts/demo/cloud_smoke_test.py#L183)
 
 ## Who is it for?
 
-This project is for developers building an AI assistant or agent that needs persistent, per-user memory backed by Vertex AI. The API surface suggests three primary audiences:
+This project is primarily for developers and platform engineers building or operating a multi-agent application. The code suggests three clear audience segments:
 
-- **Application developers** integrating memory into a chat or agent runtime, especially through [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381) and [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331).
-- **Platform engineers / DevOps engineers** responsible for provisioning and configuring the backing memory resource via [`create_memory_bank`](memory/memory_bank.py#L432) and environment settings consumed by [`_get_vertexai_client`](memory/memory_bank.py#L41) and [`build_memory_bank`](memory/memory_bank.py#L411).
-- **Test and QA engineers** who need deterministic behavior around memory ingestion, retrieval, and failure handling, as shown by [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1).
+1. **Application engineers** who need a composable orchestration layer for specialist agents such as analytics, HR, developer, and IT helpdesk workflows. Those integrations are referenced in [`build_task_agent`](agents/task_agent.py#L115), which imports builder modules like `agents.analytics`, `agents.developer`, `agents.hr`, and `agents.it_helpdesk`.
+2. **Platform or DevOps engineers** who deploy the service and need a quick way to confirm the remote runtime is healthy. They would use [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1), especially [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) and [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118).
+3. **Maintainers and test authors** who need confidence in orchestration behavior. The test suite focuses heavily on [`build_aggregator_agent`](agents/aggregator.py#L70), [`build_task_agent`](agents/task_agent.py#L115), and the smoke-test helper functions in [`scripts/demo/cloud_smoke_test.py`](scripts/demo/cloud_smoke_test.py#L1).
 
-Typical use cases include:
-- injecting user context into an assistant’s system prompt at session start,
-- writing memory facts after a conversation turn,
-- explicitly creating or updating memory records when an agent decides something should be remembered,
-- bulk purging a user’s memories for privacy or account deletion workflows.
+Typical use cases include deploying an agentic backend, routing a task to specialist sub-agents, collecting a final synthesized answer, and validating the deployment against either a gateway endpoint or an SDK-based reasoning engine. The configuration layer in [`config.py`](config.py#L1) further suggests that operators can tune runtime behavior via environment variables, CORS settings, API credentials, and RAG region validation.
 
-> **Sources:** `memory/memory_bank.py` · L79–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432); `tests/memory/test_memory_bank.py` · L1–L495
+> **Sources:** `agents/task_agent.py` · L115–L237 · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)  
+> `scripts/demo/cloud_smoke_test.py` · L47–L212 · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118)  
+> `config.py` · L7–L201 · [`Settings`](config.py#L7) · [`Settings.inject_litellm_env`](config.py#L146) · [`Settings.validate_rag_regions`](config.py#L166)
 
 ## Key Features
 
-- **Lazy Vertex AI client initialization** via [`HermesMemoryBank._ensure_client`](memory/memory_bank.py#L98) and [`_get_vertexai_client`](memory/memory_bank.py#L41), reducing startup cost and allowing graceful fallback when configuration is missing.
-- **Automatic memory extraction from dialogue turns** with [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105), which is documented as a fire-and-forget callback after agent turns.
-- **Batch event ingestion** through [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143), which normalizes conversation events before calling the SDK’s ingest operation.
-- **Memory retrieval for prompt injection** via [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331) and [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381).
-- **Direct CRUD operations on memories** using [`HermesMemoryBank.create_memory`](memory/memory_bank.py#L250), [`HermesMemoryBank.update_memory`](memory/memory_bank.py#L285), [`HermesMemoryBank.delete_memory`](memory/memory_bank.py#L227), and [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187).
-- **Compatibility shims for unsupported SDK features** such as [`HermesMemoryBank.retrieve_profiles`](memory/memory_bank.py#L315) and [`HermesMemoryBank.list_revisions`](memory/memory_bank.py#L369), which return empty lists while logging their unsupported status.
-- **Resource provisioning helper** with [`create_memory_bank`](memory/memory_bank.py#L432), which can reuse an existing Agent Engine by display name or create a new one.
-- **Comprehensive behavior coverage** in [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1), including success paths, error swallowing, lazy initialization, token budgeting, and display-name matching.
+- **Parallel specialist orchestration** via [`build_task_agent`](agents/task_agent.py#L115), which constructs a [`ParallelAgent`](agents/task_agent.py#L115) branch for independent subtasks.
+- **Aggregation of parallel results** through [`build_aggregator_agent`](agents/aggregator.py#L70), designed to produce a single user-facing response from multiple specialist outputs.
+- **Sequential fallback routing** in [`build_task_agent`](agents/task_agent.py#L115), which also appends specialist agents for step-by-step delegation.
+- **Just-in-time dynamic dispatch** with [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191), which synthesizes a task-specific pipeline at request time.
+- **Runtime health probing** with [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) and [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118), allowing verification of two external integration modes.
+- **Structured smoke-test reporting** through the [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32) dataclass.
+- **Centralized runtime configuration** in [`Settings`](config.py#L7), including environment injection via [`Settings.inject_litellm_env`](config.py#L146) and validation via [`Settings.validate_rag_regions`](config.py#L166).
+- **Test-backed orchestration contracts** in [`tests/agents/test_aggregator.py`](tests/agents/test_aggregator.py#L1) and [`tests/scripts/test_cloud_smoke_test.py`](tests/scripts/test_cloud_smoke_test.py#L1), which verify the shape and behavior of key assembly functions.
 
-> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105), [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143), [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331), [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381), [`create_memory_bank`](memory/memory_bank.py#L432); `tests/memory/test_memory_bank.py` · L58–L495
+> **Sources:** `agents/aggregator.py` · L70–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70)  
+> `agents/task_agent.py` · L115–L237 · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)  
+> `scripts/demo/cloud_smoke_test.py` · L32–L212 · [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32) · [`main`](scripts/demo/cloud_smoke_test.py#L183)  
+> `config.py` · L7–L201 · [`Settings`](config.py#L7)
 
 ## Quick Start
 
-The analysis data does not include explicit build or test commands, so the fastest observable path is to use the module directly from Python and confirm behavior with the existing tests.
+The analysis data does not include explicit `build_commands` or `test_commands`, so the exact packaging workflow is not observable from this snapshot. However, the repository does expose a concrete entry point: [`scripts/demo/cloud_smoke_test.py`](scripts/demo/cloud_smoke_test.py#L1), with its CLI entry function [`main`](scripts/demo/cloud_smoke_test.py#L183). That makes the fastest verifiable path likely to be running the smoke test directly with Python after setting the required environment variables for either gateway mode or SDK mode.
 
-### 1. Configure the memory bank resource
+A practical starting sequence would be:
 
-`build_memory_bank()` reads configuration from the project settings via [`get_settings`](memory/memory_bank.py#L41) and returns `None` if no resource name is configured. In practice, this means you should ensure the memory bank resource name is available in settings before constructing the facade.
+```bash
+# Install project dependencies according to the repository's packaging docs
+# (not visible in the analysis snapshot)
 
-### 2. Instantiate or provision the bank
-
-If the resource already exists, call [`build_memory_bank`](memory/memory_bank.py#L411) to obtain a [`HermesMemoryBank`](memory/memory_bank.py#L79). If you need to create the backing Agent Engine first, call [`create_memory_bank`](memory/memory_bank.py#L432) and persist the returned resource name in configuration.
-
-### 3. Use the facade
-
-A minimal usage pattern, based on the class docstring, looks like this:
-
-```python
-from memory.memory_bank import HermesMemoryBank
-
-bank = HermesMemoryBank(resource_name="projects/my-project/locations/us-central1/reasoningEngines/1234567890")
-await bank.generate_memories(
-    user_id="u123",
-    user_text="How do I reset my VPN?",
-    agent_text="Go to Settings > VPN > Reset."
-)
-memories = await bank.fetch_memories(user_id="u123", query="VPN setup")
+# Run the cloud smoke test entry point
+python scripts/demo/cloud_smoke_test.py --help
+python scripts/demo/cloud_smoke_test.py
 ```
 
-### 4. Run the tests
+The CLI arguments are parsed by [`parse_args`](scripts/demo/cloud_smoke_test.py#L164), and mode selection is handled by [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158). Depending on your deployment, the script calls either [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) or [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118). If you are working on the agent assembly layer instead of deployment validation, the key runtime objects are built from [`build_task_agent`](agents/task_agent.py#L115) and [`build_aggregator_agent`](agents/aggregator.py#L70), both of which depend on [`Settings`](config.py#L7).
 
-The repository includes a dedicated test suite at [`tests/memory/test_memory_bank.py`](tests/memory/test_memory_bank.py#L1). Because no test runner command is listed in the analysis data, a typical local verification step would be to run the project’s standard Python test runner against that file or directory.
+Because no build metadata is present in the analysis payload, this page cannot truthfully state a canonical install command such as `pip install -e .` or `poetry install`. The safest recommendation is to inspect the repository’s README and environment setup files before execution.
 
-> **Sources:** `memory/memory_bank.py` · L411–L498 · [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432), [`HermesMemoryBank`](memory/memory_bank.py#L79); `tests/memory/test_memory_bank.py` · L1–L495
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L158–L212 · [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158) · [`parse_args`](scripts/demo/cloud_smoke_test.py#L164) · [`main`](scripts/demo/cloud_smoke_test.py#L183)  
+> `agents/task_agent.py` · L115–L237 · [`build_task_agent`](agents/task_agent.py#L115)  
+> `agents/aggregator.py` · L70–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70)  
+> `config.py` · L7–L201 · [`Settings`](config.py#L7)
 
 ## Project Structure
+
+The repository is organized around a small number of top-level concerns: scripts, agents, application bootstrap, configuration, and tests.
 
 ```mermaid
 flowchart TD
     Root[Repository]
-    MemoryDir[memory/]
-    MemoryBank[memory_bank.py]
-    TestsDir[tests/memory/]
-    TestFile[test_memory_bank.py]
+    Scripts[scripts/]
+    Demo[scripts/demo/]
+    Smoke[scripts/demo/cloud_smoke_test.py]
+    Agents[agents/]
+    Agg[agents/aggregator.py]
+    Task[agents/task_agent.py]
+    App[hermes_app/]
+    AppAgent[hermes_app/agent.py]
+    Bootstrap[agent.py]
+    Config[config.py]
+    Tests[tests/]
+    TestAgents[tests/agents/test_aggregator.py]
+    TestScripts[tests/scripts/test_cloud_smoke_test.py]
+    Conftest[tests/conftest.py]
+    Docs[README.md / RELEASE_NOTES.md]
 
-    Root --> MemoryDir
-    Root --> TestsDir
-    MemoryDir --> MemoryBank
-    TestsDir --> TestFile
-    TestFile --> MemoryBank
+    Root --> Scripts
+    Root --> Agents
+    Root --> App
+    Root --> Bootstrap
+    Root --> Config
+    Root --> Tests
+    Root --> Docs
+
+    Scripts --> Demo
+    Demo --> Smoke
+    Agents --> Agg
+    Agents --> Task
+    App --> AppAgent
+    Tests --> TestAgents
+    Tests --> TestScripts
+    Tests --> Conftest
 ```
 
-At the top level visible from the analysis, the repository is very small and focused: an implementation module in `memory/memory_bank.py` and its test companion in `tests/memory/test_memory_bank.py`. The tests import the implementation module directly, so the structure is intentionally straightforward and centered on one domain boundary: “memory” as a reusable service layer.
+At the file level, the key implementation modules are [`scripts/__init__.py`](scripts/__init__.py#L1), [`scripts/demo/__init__.py`](scripts/demo/__init__.py#L1), [`scripts/demo/cloud_smoke_test.py`](scripts/demo/cloud_smoke_test.py#L1), [`agents/aggregator.py`](agents/aggregator.py#L1), [`agents/task_agent.py`](agents/task_agent.py#L1), [`hermes_app/agent.py`](hermes_app/agent.py#L1), [`agent.py`](agent.py#L1), and [`config.py`](config.py#L1). The test suite mirrors this split with focused coverage for the orchestration and smoke test paths.
 
-> **Sources:** `memory/memory_bank.py` · L1–L498; `tests/memory/test_memory_bank.py` · L1–L495
+> **Sources:** `scripts/__init__.py` · L1–L1 · [`scripts.__init__`](scripts/__init__.py#L1)  
+> `scripts/demo/__init__.py` · L1–L1 · [`scripts.demo.__init__`](scripts/demo/__init__.py#L1)  
+> `scripts/demo/cloud_smoke_test.py` · L1–L212 · [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1)  
+> `agents/aggregator.py` · L1–L81 · [`agents.aggregator`](agents/aggregator.py#L1)  
+> `agents/task_agent.py` · L1–L237 · [`agents.task_agent`](agents/task_agent.py#L1)  
+> `hermes_app/agent.py` · L1–L1 · [`hermes_app.agent`](hermes_app/agent.py#L1)  
+> `agent.py` · L1–L1 · [`agent`](agent.py#L1)  
+> `config.py` · L1–L201 · [`config`](config.py#L1)
 
 ## How it Works (High Level)
 
-The flow begins when application code constructs a [`HermesMemoryBank`](memory/memory_bank.py#L79) directly or asks [`build_memory_bank`](memory/memory_bank.py#L411) to create one from settings. The bank lazily creates its Vertex AI client through [`_ensure_client`](memory/memory_bank.py#L98), which delegates to [`_get_vertexai_client`](memory/memory_bank.py#L41) and handles SDK/version and configuration concerns. During a conversation, the application can either call [`generate_memories`](memory/memory_bank.py#L105) after each turn or stream structured events into [`ingest_events`](memory/memory_bank.py#L143), both of which offload blocking SDK work with `asyncio.to_thread`. At session start, [`fetch_memories`](memory/memory_bank.py#L331) and [`format_for_prompt`](memory/memory_bank.py#L381) retrieve relevant memories and turn them into prompt text, while maintenance operations like [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), and [`update_memory`](memory/memory_bank.py#L285) manage the underlying records.
+Request handling starts in the application bootstrap files [`agent.py`](agent.py#L1) and [`hermes_app.agent`](hermes_app/agent.py#L1), which both import [`config`](config.py#L1) and `agents.orchestrator`, implying a standard startup path that loads settings and wires the orchestrator into the runtime. The core orchestration logic lives in [`build_task_agent`](agents/task_agent.py#L115), which constructs a task pipeline composed of a [`ParallelAgent`](agents/task_agent.py#L115), an [`AggregatorAgent`](agents/aggregator.py#L70), and sequential specialist fallbacks. When a task requires on-the-fly specialization, [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) uses an [`AgentSynthesizer`] relationship to synthesize agents at request time and returns a fresh pipeline.
 
-The tests in [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1) confirm this lifecycle end to end: they assert lazy initialization, error swallowing, token-budget behavior, event normalization, and provisioning logic around [`create_memory_bank`](memory/memory_bank.py#L432).
+For deployment verification, the smoke-test entry point [`main`](scripts/demo/cloud_smoke_test.py#L183) selects a mode with [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158), then calls either [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) or [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118). Those probes produce a normalized [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32), making it easy to report success or failure consistently across different cloud backends. In short: bootstrap loads config, the task agent routes work, the aggregator combines results, and the smoke test confirms the deployed path is reachable.
 
-> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105), [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143), [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331), [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432); `tests/memory/test_memory_bank.py` · L58–L495
+> **Sources:** `agent.py` · L1–L1 · [`agent`](agent.py#L1)  
+> `hermes_app/agent.py` · L1–L1 · [`hermes_app.agent`](hermes_app/agent.py#L1)  
+> `config.py` · L1–L201 · [`config`](config.py#L1)  
+> `agents/task_agent.py` · L115–L237 · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)  
+> `agents/aggregator.py` · L70–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70)  
+> `scripts/demo/cloud_smoke_test.py` · L32–L212 · [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32) · [`main`](scripts/demo/cloud_smoke_test.py#L183)

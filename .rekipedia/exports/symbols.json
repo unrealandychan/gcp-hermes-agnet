@@ -1,614 +1,569 @@
 [
   {
-    "name": "memory.memory_bank",
+    "name": "scripts.__init__",
     "kind": "module",
-    "file": "memory/memory_bank.py",
+    "file": "scripts/__init__.py",
     "line_start": 1,
     "line_end": 1,
     "signature": null,
     "docstring": null
   },
   {
-    "name": "_get_vertexai_client",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 41,
-    "line_end": 74,
-    "signature": "_get_vertexai_client(project, location)",
-    "docstring": "Return a vertexai.Client instance.\n\nFalls back to settings if project/location are not provided.\nRaises ImportError with a helpful message if the SDK is too old."
+    "name": "scripts.demo.__init__",
+    "kind": "module",
+    "file": "scripts/demo/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
   },
   {
-    "name": "HermesMemoryBank",
+    "name": "scripts.demo.cloud_smoke_test",
+    "kind": "module",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "SmokeResult",
     "kind": "class",
-    "file": "memory/memory_bank.py",
-    "line_start": 79,
-    "line_end": 406,
-    "signature": null,
-    "docstring": "Application-level facade over Vertex AI Agent Engine memories.\n\nThe ``resource_name`` is the full AgentEngine resource name, e.g.:\n    projects/my-project/locations/us-central1/reasoningEngines/1234567890\n\nUsage:\n    bank = HermesMemoryBank(resource_name=\"projects/.../reasoningEngines/...\")\n    await bank.generate_memories(user_id=\"u123\", user_text=..., agent_text=...)\n    memories = await bank.fetch_memories(user_id=\"u123\", query=\"VPN setup\")"
-  },
-  {
-    "name": "HermesMemoryBank.__init__",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 92,
-    "line_end": 94,
-    "signature": "__init__(self, resource_name)",
-    "docstring": null
-  },
-  {
-    "name": "HermesMemoryBank._ensure_client",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 98,
-    "line_end": 101,
-    "signature": "_ensure_client(self)",
-    "docstring": null
-  },
-  {
-    "name": "HermesMemoryBank.generate_memories",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 105,
-    "line_end": 141,
-    "signature": "generate_memories(self, user_id, user_text, agent_text, agent_name)",
-    "docstring": "Distil a conversation turn into durable memories.\n\nCalled from skill_learning_callback (fire-and-forget) after every agent turn.\nThe SDK call is blocking — we wrap it in asyncio.to_thread.\n\nArgs:\n    user_id:    The authenticated user identifier.\n    user_text:  The user's message text.\n    agent_text: The agent's response text.\n    agent_name: Optional agent name for metadata."
-  },
-  {
-    "name": "HermesMemoryBank.ingest_events",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 143,
-    "line_end": 185,
-    "signature": "ingest_events(self, user_id, events)",
-    "docstring": "Stream conversation events to Memory Bank for automatic batched memory generation.\n\nMore production-grade than generate_memories() — the SDK batches events\nand triggers memory generation automatically via IngestEvents RPC.\n\nArgs:\n    user_id: The authenticated user identifier.\n    events:  List of event dicts with keys 'role' ('user'|'agent'/'model') and 'text'.\n\nExample:\n    await bank.ingest_events(user_id=\"u1\", events=[\n        {\"role\": \"user\",  \"text\": \"How do I reset my VPN?\"},\n        {\"role\": \"agent\", \"text\": \"Go to Settings > VPN > Reset.\"},\n    ])"
-  },
-  {
-    "name": "HermesMemoryBank.purge_memories",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 187,
-    "line_end": 225,
-    "signature": "purge_memories(self, user_id, dry_run)",
-    "docstring": "Bulk-delete all memories for a user.\n\nArgs:\n    user_id: The user whose memories to delete.\n    dry_run: If True, returns count without deleting (default: False).\n\nReturns:\n    Number of memories deleted (or that would be deleted on dry_run)."
-  },
-  {
-    "name": "HermesMemoryBank.delete_memory",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 227,
-    "line_end": 248,
-    "signature": "delete_memory(self, memory_resource_name)",
-    "docstring": "Delete a specific memory by its resource name.\n\nArgs:\n    memory_resource_name: Full resource name, e.g.\n        \"projects/p/locations/l/reasoningEngines/e/memories/m\"\n\nReturns:\n    True on success, False on failure."
-  },
-  {
-    "name": "HermesMemoryBank.create_memory",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 250,
-    "line_end": 283,
-    "signature": "create_memory(self, user_id, fact)",
-    "docstring": "Directly write a memory fact without LLM extraction/consolidation.\n\nUseful for the 'memory-as-a-tool' pattern where the agent explicitly\ndecides what to remember, bypassing automatic extraction.\n\nArgs:\n    user_id: The user this memory belongs to.\n    fact:    The plain-text fact to store.\n\nReturns:\n    The new memory's resource name, or None on failure."
-  },
-  {
-    "name": "HermesMemoryBank.update_memory",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 285,
-    "line_end": 313,
-    "signature": "update_memory(self, memory_resource_name, new_fact)",
-    "docstring": "Update an existing memory with a corrected fact.\n\nArgs:\n    memory_resource_name: Full resource name of the memory to update.\n    new_fact: The corrected/updated fact text.\n\nReturns:\n    True on success, False on failure."
-  },
-  {
-    "name": "HermesMemoryBank.retrieve_profiles",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 315,
-    "line_end": 329,
-    "signature": "retrieve_profiles(self, user_id)",
-    "docstring": "Retrieve structured memory profiles for a user.\n\nNote: RetrieveProfiles is not available in the AgentEngine memories API (SDK >= 1.112).\nUse fetch_memories() instead for retrieving relevant context.\n\nReturns:\n    Empty list (not supported in current SDK version)."
-  },
-  {
-    "name": "HermesMemoryBank.fetch_memories",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 331,
-    "line_end": 367,
-    "signature": "fetch_memories(self, user_id, query, top_k)",
-    "docstring": "Retrieve the most relevant memories for a user.\n\nCalled at session start (PreloadMemoryTool) to inject user context\ninto the system prompt.\n\nReturns:\n    List of memory strings, ready for system prompt injection."
-  },
-  {
-    "name": "HermesMemoryBank.list_revisions",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 369,
-    "line_end": 379,
-    "signature": "list_revisions(self, user_id)",
-    "docstring": "Return revision history for memories belonging to a user.\n\nNote: Memory revision history is not directly exposed in the AgentEngine API (SDK >= 1.112).\nReturns an empty list for backward compatibility."
-  },
-  {
-    "name": "HermesMemoryBank.format_for_prompt",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 381,
-    "line_end": 406,
-    "signature": "format_for_prompt(self, user_id, query, max_tokens)",
-    "docstring": "Fetch memories and format them as a system prompt snippet.\n\nReturns an empty string if no memories are found or MemoryBank is unavailable.\nThe caller (gateway/main.py) injects this into the session system prompt."
-  },
-  {
-    "name": "build_memory_bank",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 411,
-    "line_end": 427,
-    "signature": "build_memory_bank()",
-    "docstring": "Build a HermesMemoryBank from settings.\n\nReturns None if MEMORY_BANK_RESOURCE_NAME is not configured (graceful degradation)."
-  },
-  {
-    "name": "create_memory_bank",
-    "kind": "function",
-    "file": "memory/memory_bank.py",
-    "line_start": 432,
-    "line_end": 498,
-    "signature": "create_memory_bank(project, location, display_name)",
-    "docstring": "Create a new AgentEngine resource to serve as the MemoryBank.\nReturns the resource name (stored in MEMORY_BANK_RESOURCE_NAME).\n\nSafe to call multiple times — returns existing resource if found.\n\nMigration note:\n    In SDK >= 1.112, there is no standalone VertexAiMemoryBank resource class.\n    Memories are associated with an AgentEngine. This function creates a\n    lightweight AgentEngine (no agent code) dedicated to memory storage,\n    which replaces the old `vertexai.preview.memory_bank.MemoryBank.create()` call."
-  },
-  {
-    "name": "tests.memory.test_memory_bank",
-    "kind": "module",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 1,
-    "line_end": 1,
-    "signature": null,
-    "docstring": null
-  },
-  {
-    "name": "_make_mock_client",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "line_start": 32,
-    "line_end": 39,
-    "signature": "_make_mock_client()",
-    "docstring": "Return a (mock_client, mock_memories) pair for new vertexai.Client API."
-  },
-  {
-    "name": "_make_engine",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 42,
-    "line_end": 49,
-    "signature": "_make_engine(resource_name, display_name)",
-    "docstring": "Build a mock AgentEngine that mirrors the SDK >= 1.112 structure:\n  engine.api_resource.name         → resource_name\n  engine.api_resource.display_name → display_name"
-  },
-  {
-    "name": "_make_memory",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 52,
-    "line_end": 53,
-    "signature": "_make_memory(fact)",
-    "docstring": null
-  },
-  {
-    "name": "TestGenerateMemories",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 58,
-    "line_end": 111,
+    "line_end": 35,
     "signature": null,
     "docstring": null
   },
   {
-    "name": "TestGenerateMemories.test_success_calls_memories_generate",
+    "name": "_auth_headers",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 60,
-    "line_end": 75,
-    "signature": "test_success_calls_memories_generate(self)",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "line_start": 38,
+    "line_end": 44,
+    "signature": "_auth_headers(bearer_token, api_key)",
     "docstring": null
   },
   {
-    "name": "TestGenerateMemories.test_success_with_agent_name_in_events",
+    "name": "probe_gateway",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 77,
-    "line_end": 90,
-    "signature": "test_success_with_agent_name_in_events(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestGenerateMemories.test_exception_is_swallowed",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 92,
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "line_start": 47,
     "line_end": 102,
-    "signature": "test_exception_is_swallowed(self)",
+    "signature": "probe_gateway(gateway_url, message, bearer_token, api_key, timeout_s)",
     "docstring": null
   },
   {
-    "name": "TestGenerateMemories.test_client_is_lazily_initialised",
+    "name": "_extract_response_text",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 104,
-    "line_end": 111,
-    "signature": "test_client_is_lazily_initialised(self)",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "line_start": 105,
+    "line_end": 115,
+    "signature": "_extract_response_text(response)",
     "docstring": null
   },
   {
-    "name": "TestFetchMemories",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 116,
-    "line_end": 155,
-    "signature": null,
-    "docstring": null
-  },
-  {
-    "name": "TestFetchMemories.test_returns_fact_strings",
+    "name": "probe_sdk",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "scripts/demo/cloud_smoke_test.py",
     "line_start": 118,
-    "line_end": 127,
-    "signature": "test_returns_fact_strings(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestFetchMemories.test_returns_empty_list_on_error",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 129,
-    "line_end": 135,
-    "signature": "test_returns_empty_list_on_error(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestFetchMemories.test_passes_top_k_and_scope_to_sdk",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 137,
-    "line_end": 145,
-    "signature": "test_passes_top_k_and_scope_to_sdk(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestFetchMemories.test_memory_without_fact_attr_falls_back_to_str",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 147,
     "line_end": 155,
-    "signature": "test_memory_without_fact_attr_falls_back_to_str(self)",
+    "signature": "probe_sdk(project_id, location, reasoning_engine_resource_name, user_id, message, client_factory)",
     "docstring": null
   },
   {
-    "name": "TestListRevisions",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 160,
-    "line_end": 168,
+    "name": "_detect_mode",
+    "kind": "function",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "line_start": 158,
+    "line_end": 161,
+    "signature": "_detect_mode(requested_mode, gateway_url)",
+    "docstring": null
+  },
+  {
+    "name": "parse_args",
+    "kind": "function",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "line_start": 164,
+    "line_end": 180,
+    "signature": "parse_args(argv)",
+    "docstring": null
+  },
+  {
+    "name": "main",
+    "kind": "function",
+    "file": "scripts/demo/cloud_smoke_test.py",
+    "line_start": 183,
+    "line_end": 212,
+    "signature": "main(argv)",
+    "docstring": null
+  },
+  {
+    "name": "agents.aggregator",
+    "kind": "module",
+    "file": "agents/aggregator.py",
+    "line_start": 1,
+    "line_end": 1,
     "signature": null,
     "docstring": null
   },
   {
-    "name": "TestListRevisions.test_returns_empty_list",
+    "name": "build_aggregator_agent",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 162,
-    "line_end": 168,
-    "signature": "test_returns_empty_list(self)",
-    "docstring": "list_revisions is not supported in SDK >= 1.112 — always returns []."
+    "file": "agents/aggregator.py",
+    "line_start": 70,
+    "line_end": 81,
+    "signature": "build_aggregator_agent(settings)",
+    "docstring": "Build the AggregatorAgent that consolidates parallel outputs."
   },
   {
-    "name": "TestFormatForPrompt",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 173,
-    "line_end": 217,
+    "name": "agents.task_agent",
+    "kind": "module",
+    "file": "agents/task_agent.py",
+    "line_start": 1,
+    "line_end": 1,
     "signature": null,
     "docstring": null
   },
   {
-    "name": "TestFormatForPrompt.test_returns_formatted_string_with_header",
+    "name": "build_task_agent",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 175,
-    "line_end": 186,
-    "signature": "test_returns_formatted_string_with_header(self)",
+    "file": "agents/task_agent.py",
+    "line_start": 115,
+    "line_end": 188,
+    "signature": "build_task_agent(settings, specialist_agents)",
+    "docstring": "Build TaskAgent with dynamic agent synthesis.\n\nspecialist_agents: the default fallback set (from agents.yaml).\nAt runtime, AgentSynthesizer will produce task-specific agent sets.\n\nFor the static build (deploy time), we use specialist_agents as the\nParallelDispatcher's children and also expose them for sequential use.\nEach set is built fresh to avoid the ADK dual-parent restriction.\n\nParallel flow (independent sub-tasks):\n    SequentialPipeline\n      ├── ParallelDispatcher  (all specialists simultaneously)\n      └── AggregatorAgent     (consolidates into ONE user reply)\n\nSequential flow (dependent sub-tasks):\n    TaskAgent → sequential transfer_to_agent (individual specialists)"
+  },
+  {
+    "name": "build_dynamic_parallel_dispatcher",
+    "kind": "function",
+    "file": "agents/task_agent.py",
+    "line_start": 191,
+    "line_end": 237,
+    "signature": "build_dynamic_parallel_dispatcher(settings, task)",
+    "docstring": "Synthesise a task-specific SequentialPipeline (ParallelDispatcher +\nAggregatorAgent) + sequential agent list.\n\nThis is called at REQUEST TIME (not deploy time) for true JIT synthesis.\nReturns (SequentialPipeline, sequential_agents) ready for dynamic dispatch.\n\nUsage in a tool or callback:\n    pipeline, seq_agents = build_dynamic_parallel_dispatcher(settings, task)\n    # then use pipeline for parallel, seq_agents for sequential"
+  },
+  {
+    "name": "hermes_app.__init__",
+    "kind": "module",
+    "file": "hermes_app/__init__.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
     "docstring": null
   },
   {
-    "name": "TestFormatForPrompt.test_returns_empty_string_when_no_memories",
+    "name": "hermes_app.agent",
+    "kind": "module",
+    "file": "hermes_app/agent.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "agent",
+    "kind": "module",
+    "file": "agent.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "config",
+    "kind": "module",
+    "file": "config.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Settings",
+    "kind": "class",
+    "file": "config.py",
+    "line_start": 7,
+    "line_end": 196,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Settings.cors_origins_list",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "config.py",
+    "line_start": 143,
+    "line_end": 144,
+    "signature": "cors_origins_list(self)",
+    "docstring": null
+  },
+  {
+    "name": "Settings.inject_litellm_env",
+    "kind": "function",
+    "file": "config.py",
+    "line_start": 146,
+    "line_end": 163,
+    "signature": "inject_litellm_env(self)",
+    "docstring": "Export provider API keys into the process environment so that LiteLLM\ncan pick them up automatically.  Call once at application startup."
+  },
+  {
+    "name": "Settings.validate_rag_regions",
+    "kind": "function",
+    "file": "config.py",
+    "line_start": 166,
+    "line_end": 196,
+    "signature": "validate_rag_regions(self)",
+    "docstring": "Check that all configured RAG corpus resource names are in the same\nregion as gcp_location.  Returns a list of warning strings (empty = OK).\n\nCall at startup to catch cross-region mismatches before the first request.\nExample bad config: gcp_location=us-central1 but corpus in us-central1."
+  },
+  {
+    "name": "get_settings",
+    "kind": "function",
+    "file": "config.py",
+    "line_start": 200,
+    "line_end": 201,
+    "signature": "get_settings()",
+    "docstring": null
+  },
+  {
+    "name": "tests.agents.test_aggregator",
+    "kind": "module",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "settings",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 17,
+    "line_end": 21,
+    "signature": "settings()",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAggregatorAgent",
+    "kind": "class",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 27,
+    "line_end": 39,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAggregatorAgent.test_returns_llm_agent",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 28,
+    "line_end": 30,
+    "signature": "test_returns_llm_agent(self, settings)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAggregatorAgent.test_has_description",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 32,
+    "line_end": 34,
+    "signature": "test_has_description(self, settings)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildAggregatorAgent.test_no_tools",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 36,
+    "line_end": 39,
+    "signature": "test_no_tools(self, settings)",
+    "docstring": "AggregatorAgent should not have external tools — it only reads context."
+  },
+  {
+    "name": "TestBuildTaskAgentSequentialPipeline",
+    "kind": "class",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 45,
+    "line_end": 80,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestBuildTaskAgentSequentialPipeline.test_first_sub_agent_is_sequential_pipeline",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 46,
+    "line_end": 49,
+    "signature": "test_first_sub_agent_is_sequential_pipeline(self, settings)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildTaskAgentSequentialPipeline.test_sequential_pipeline_has_two_children",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 51,
+    "line_end": 54,
+    "signature": "test_sequential_pipeline_has_two_children(self, settings)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildTaskAgentSequentialPipeline.test_pipeline_first_child_is_parallel_dispatcher",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 56,
+    "line_end": 60,
+    "signature": "test_pipeline_first_child_is_parallel_dispatcher(self, settings)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildTaskAgentSequentialPipeline.test_pipeline_second_child_is_aggregator",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 62,
+    "line_end": 66,
+    "signature": "test_pipeline_second_child_is_aggregator(self, settings)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildTaskAgentSequentialPipeline.test_parallel_dispatcher_has_four_specialists",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 68,
+    "line_end": 72,
+    "signature": "test_parallel_dispatcher_has_four_specialists(self, settings)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildTaskAgentSequentialPipeline.test_specialist_agents_appended_for_sequential_fallback",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 74,
+    "line_end": 80,
+    "signature": "test_specialist_agents_appended_for_sequential_fallback(self, settings)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildDynamicParallelDispatcher",
+    "kind": "class",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 86,
+    "line_end": 127,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TestBuildDynamicParallelDispatcher.test_returns_none_when_no_agents_synthesised",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 87,
+    "line_end": 97,
+    "signature": "test_returns_none_when_no_agents_synthesised(self, settings, monkeypatch)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildDynamicParallelDispatcher.test_returns_sequential_pipeline_when_agents_found",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 99,
+    "line_end": 112,
+    "signature": "test_returns_sequential_pipeline_when_agents_found(self, settings, monkeypatch)",
+    "docstring": null
+  },
+  {
+    "name": "TestBuildDynamicParallelDispatcher.test_dynamic_pipeline_ends_with_aggregator",
+    "kind": "function",
+    "file": "tests/agents/test_aggregator.py",
+    "line_start": 114,
+    "line_end": 127,
+    "signature": "test_dynamic_pipeline_ends_with_aggregator(self, settings, monkeypatch)",
+    "docstring": null
+  },
+  {
+    "name": "tests.conftest",
+    "kind": "module",
+    "file": "tests/conftest.py",
+    "line_start": 1,
+    "line_end": 1,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_make_module",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 22,
+    "line_end": 26,
+    "signature": "_make_module(name)",
+    "docstring": null
+  },
+  {
+    "name": "_FakeLlmAgent",
+    "kind": "class",
+    "file": "tests/conftest.py",
+    "line_start": 30,
+    "line_end": 36,
+    "signature": null,
+    "docstring": "Lightweight stand-in for google.adk.agents.LlmAgent."
+  },
+  {
+    "name": "_FakeLlmAgent.__init__",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 32,
+    "line_end": 36,
+    "signature": "__init__(self)",
+    "docstring": null
+  },
+  {
+    "name": "_FakeLoopAgent",
+    "kind": "class",
+    "file": "tests/conftest.py",
+    "line_start": 39,
+    "line_end": 41,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "_FakeLoopAgent.__init__",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 40,
+    "line_end": 41,
+    "signature": "__init__(self)",
+    "docstring": null
+  },
+  {
+    "name": "_FakeParallelAgent",
+    "kind": "class",
+    "file": "tests/conftest.py",
+    "line_start": 44,
+    "line_end": 49,
+    "signature": null,
+    "docstring": "Lightweight stand-in for google.adk.agents.ParallelAgent."
+  },
+  {
+    "name": "_FakeParallelAgent.__init__",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 46,
+    "line_end": 49,
+    "signature": "__init__(self)",
+    "docstring": null
+  },
+  {
+    "name": "_FakeSequentialAgent",
+    "kind": "class",
+    "file": "tests/conftest.py",
+    "line_start": 52,
+    "line_end": 57,
+    "signature": null,
+    "docstring": "Lightweight stand-in for google.adk.agents.SequentialAgent."
+  },
+  {
+    "name": "_FakeSequentialAgent.__init__",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 54,
+    "line_end": 57,
+    "signature": "__init__(self)",
+    "docstring": null
+  },
+  {
+    "name": "_noop_limit",
+    "kind": "function",
+    "file": "tests/conftest.py",
+    "line_start": 168,
+    "line_end": 174,
+    "signature": "_noop_limit(_rate)",
+    "docstring": null
+  },
+  {
+    "name": "_FakeEventSourceResponse",
+    "kind": "class",
+    "file": "tests/conftest.py",
+    "line_start": 186,
+    "line_end": 189,
+    "signature": null,
+    "docstring": "Minimal stub so FastAPI accepts EventSourceResponse as a response type."
+  },
+  {
+    "name": "_FakeEventSourceResponse.__init__",
+    "kind": "function",
+    "file": "tests/conftest.py",
     "line_start": 188,
-    "line_end": 194,
-    "signature": "test_returns_empty_string_when_no_memories(self)",
+    "line_end": 189,
+    "signature": "__init__(self, content)",
     "docstring": null
   },
   {
-    "name": "TestFormatForPrompt.test_returns_empty_string_when_fetch_fails",
+    "name": "_register_all",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 196,
-    "line_end": 202,
-    "signature": "test_returns_empty_string_when_fetch_fails(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestFormatForPrompt.test_respects_max_tokens_budget",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 204,
-    "line_end": 217,
-    "signature": "test_respects_max_tokens_budget(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestBuildMemoryBank",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
+    "file": "tests/conftest.py",
     "line_start": 222,
-    "line_end": 268,
+    "line_end": 285,
+    "signature": "_register_all()",
+    "docstring": null
+  },
+  {
+    "name": "tests.scripts.test_cloud_smoke_test",
+    "kind": "module",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "line_start": 1,
+    "line_end": 1,
     "signature": null,
     "docstring": null
   },
   {
-    "name": "TestBuildMemoryBank.test_returns_none_when_resource_name_not_set",
+    "name": "test_probe_gateway_success_parses_sse_done",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 224,
-    "line_end": 233,
-    "signature": "test_returns_none_when_resource_name_not_set(self)",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "line_start": 9,
+    "line_end": 32,
+    "signature": "test_probe_gateway_success_parses_sse_done()",
     "docstring": null
   },
   {
-    "name": "TestBuildMemoryBank.test_returns_none_when_resource_name_is_empty_string",
+    "name": "test_probe_gateway_fails_on_http_error",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 235,
-    "line_end": 244,
-    "signature": "test_returns_none_when_resource_name_is_empty_string(self)",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "line_start": 35,
+    "line_end": 54,
+    "signature": "test_probe_gateway_fails_on_http_error()",
     "docstring": null
   },
   {
-    "name": "TestBuildMemoryBank.test_returns_hermes_memory_bank_when_configured",
+    "name": "test_probe_sdk_success_uses_existing_engine_by_name",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 246,
-    "line_end": 258,
-    "signature": "test_returns_hermes_memory_bank_when_configured(self)",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "line_start": 57,
+    "line_end": 80,
+    "signature": "test_probe_sdk_success_uses_existing_engine_by_name()",
     "docstring": null
   },
   {
-    "name": "TestBuildMemoryBank.test_returns_none_on_exception",
+    "name": "test_main_gateway_missing_url_fails",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 260,
-    "line_end": 268,
-    "signature": "test_returns_none_on_exception(self)",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "line_start": 83,
+    "line_end": 85,
+    "signature": "test_main_gateway_missing_url_fails()",
     "docstring": null
   },
   {
-    "name": "TestCreateMemoryBank",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 273,
-    "line_end": 330,
-    "signature": null,
-    "docstring": null
-  },
-  {
-    "name": "TestCreateMemoryBank.test_creates_and_returns_resource_name",
+    "name": "test_extract_response_text_formats",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 275,
-    "line_end": 283,
-    "signature": "test_creates_and_returns_resource_name(self)",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "line_start": 88,
+    "line_end": 92,
+    "signature": "test_extract_response_text_formats()",
     "docstring": null
   },
   {
-    "name": "TestCreateMemoryBank.test_returns_existing_engine_when_display_name_matches",
+    "name": "test_main_sdk_mode_success",
     "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 285,
-    "line_end": 295,
-    "signature": "test_returns_existing_engine_when_display_name_matches(self)",
+    "file": "tests/scripts/test_cloud_smoke_test.py",
+    "line_start": 95,
+    "line_end": 106,
+    "signature": "test_main_sdk_mode_success()",
     "docstring": null
-  },
-  {
-    "name": "TestCreateMemoryBank.test_skips_non_matching_display_name_in_list",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 297,
-    "line_end": 308,
-    "signature": "test_skips_non_matching_display_name_in_list(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestCreateMemoryBank.test_uses_custom_display_name",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 310,
-    "line_end": 321,
-    "signature": "test_uses_custom_display_name(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestCreateMemoryBank.test_proceeds_to_create_when_list_raises",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 323,
-    "line_end": 330,
-    "signature": "test_proceeds_to_create_when_list_raises(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestIngestEvents",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 335,
-    "line_end": 373,
-    "signature": null,
-    "docstring": null
-  },
-  {
-    "name": "TestIngestEvents.test_calls_memories_ingest_events",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 337,
-    "line_end": 354,
-    "signature": "test_calls_memories_ingest_events(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestIngestEvents.test_normalises_agent_role_to_model",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 356,
-    "line_end": 365,
-    "signature": "test_normalises_agent_role_to_model(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestIngestEvents.test_exception_is_swallowed",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 367,
-    "line_end": 373,
-    "signature": "test_exception_is_swallowed(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestPurgeMemories",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 378,
-    "line_end": 406,
-    "signature": null,
-    "docstring": null
-  },
-  {
-    "name": "TestPurgeMemories.test_calls_purge_with_force_true",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 380,
-    "line_end": 389,
-    "signature": "test_calls_purge_with_force_true(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestPurgeMemories.test_dry_run_skips_purge_call",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 391,
-    "line_end": 398,
-    "signature": "test_dry_run_skips_purge_call(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestPurgeMemories.test_returns_zero_on_exception",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 400,
-    "line_end": 406,
-    "signature": "test_returns_zero_on_exception(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestDeleteMemory",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 411,
-    "line_end": 429,
-    "signature": null,
-    "docstring": null
-  },
-  {
-    "name": "TestDeleteMemory.test_calls_memories_delete",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 413,
-    "line_end": 421,
-    "signature": "test_calls_memories_delete(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestDeleteMemory.test_returns_false_on_exception",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 423,
-    "line_end": 429,
-    "signature": "test_returns_false_on_exception(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestCreateMemory",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 434,
-    "line_end": 455,
-    "signature": null,
-    "docstring": null
-  },
-  {
-    "name": "TestCreateMemory.test_calls_memories_create_and_returns_name",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 436,
-    "line_end": 447,
-    "signature": "test_calls_memories_create_and_returns_name(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestCreateMemory.test_returns_none_on_exception",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 449,
-    "line_end": 455,
-    "signature": "test_returns_none_on_exception(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestUpdateMemory",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 460,
-    "line_end": 482,
-    "signature": null,
-    "docstring": null
-  },
-  {
-    "name": "TestUpdateMemory.test_calls_memories_update",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 462,
-    "line_end": 474,
-    "signature": "test_calls_memories_update(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestUpdateMemory.test_returns_false_on_exception",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 476,
-    "line_end": 482,
-    "signature": "test_returns_false_on_exception(self)",
-    "docstring": null
-  },
-  {
-    "name": "TestRetrieveProfiles",
-    "kind": "class",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 487,
-    "line_end": 495,
-    "signature": null,
-    "docstring": null
-  },
-  {
-    "name": "TestRetrieveProfiles.test_returns_empty_list",
-    "kind": "function",
-    "file": "tests/memory/test_memory_bank.py",
-    "line_start": 489,
-    "line_end": 495,
-    "signature": "test_returns_empty_list(self)",
-    "docstring": "retrieve_profiles is not supported in SDK >= 1.112 — always returns []."
   }
 ]

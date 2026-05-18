@@ -1,61 +1,61 @@
 {
-  "run_id": "1ae2e716-49b9-4705-8aee-bd698045f893",
-  "generated_at": "2026-05-17T12:38:29.269278+00:00",
-  "file_count": 148,
-  "symbol_count": 68,
-  "relationship_count": 288,
+  "run_id": "d1c583b5-5e22-4b2e-8783-dd309a52b7dc",
+  "generated_at": "2026-05-18T12:38:50.183512+00:00",
+  "file_count": 158,
+  "symbol_count": 63,
+  "relationship_count": 246,
   "nav_order": [
-    "core-modules",
+    "index",
     "architecture",
+    "core-modules",
+    "algorithms",
     "cli-and-api",
     "installation-and-setup",
-    "index",
-    "technical-debt",
+    "configuration",
     "testing",
     "ecosystem-and-integrations",
-    "algorithms",
-    "configuration"
+    "technical-debt"
   ],
   "pages": [
     {
-      "slug": "core-modules",
-      "title": "Memory Module Reference"
+      "slug": "index",
+      "title": "Project Overview"
     },
     {
       "slug": "architecture",
-      "title": "Memory Bank Architecture Overview"
+      "title": "Deep Architectural Overview"
+    },
+    {
+      "slug": "core-modules",
+      "title": "Significant Modules and Packages"
+    },
+    {
+      "slug": "algorithms",
+      "title": "Core Algorithms and Data Processing Logic"
     },
     {
       "slug": "cli-and-api",
-      "title": "Memory Bank CLI and Programmatic API Reference"
+      "title": "CLI Reference and Programmatic API"
     },
     {
       "slug": "installation-and-setup",
       "title": "Installation and Setup Guide"
     },
     {
-      "slug": "index",
-      "title": "Project Overview: Hermes Memory Bank"
-    },
-    {
-      "slug": "technical-debt",
-      "title": "Technical Debt Assessment: `memory/memory_bank.py`"
+      "slug": "configuration",
+      "title": "Configuration Reference"
     },
     {
       "slug": "testing",
-      "title": "Testing Strategy and Test Execution"
+      "title": "Testing Strategy and How to Run Tests"
     },
     {
       "slug": "ecosystem-and-integrations",
       "title": "External Integrations, Plugins, and Ecosystem"
     },
     {
-      "slug": "algorithms",
-      "title": "Memory Bank Algorithms and Data Processing"
-    },
-    {
-      "slug": "configuration",
-      "title": "Configuration Reference for Hermes Memory Bank"
+      "slug": "technical-debt",
+      "title": "Technical Debt Inventory"
     }
   ],
   "diagrams": [

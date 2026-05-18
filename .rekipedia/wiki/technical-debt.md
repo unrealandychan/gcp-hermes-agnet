@@ -1,254 +1,237 @@
 ---
 slug: technical-debt
-title: "Technical Debt Assessment: `memory/memory_bank.py`"
+title: "Technical Debt Inventory"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T12:37:13Z
+created_at: 2026-05-18T12:38:50Z
 rekipedia_version: 0.15.1
 ---
 
-# Technical Debt Assessment: `memory/memory_bank.py`
+# Technical Debt Inventory
 
 ## Summary
 
-This codebase is small and focused, with a single implementation module and a strong test suite around its core behaviors (`memory/memory_bank.py` and `tests/memory/test_memory_bank.py`). Overall technical debt is **Medium**: the implementation is reasonably well-tested, but it carries a few maintainability risks, notably a very large facade class, repeated error-handling patterns, and several intentionally unsupported compatibility methods that add API surface without real functionality.
+This codebase is functional but shows **meaningful structural and maintenance debt**, especially around agent composition and runtime entry-point setup. The overall debt rating is **Medium**: the tested core paths are reasonably covered, but there are clear gaps in modularity, test breadth, and operational hardening, with some evidence of placeholder/infrastructure code that may become brittle as the project grows.
 
-The biggest debt is not correctness-related but architectural: [`HermesMemoryBank`](memory/memory_bank.py#L79) centralizes many responsibilities, while `build_memory_bank()` and `create_memory_bank()` embed configuration, SDK adaptation, and resource-creation logic in the same module. The tests are thorough for the supported behaviors, but several methods return empty values by design, which should be documented and revisited as SDK support evolves.
-
----
+The most significant concerns are concentrated in [`agents/task_agent.py`](agents/task_agent.py#L115) and [`scripts/demo/cloud_smoke_test.py`](scripts/demo/cloud_smoke_test.py#L47), where high-coupling orchestration logic and multi-mode probing logic create large hub functions that are harder to test and evolve safely.
 
 ## Debt Inventory
 
 | # | Area | Severity | Description | Files Affected | Effort to Fix |
 |---|------|----------|-------------|----------------|---------------|
-| 1 | Large facade / mixed responsibilities | 🟠 High | [`HermesMemoryBank`](memory/memory_bank.py#L79) bundles client lifecycle, memory CRUD, prompt formatting, batching, purge, and compatibility stubs in one class. | `memory/memory_bank.py` | L |
-| 2 | Repeated exception-swallowing pattern | 🟡 Medium | Multiple methods catch broad exceptions and return fallback values, which can hide partial failures and make debugging harder. | `memory/memory_bank.py` | M |
-| 3 | Unsupported methods retained for compatibility | 🟡 Medium | [`retrieve_profiles`](memory/memory_bank.py#L315), [`list_revisions`](memory/memory_bank.py#L369) always return empty lists, which may mislead callers. | `memory/memory_bank.py` | S |
-| 4 | Token budgeting / truncation logic is ad hoc | 🟡 Medium | [`format_for_prompt`](memory/memory_bank.py#L381) implements token budgeting locally with string-length logic rather than a shared utility. | `memory/memory_bank.py` | M |
-| 5 | Async wrapper around blocking SDK calls | 🟡 Medium | `asyncio.to_thread()` is used repeatedly to offload blocking SDK calls; effective, but repetitive and easy to misapply. | `memory/memory_bank.py` | M |
-| 6 | Test-only fake SDK objects mirror production SDK internals | 🟢 Low | Helper mocks like [`_make_mock_client`](tests/memory/test_memory_bank.py#L32) and [`_make_engine`](tests/memory/test_memory_bank.py#L42) are tightly coupled to current SDK structure. | `tests/memory/test_memory_bank.py` | S |
-| 7 | Missing repository-wide dependency visibility | 🟢 Low | No `pyproject.toml`, `package.json`, or `go.mod` was present in the analyzed files, so dependency risk cannot be assessed from evidence. | N/A | S |
+| 1 | Agent orchestration | 🟠 High | [`build_task_agent`](agents/task_agent.py#L115) centralizes multiple build paths, specialist imports, and fallback wiring in one function, creating a “god factory” with high coupling. | `agents/task_agent.py` | L |
+| 2 | Dynamic dispatch flow | 🟠 High | [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) mixes synthesis, warning/logging, and pipeline assembly, making runtime behavior hard to isolate. | `agents/task_agent.py` | M |
+| 3 | CLI smoke test complexity | 🟠 High | [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) and [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) contain dense, branching error-handling logic and multiple response-shape transformations. | `scripts/demo/cloud_smoke_test.py` | M |
+| 4 | Configuration monolith | 🟡 Medium | [`Settings`](config.py#L7) consolidates environment parsing, Litellm env injection, and RAG region validation in a single class with many responsibilities. | `config.py` | M |
+| 5 | Test coverage gaps | 🟡 Medium | There are only 3 test files for 8 implementation files; several implementation modules have no direct tests. | `agents/*.py`, `hermes_app/*.py`, `agent.py`, `config.py`, `scripts/__init__.py`, `scripts/demo/__init__.py`, `local_sessions.db` | M |
+| 6 | Test harness overuse | 🟡 Medium | [`tests/conftest.py`](tests/conftest.py#L22) provides many stubs and module registrations, suggesting the production code is tightly coupled to external packages and hard to test directly. | `tests/conftest.py`, production modules that depend on injected stubs | M |
+| 7 | Placeholder / empty package modules | 🟢 Low | Several `__init__.py` files are effectively empty, which is normal in Python but can signal undeclared package boundaries or lack of documented public API. | `scripts/__init__.py`, `scripts/demo/__init__.py`, `hermes_app/__init__.py` | S |
+| 8 | Untracked dependency risk | 🟠 High | No `pyproject.toml`, `package.json`, or `go.mod` was present in the supplied analysis, so dependency versions and security posture cannot be verified from the repo snapshot. | Project root metadata missing from supplied data | M |
 
-> **Sources:** `memory/memory_bank.py` · L1–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)  
-> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · [`TestGenerateMemories`](tests/memory/test_memory_bank.py#L58), [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273)
-
----
+> **Sources:** `agents/task_agent.py` · L115–L237 · [`build_task_agent`](agents/task_agent.py#L115), [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191); `scripts/demo/cloud_smoke_test.py` · L47–L212 · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118); `config.py` · L7–L201 · [`Settings`](config.py#L7), [`Settings.inject_litellm_env`](config.py#L146), [`Settings.validate_rag_regions`](config.py#L166); `tests/conftest.py` · L22–L285 · [`_make_module`](tests/conftest.py#L22), [`_register_all`](tests/conftest.py#L222)
 
 ## Critical Issues
 
-No **Critical** issues were evidenced in the provided analysis. The module appears functionally covered by tests, and there are no explicit signs of data loss bugs, security vulnerabilities, or broken entry points in the analyzed code.
+### 1) High coupling in `build_task_agent`
 
-### High: Large Facade Class with Multiple Responsibilities
+[`build_task_agent`](agents/task_agent.py#L115) is responsible for assembling the static task pipeline, importing specialist builders, creating the parallel path, the sequential fallback path, the aggregator, and the skill-learning callback wiring. The function’s docstring explicitly describes both “parallel flow” and “sequential flow,” which confirms it is orchestrating multiple concerns at once.
 
-[`HermesMemoryBank`](memory/memory_bank.py#L79) is a broad application facade over Vertex AI Agent Engine memories. It implements client initialization, ingestion, retrieval, creation, update, deletion, purge, prompt formatting, and compatibility shims all in one class.
+**Why this is a problem**
 
-#### Why this is a problem
-- It increases cognitive load and makes the module harder to change safely.
-- It couples unrelated responsibilities: network client management, domain logic, and presentation formatting.
-- It makes testing more brittle as one class accumulates more branches and SDK adaptation logic.
+- Changes to one specialist or pipeline stage can ripple through the whole constructor.
+- It is difficult to test individual wiring decisions without building the entire agent tree.
+- The function’s size and responsibility make it a natural hotspot for regressions.
 
-#### Concrete fix
-Split the class into focused collaborators:
-- `VertexClientProvider` for SDK/client creation
-- `MemoryWriter` for create/update/delete/purge/ingest operations
-- `MemoryRetriever` for `fetch_memories()` and prompt formatting
-- `MemoryCompatibilityAdapter` for unsupported methods
+**Concrete fix suggestion**
 
-Example direction:
+Split the function into smaller builders:
+- one function for the static parallel set,
+- one for sequential fallback assembly,
+- one for callback wiring,
+- one for model resolution.
 
-```python
-class MemoryRetriever:
-    def __init__(self, client):
-        self.client = client
-
-    async def fetch_memories(self, user_id: str, query: str, top_k: int = 10) -> list[str]:
-        ...
-```
-
-Then keep `HermesMemoryBank` as a thin orchestration layer or replace it with composition entirely.
-
-> **Sources:** `memory/memory_bank.py` · L79–L406 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`generate_memories`](memory/memory_bank.py#L105), [`fetch_memories`](memory/memory_bank.py#L331), [`format_for_prompt`](memory/memory_bank.py#L381)
-
-### High: Unsupported API Methods Exposed as Functional Surface
-
-[`retrieve_profiles`](memory/memory_bank.py#L315) and [`list_revisions`](memory/memory_bank.py#L369) are documented as unsupported in the current SDK and always return `[]`.
-
-#### Why this is a problem
-- These methods present an API that appears implemented but is effectively inert.
-- Callers may assume they are retrieving meaningful data and build workflows around empty results.
-- The behavior is hidden behind normal-looking method signatures, increasing the risk of silent failure-by-design.
-
-#### Concrete fix
-Either:
-1. Remove them from public surface, or
-2. Raise a clear `NotImplementedError`, or
-3. Rename/document them as explicit compatibility stubs.
-
-For example:
+Example refactor shape:
 
 ```python
-def retrieve_profiles(self, user_id: str) -> list[str]:
-    raise NotImplementedError(
-        "RetrieveProfiles is not supported by SDK >= 1.112; use fetch_memories() instead."
-    )
+def build_parallel_children(settings, specialist_agents):
+    parallel_children = list(specialist_agents)
+    aggregator = build_aggregator_agent(settings)
+    return parallel_children, aggregator
+
+def build_task_agent(settings, specialist_agents):
+    model = get_model(settings)
+    parallel_children, aggregator = build_parallel_children(settings, specialist_agents)
+    parallel = ParallelAgent(children=parallel_children)
+    sequential = SequentialAgent(children=[parallel, aggregator])
+    return LlmAgent(model=model, children=[sequential])
 ```
 
-> **Sources:** `memory/memory_bank.py` · L315–L329 · [`retrieve_profiles`](memory/memory_bank.py#L315)  
-> **Sources:** `memory/memory_bank.py` · L369–L379 · [`list_revisions`](memory/memory_bank.py#L369)
+This keeps the top-level function as a coordinator rather than a full implementation container.
 
----
+> **Sources:** `agents/task_agent.py` · L115–L188 · [`build_task_agent`](agents/task_agent.py#L115), [`build_aggregator_agent`](agents/aggregator.py#L70), `config.py` · L7–L201 · [`Settings`](config.py#L7)
+
+### 2) Multi-responsibility dynamic dispatch pipeline
+
+[`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) does three different things: synthesises agents via [`AgentSynthesizer`](agents/task_agent.py#L191), conditionally logs/warns when no agents are found, and constructs a `SequentialAgent`/`ParallelAgent` pipeline when synthesis succeeds.
+
+**Why this is a problem**
+
+- Runtime synthesis logic is coupled to assembly logic.
+- The “no agents found” branch is handled inside the same function, which complicates call-site expectations.
+- The function is hard to reuse for partial synthesis or diagnostics.
+
+**Concrete fix suggestion**
+
+Return a small result object that separates “synthesis outcome” from “pipeline construction,” or split into:
+1. `synthesise_task_agents(...)`
+2. `assemble_dynamic_pipeline(...)`
+
+This makes it easier to test the synthesis outcome independently from the pipeline shape.
+
+> **Sources:** `agents/task_agent.py` · L191–L237 · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)
+
+### 3) Dense branching in smoke-test probing functions
+
+[`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) is a high fan-out function that:
+- builds auth headers,
+- calls `httpx.Client.post`,
+- parses streaming/JSON response content,
+- normalises text,
+- and maps failures into [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32).
+
+Similarly, [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) handles client initialization, engine lookup, query execution, and broad exception handling.
+
+**Why this is a problem**
+
+- The functions are doing transport, parsing, and result-shaping in one place.
+- A small change in response format can break multiple branches.
+- The functions are likely to accumulate edge cases over time.
+
+**Concrete fix suggestion**
+
+Factor out response normalization and exception mapping:
+- `parse_gateway_response(...)`
+- `build_smoke_result(...)`
+- `run_sdk_query(...)`
+
+This would reduce branching and make the error modes explicit.
+
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L32–L155 · [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32), [`_auth_headers`](scripts/demo/cloud_smoke_test.py#L38), [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105), [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118)
 
 ## Code Smell Patterns
 
-### 1) God Object / Bloated Facade
+### God factory / orchestration hub
 
-The strongest smell is the breadth of [`HermesMemoryBank`](memory/memory_bank.py#L79). It centralizes many unrelated operations and thus becomes a change magnet.
+A “god factory” pattern is visible in [`build_task_agent`](agents/task_agent.py#L115), which imports and wires multiple specialist builders from `agents.analytics`, `agents.developer`, `agents.hr`, `agents.it_helpdesk`, and `agents.synthesizer`, plus aggregator logic and model selection. The relationship graph shows this function calls at least 11 distinct internal symbols.
 
-**Example:** the class spans methods for generate, ingest, purge, delete, create, update, fetch, revisions, and prompt formatting.
+**Example**
 
-**Recommended refactor:** split by responsibility and keep only a small orchestration layer. This will also improve test isolation.
+- [`build_task_agent`](agents/task_agent.py#L115) calls [`build_aggregator_agent`](agents/aggregator.py#L70), [`build_analytics_agent`](agents/task_agent.py#L115), [`build_hr_agent`](agents/task_agent.py#L115), [`build_it_helpdesk_agent`](agents/task_agent.py#L115), [`build_developer_agent`](agents/task_agent.py#L115), and [`build_skill_learning_callback`](agents/task_agent.py#L115).
 
-> **Sources:** `memory/memory_bank.py` · L79–L406 · [`HermesMemoryBank`](memory/memory_bank.py#L79)
+**Recommended refactor**
+- Create an agent registry or composition map.
+- Move specialist creation into separate module-level factory functions.
+- Keep the orchestration layer declarative.
 
-### 2) Repeated Broad Exception Handling
+> **Sources:** `agents/task_agent.py` · L115–L188 · [`build_task_agent`](agents/task_agent.py#L115)
 
-Methods such as [`generate_memories`](memory/memory_bank.py#L105), [`ingest_events`](memory/memory_bank.py#L143), [`purge_memories`](memory/memory_bank.py#L187), [`delete_memory`](memory/memory_bank.py#L227), [`create_memory`](memory/memory_bank.py#L250), [`update_memory`](memory/memory_bank.py#L285), and [`fetch_memories`](memory/memory_bank.py#L331) all catch broad exceptions and return a fallback value.
+### Deep branching / defensive parsing
 
-**Why it matters:** this can mask infrastructure failures and make operational issues appear like normal empty responses.
+[`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) and [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105) contain several shape checks and transformations. The analysis shows repeated calls to string methods and repeated `get` lookups, which is a symptom of parsing logic that is accommodating too many possible response formats in a single routine.
 
-**Recommended refactor:** centralize exception handling in a helper that logs structured context and optionally distinguishes transient SDK errors from unsupported behavior.
+**Example**
+- [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105) uses `isinstance`, `getattr`, and multiple `get` accesses.
+- [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) handles SSE-like lines and JSON decoding in one flow.
 
-> **Sources:** `memory/memory_bank.py` · L105–L367 · [`generate_memories`](memory/memory_bank.py#L105), [`fetch_memories`](memory/memory_bank.py#L331)
+**Recommended refactor**
+- Introduce small parser helpers for each response format.
+- Fail fast for unsupported response shapes.
+- Keep the CLI runner separate from parsing.
 
-### 3) Ad Hoc Feature Degradation
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L47–L115 · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105)
 
-The compatibility methods [`retrieve_profiles`](memory/memory_bank.py#L315) and [`list_revisions`](memory/memory_bank.py#L369) are explicit no-ops. This is understandable for SDK migration, but it becomes technical debt if left indefinitely.
+### Configuration class with mixed responsibilities
 
-**Recommended refactor:** replace silent degradation with a compatibility shim that emits warnings or exceptions, and track removal in the roadmap.
+[`Settings`](config.py#L7) is doing environment sourcing, origin parsing via [`Settings.cors_origins_list`](config.py#L143), secret export via [`Settings.inject_litellm_env`](config.py#L146), and validation via [`Settings.validate_rag_regions`](config.py#L166).
 
-> **Sources:** `memory/memory_bank.py` · L315–L379 · [`retrieve_profiles`](memory/memory_bank.py#L315), [`list_revisions`](memory/memory_bank.py#L369)
+**Why it matters**
+- Configuration objects are easiest to maintain when they are mostly declarative.
+- Validation and side effects are harder to reason about when embedded in the same class.
 
-### 4) Local Token-Budget Heuristic
+**Recommended refactor**
+- Keep `Settings` as a pure schema.
+- Move env mutation into a bootstrap function.
+- Move validation into a standalone validator module.
 
-[`format_for_prompt`](memory/memory_bank.py#L381) assembles prompt text and trims by a `max_tokens` budget using local logic. That approach is reasonable, but it is isolated and likely hard to reuse consistently.
-
-**Recommended refactor:** extract prompt formatting into a shared utility and define a single token-counting strategy.
-
-> **Sources:** `memory/memory_bank.py` · L381–L406 · [`format_for_prompt`](memory/memory_bank.py#L381)
-
-### 5) Test Mock Structure Mirrors SDK Internals
-
-The test helpers [`_make_mock_client`](tests/memory/test_memory_bank.py#L32) and [`_make_engine`](tests/memory/test_memory_bank.py#L42) encode a specific object shape from the Vertex SDK.
-
-**Why it matters:** SDK updates may require repeated test updates even if app behavior remains unchanged.
-
-**Recommended refactor:** wrap SDK interactions behind a small adapter interface so tests mock the adapter, not SDK internals.
-
-> **Sources:** `tests/memory/test_memory_bank.py` · L32–L53 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32), [`_make_engine`](tests/memory/test_memory_bank.py#L42)
-
----
+> **Sources:** `config.py` · L7–L201 · [`Settings`](config.py#L7), [`Settings.cors_origins_list`](config.py#L143), [`Settings.inject_litellm_env`](config.py#L146), [`Settings.validate_rag_regions`](config.py#L166)
 
 ## Missing Tests
 
-Based on the provided analysis, there is **1 implementation file** and **1 test file**, so the raw ratio is superficially strong. However, test coverage is concentrated entirely on `memory/memory_bank.py`; there are no tests for configuration loading, SDK import fallback behavior, logging behavior, or any higher-level integration path.
+The repository has **3 test files for 8 implementation files** in the supplied snapshot, which is a modest but incomplete coverage ratio. The existing tests focus heavily on agent wiring and the smoke-test script, but there is no direct evidence of tests for the app entrypoints or configuration behaviors beyond the limited references in `tests/agents/test_aggregator.py`.
 
-### Areas with limited or unverified coverage
+### Modules lacking direct tests
 
-| Module / Function | Coverage Observation | Gap |
-|---|---|---|
-| [`_get_vertexai_client`](memory/memory_bank.py#L41) | Not directly tested for ImportError fallback messaging or settings fallback behavior. | Error-path and configuration-path verification missing. |
-| [`build_memory_bank`](memory/memory_bank.py#L411) | Tested for empty config and exception fallback. | No test of exact settings resolution or logging output. |
-| [`create_memory_bank`](memory/memory_bank.py#L432) | Good unit coverage for creation and existing-engine reuse. | No live integration test against real SDK objects. |
-| [`format_for_prompt`](memory/memory_bank.py#L381) | Tested for formatting and token budget. | No test for edge cases like long memory entries with newline-heavy payloads. |
-| Compatibility methods | Tested that they return empty lists. | No test that callers are warned or that these stubs are intentionally deprecated. |
+| Module | Evidence of Missing Coverage |
+|---|---|
+| `agent.py` | No test file references it directly. |
+| `hermes_app/agent.py` | No test file references it directly. |
+| `config.py` | Referenced only indirectly in agent tests; no dedicated config test file is present. |
+| `scripts/__init__.py` | No tests; likely acceptable but indicates no explicit package API contract. |
+| `scripts/demo/__init__.py` | No tests. |
+| `scripts/demo/cloud_smoke_test.py` | Has tests, but not all branches are covered; for example, `_detect_mode` and several `main()` exit paths are only lightly exercised. |
+| `local_sessions.db` | Not a testable module, but its presence as an implementation artifact suggests runtime state is bundled with code. |
 
-### Coverage ratio note
-The analysis does not provide numeric coverage metrics, so this assessment is qualitative. The test suite is broad within this module, but the repo as analyzed does not expose enough breadth to prove coverage outside the memory-bank boundary.
+### Specific functions with limited or absent direct coverage
 
-> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)  
-> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · test classes and helpers
+- [`Settings.inject_litellm_env`](config.py#L146)
+- [`Settings.validate_rag_regions`](config.py#L166)
+- [`get_settings`](config.py#L200)
+- [`_auth_headers`](scripts/demo/cloud_smoke_test.py#L38)
+- [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158)
+- [`main`](scripts/demo/cloud_smoke_test.py#L183) in non-happy-path modes
 
----
+The existing test suite is strongest around [`build_aggregator_agent`](agents/aggregator.py#L70), [`build_task_agent`](agents/task_agent.py#L115), and [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), but broader module-level coverage is still needed.
+
+> **Sources:** `tests/agents/test_aggregator.py` · L1–L127 · [`TestBuildAggregatorAgent`](tests/agents/test_aggregator.py#L27), [`TestBuildTaskAgentSequentialPipeline`](tests/agents/test_aggregator.py#L45), [`TestBuildDynamicParallelDispatcher`](tests/agents/test_aggregator.py#L86); `tests/scripts/test_cloud_smoke_test.py` · L1–L106 · [`test_probe_gateway_success_parses_sse_done`](tests/scripts/test_cloud_smoke_test.py#L9), [`test_main_sdk_mode_success`](tests/scripts/test_cloud_smoke_test.py#L95)
 
 ## Dependency & Security Concerns
 
-No `pyproject.toml`, `package.json`, or `go.mod` file was included in the provided analysis, so there is **insufficient evidence** to identify outdated packages, pinned versions, or known CVE-prone dependency patterns.
+The supplied analysis does **not include** `pyproject.toml`, `package.json`, or `go.mod`, so no concrete dependency version audit can be performed from the provided data. That means I cannot honestly flag specific outdated packages or known CVEs from dependency manifests.
 
-### What is observable
-- The implementation imports `vertexai` and relies on `config` settings.
-- The SDK migration note in [`create_memory_bank`](memory/memory_bank.py#L432) indicates a dependency on Vertex AI SDK behavior changes.
+That said, the code does expose a few **risky dependency patterns**:
 
-### Security posture notes
-- There are no obvious secrets handling issues visible in the analyzed files.
-- There are no explicit authentication/authorization checks in `memory/memory_bank.py`; that may be appropriate if this module is only a backend facade, but it should be validated at the call site.
+- [`scripts/demo/cloud_smoke_test.py`](scripts/demo/cloud_smoke_test.py#L47) imports network and cloud SDK packages (`httpx`, `vertexai`) directly inside the script module, which increases operational coupling to third-party APIs.
+- [`agents/task_agent.py`](agents/task_agent.py#L115) and [`agents/aggregator.py`](agents/aggregator.py#L70) depend on `google.adk.agents`, which is heavily mocked in tests, suggesting the runtime dependency is external and non-trivial.
+- [`hermes_app/agent.py`](hermes_app/agent.py#L1) and [`agent.py`](agent.py#L1) both import `dotenv` and `agents.orchestrator`, implying startup behavior depends on environment side effects.
 
-> **Sources:** `memory/memory_bank.py` · L1–L498 · imports and SDK adaptation logic in [`_get_vertexai_client`](memory/memory_bank.py#L41), [`create_memory_bank`](memory/memory_bank.py#L432)
+### Security posture observations
+- No dependency lockfile or manifest was provided in the analysis.
+- No CI files were present, so there is no evidence of automated vulnerability scanning.
+- The included `local_sessions.db` artifact indicates persisted local state exists in the repository snapshot; that is operationally sensitive if it contains real data.
 
----
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L1–L212 · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118); `agents/aggregator.py` · L1–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70); `agents/task_agent.py` · L1–L237 · [`build_task_agent`](agents/task_agent.py#L115)
 
 ## TODO / FIXME Tracker
 
-No `TODO`, `FIXME`, `HACK`, or `XXX` comments were present in the provided analysis data.
+No explicit `TODO`, `FIXME`, `HACK`, or `XXX` comments were provided in the analysis data, so I cannot enumerate them without risking invention. If you want this section to be exhaustive, the source text for the files must be scanned directly.
 
 | File | Line | Comment | Suggested Action |
 |---|---:|---|---|
-| — | — | No tracked TODO/FIXME comments evidenced | Add explicit tracker comments where future migration work is intended, especially around unsupported compatibility methods |
+| _No evidence provided_ | — | No TODO/FIXME/HACK/XXX entries surfaced in the supplied analysis payload. | Run a text scan over all repository files. |
 
-> **Sources:** `memory/memory_bank.py` · L1–L498 · no TODO/FIXME evidence in supplied analysis  
-> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · no TODO/FIXME evidence in supplied analysis
-
----
+> **Sources:** Analysis payload only; no comment index was included.
 
 ## Refactoring Roadmap
 
 | Priority | Action | Rationale | Estimated Effort |
-|----------|-----------|-----------|------------------|
-| 1 | Split [`HermesMemoryBank`](memory/memory_bank.py#L79) into smaller collaborators | Highest impact on maintainability; reduces class size and change risk | L |
-| 2 | Replace silent empty-list compatibility methods with explicit deprecation handling | Prevents hidden behavior and improves caller clarity | S |
-| 3 | Extract shared error-handling / retry policy for SDK calls | Reduces repeated `try/except` boilerplate and makes failure behavior consistent | M |
-| 4 | Extract prompt formatting/token budgeting into a reusable utility | Improves readability and reuse for any future prompt injection path | M |
-| 5 | Add tests for `_get_vertexai_client()` fallback and helpful ImportError messaging | Closes the main untested edge of SDK initialization | S |
-| 6 | Add a small adapter interface around Vertex SDK objects | Decouples tests and app logic from SDK structure changes | M |
-| 7 | Decide whether compatibility stubs should be removed or retained with warnings | Prevents long-term accumulation of dead API surface | S |
+|----------|--------|-----------|-----------------|
+| 1 | Split [`build_task_agent`](agents/task_agent.py#L115) into smaller assembly helpers. | Highest leverage: reduces coupling in the most central construction path. | L |
+| 2 | Refactor [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) into synthesis and assembly phases. | Clears a complex runtime path that currently blends multiple responsibilities. | M |
+| 3 | Extract parsing/normalization helpers from [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) and [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118). | Improves readability and enables targeted tests for response handling. | M |
+| 4 | Add dedicated tests for [`Settings`](config.py#L7), especially env injection and validation methods. | Low effort, immediate confidence gain for startup/config behavior. | S |
+| 5 | Add coverage for entrypoints in [`agent.py`](agent.py#L1) and [`hermes_app/agent.py`](hermes_app/agent.py#L1). | Reduces risk in startup code that currently lacks direct verification. | M |
+| 6 | Introduce dependency manifest and security scanning in CI. | Needed to assess actual third-party risk; currently opaque from supplied data. | M |
+| 7 | Remove or document repository-local state like [`local_sessions.db`](local_sessions.db). | Prevents accidental coupling to mutable local artifacts. | S |
 
-> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41), [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)
-
----
-
-## Relationship and Coverage Snapshot
-
-The analyzed code is tightly centered around a single production module and its unit tests. Relationship statistics show **288 total relationships**, with **17 imports** and **271 calls**, which is a high call-density for such a small surface area and reinforces the “central facade” debt pattern.
-
-```mermaid
-flowchart LR
-    MB[memory_memory_bank]
-    HB[HermesMemoryBank]
-    GM[generate_memories]
-    IE[ingest_events]
-    PM[purge_memories]
-    FM[fetch_memories]
-    CFP[format_for_prompt]
-    BMB[build_memory_bank]
-    CMB[create_memory_bank]
-    TMB[tests_memory_test_memory_bank]
-    VC[_get_vertexai_client]
-    GS[get_settings]
-
-    MB --> HB
-    MB --> VC
-    MB --> BMB
-    MB --> CMB
-    TMB --> MB
-    HB --> GM
-    HB --> IE
-    HB --> PM
-    HB --> FM
-    HB --> CFP
-    BMB --> GS
-    CMB --> VC
-```
-
-> **Sources:** `memory/memory_bank.py` · L1–L498 · [`HermesMemoryBank`](memory/memory_bank.py#L79), [`build_memory_bank`](memory/memory_bank.py#L411), [`create_memory_bank`](memory/memory_bank.py#L432)  
-> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · test module imports and method coverage  
-> **Sources:** `relationship_stats` · total 288 relationships, 17 imports, 271 calls
+> **Sources:** `agents/task_agent.py` · L115–L237 · [`build_task_agent`](agents/task_agent.py#L115), [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191); `scripts/demo/cloud_smoke_test.py` · L47–L212 · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47), [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118); `config.py` · L7–L201 · [`Settings`](config.py#L7)

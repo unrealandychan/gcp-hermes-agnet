@@ -4,7 +4,6 @@ flowchart LR
   MagicMock["MagicMock"]
   __future__["__future__"]
   _make_mock_client["_make_mock_client"]
-  _run_task_background["_run_task_background"]
   any["any"]
   append["append"]
   config["config"]
@@ -12,6 +11,7 @@ flowchart LR
   gateway_main["main"]
   get["get"]
   get_settings["get_settings"]
+  header["header"]
   len["len"]
   lower["lower"]
   main["main"]
@@ -24,19 +24,15 @@ flowchart LR
   gateway_main -->|imports| __future__
   gateway_main -->|imports| config
   _make_mock_client -.->|calls| MagicMock
-  _run_task_background -.->|calls| append
-  _run_task_background -.->|calls| exception
-  _run_task_background -.->|calls| get
-  _run_task_background -.->|calls| len
-  _run_task_background -.->|calls| str
-  _run_task_background -.->|calls| warning
   get_settings -.->|calls| get
   main -.->|calls| append
   main -.->|calls| get
   main -.->|calls| get_settings
+  main -.->|calls| header
   main -.->|calls| len
   main -.->|calls| run
   main -.->|calls| strip
   run -.->|calls| len
+  run -.->|calls| strip
 
 ```

@@ -1,259 +1,575 @@
 ---
 slug: core-modules
-title: "Memory Module Reference"
+title: "Significant Modules and Packages"
 section: general
 pin: false
 importance: 50
-created_at: 2026-05-17T12:35:34Z
+created_at: 2026-05-18T12:36:27Z
 rekipedia_version: 0.15.1
 ---
 
-# Memory Module Reference
+# Significant Modules and Packages
 
-## Overview
+## scripts
+### Purpose
+The `scripts` package is a namespace package root for runnable utilities. In the analyzed repository, it contains the `scripts.demo` subpackage and does not expose any substantive runtime logic itself beyond package initialization (`scripts/__init__.py`). Its main role is organizational: grouping demonstration or operational scripts under a consistent import path.
 
-This page documents the significant code in the `memory` package that is visible in the analysis data: the implementation module [`memory.memory_bank`](memory/memory_bank.py#L1) and its corresponding test module [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1). The package centers on a single production class, [`HermesMemoryBank`](memory/memory_bank.py#L79), which acts as an application-level facade over Vertex AI Agent Engine memories, plus two top-level helpers: [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41) and [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432).
+### Public API
+There are no exported classes or functions in `scripts/__init__.py` visible from the analysis. This module is effectively a package marker.
 
-The implementation is intentionally defensive and “graceful degradation” oriented. Most methods catch exceptions and return safe defaults rather than failing hard, which is consistent with the test suite’s focus on empty-list / false / `None` fallback behavior. The module also uses lazy client initialization through [`HermesMemoryBank._ensure_client(self)`](memory/memory_bank.py#L98), and bridges blocking SDK operations into async call sites with `asyncio.to_thread`.
+### Key Classes
+None observed.
 
-### Cross-Module Dependency Table
+### Key Functions
+None observed.
 
-| Module | Imports From | Called By | Calls Into | Inherits From |
-|--------|-------------|-----------|------------|---------------|
-| `memory.memory_bank` | `__future__`, `asyncio`, `logging`, `typing`, `vertexai`, `config` | `tests.memory.test_memory_bank` | `VertexClient`, `get_settings`, `getattr`, `to_thread`, SDK memory operations | — |
-| `tests.memory.test_memory_bank` | `__future__`, `types`, `unittest.mock`, `pytest`, `memory.memory_bank`, `config` | — | `HermesMemoryBank`, `build_memory_bank`, `create_memory_bank`, `patch`, `MagicMock` | — |
+### Interactions
+- Imported by the `scripts.demo` subpackage by virtue of package structure.
+- No direct internal call relationships were observed.
 
-> **Sources:** `memory/memory_bank.py` · L1–L498 · [`memory.memory_bank`](memory/memory_bank.py#L1) · [`HermesMemoryBank`](memory/memory_bank.py#L79) · [`build_memory_bank`](memory/memory_bank.py#L411) · [`create_memory_bank`](memory/memory_bank.py#L432)  
-> **Sources:** `tests/memory/test_memory_bank.py` · L1–L495 · [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1)
+### Class Diagram
+```mermaid
+classDiagram
+    class scripts {
+    }
+```
+
+> **Sources:** `scripts/__init__.py` · L1–L1 · [`scripts.__init__`](scripts/__init__.py#L1)
 
 ---
 
-## `memory/memory_bank.py`
-
+## scripts.demo
 ### Purpose
-
-[`memory.memory_bank`](memory/memory_bank.py#L1) encapsulates all interaction with the Vertex AI Agent Engine memory APIs. Its role is to provide a stable application-facing abstraction for:
-
-- generating memories from chat turns,
-- ingesting batched events,
-- fetching relevant memories for prompt injection,
-- creating/updating/deleting specific memory records,
-- purging a user’s memory set,
-- and provisioning a backing Agent Engine resource for memory storage.
-
-The module is also explicitly designed to handle API drift across SDK versions. The docstrings note that some features are unavailable in newer SDKs (`retrieve_profiles`, revision history), so these methods intentionally degrade to empty results rather than raising.
+The `scripts.demo` package groups demonstration tooling, most notably the cloud smoke test entry point in [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1). Like the top-level `scripts` package, it is primarily structural and does not appear to implement standalone business logic in `scripts/demo/__init__.py`.
 
 ### Public API
-
-The significant exported symbols evidenced in the analysis are:
-
-- [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41)
-- [`HermesMemoryBank`](memory/memory_bank.py#L79)
-- [`build_memory_bank()`](memory/memory_bank.py#L411)
-- [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432)
+No explicit public classes or functions are defined in `scripts/demo/__init__.py` in the available analysis.
 
 ### Key Classes
-
-#### `HermesMemoryBank`
-
-[`HermesMemoryBank`](memory/memory_bank.py#L79) is the main facade. Its docstring describes it as an “Application-level facade over Vertex AI Agent Engine memories,” and its methods are all thin orchestration wrappers around the underlying SDK client.
-
-**Constructor**
-- [`__init__(self, resource_name)`](memory/memory_bank.py#L92-L94)
-  - Stores the full AgentEngine resource name.
-  - Does not appear to eagerly create a client; client creation is deferred.
-
-**Main methods**
-- [`_ensure_client(self)`](memory/memory_bank.py#L98-L101): lazily initializes the underlying Vertex client.
-- [`generate_memories(self, user_id, user_text, agent_text, agent_name)`](memory/memory_bank.py#L105-L141): distills a single exchange into durable memory.
-- [`ingest_events(self, user_id, events)`](memory/memory_bank.py#L143-L185): sends a batch of conversation events to the memory backend.
-- [`purge_memories(self, user_id, dry_run)`](memory/memory_bank.py#L187-L225): deletes all memories for a user, optionally just counting them.
-- [`delete_memory(self, memory_resource_name)`](memory/memory_bank.py#L227-L248): deletes one memory by resource name.
-- [`create_memory(self, user_id, fact)`](memory/memory_bank.py#L250-L283): writes a memory fact directly.
-- [`update_memory(self, memory_resource_name, new_fact)`](memory/memory_bank.py#L285-L313): updates an existing fact.
-- [`retrieve_profiles(self, user_id)`](memory/memory_bank.py#L315-L329): unsupported placeholder that returns `[]`.
-- [`fetch_memories(self, user_id, query, top_k)`](memory/memory_bank.py#L331-L367): retrieves relevant memories for a query.
-- [`list_revisions(self, user_id)`](memory/memory_bank.py#L369-L379): unsupported placeholder that returns `[]`.
-- [`format_for_prompt(self, user_id, query, max_tokens)`](memory/memory_bank.py#L381-L406): fetches and formats memories as prompt text.
-
-**Behavioral notes**
-- Most methods wrap SDK calls in `asyncio.to_thread`, which indicates the SDK methods are blocking.
-- Errors are swallowed in many methods, with the module preferring safe fallbacks:
-  - `generate_memories` / `ingest_events` / mutation methods generally log and return without raising,
-  - `fetch_memories` returns `[]` on failure,
-  - `format_for_prompt` returns `""` on failure or empty memory sets.
-- `ingest_events` normalizes event roles; the tests show `"agent"` is converted to `"model"` before sending to the SDK.
+None observed.
 
 ### Key Functions
-
-- [`_get_vertexai_client(project, location)`](memory/memory_bank.py#L41-L74) — Build a `vertexai.Client`, falling back to configuration defaults when arguments are omitted.
-- [`build_memory_bank()`](memory/memory_bank.py#L411-L427) — Create a `HermesMemoryBank` from settings if `MEMORY_BANK_RESOURCE_NAME` is configured.
-- [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432-L498) — Provision or reuse an Agent Engine resource to back the memory bank.
+None observed.
 
 ### Interactions
-
-`memory.memory_bank` imports from:
-- `asyncio` for `to_thread`,
-- `logging` for diagnostics,
-- `typing` for annotations,
-- `vertexai` for the client and SDK access,
-- `config` for application settings.
-
-It is imported by:
-- [`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1), which heavily mocks its SDK-facing behavior.
+- Serves as the package namespace for [`scripts.demo.cloud_smoke_test`](scripts/demo/cloud_smoke_test.py#L1).
+- Imported by tests in `tests/scripts/test_cloud_smoke_test.py` through the package path `scripts.demo`.
 
 ### Class Diagram
-
 ```mermaid
 classDiagram
-class HermesMemoryBank {
-  +__init__(resource_name)
-  +_ensure_client()
-  +generate_memories(user_id, user_text, agent_text, agent_name)
-  +ingest_events(user_id, events)
-  +purge_memories(user_id, dry_run)
-  +delete_memory(memory_resource_name)
-  +create_memory(user_id, fact)
-  +update_memory(memory_resource_name, new_fact)
-  +retrieve_profiles(user_id)
-  +fetch_memories(user_id, query, top_k)
-  +list_revisions(user_id)
-  +format_for_prompt(user_id, query, max_tokens)
-}
+    class scripts_demo {
+    }
 ```
 
-> **Sources:** `memory/memory_bank.py` · L41–L498 · [`_get_vertexai_client`](memory/memory_bank.py#L41) · [`HermesMemoryBank`](memory/memory_bank.py#L79) · [`build_memory_bank`](memory/memory_bank.py#L411) · [`create_memory_bank`](memory/memory_bank.py#L432)
+> **Sources:** `scripts/demo/__init__.py` · L1–L1 · [`scripts.demo.__init__`](scripts/demo/__init__.py#L1)
 
 ---
 
-## `tests/memory/test_memory_bank.py`
-
+## scripts.demo.cloud_smoke_test
 ### Purpose
-
-[`tests.memory.test_memory_bank`](tests/memory/test_memory_bank.py#L1) validates the contract of `memory.memory_bank` without requiring real Vertex AI access. The test file is structured around helper factories that build mock clients and fake SDK objects, then a series of focused test classes that exercise every method of [`HermesMemoryBank`](memory/memory_bank.py#L79) plus the provisioning helper [`create_memory_bank`](memory/memory_bank.py#L432) and configuration helper [`build_memory_bank`](memory/memory_bank.py#L411).
+This module implements a command-line smoke test for validating cloud connectivity in two modes: a direct gateway POST mode and a Vertex AI SDK mode. It is the clearest executable entry point in the repository and is listed as the sole entry point in the analysis. The module constructs a structured result object, sends requests, parses responses, and reports pass/fail state through exit status and printed output.
 
 ### Public API
-
-This is a test-only module, so its “public API” is mostly the helper functions used to set up test fixtures:
-
-- [`_make_mock_client()`](tests/memory/test_memory_bank.py#L32-L39)
-- [`_make_engine(resource_name, display_name)`](tests/memory/test_memory_bank.py#L42-L49)
-- [`_make_memory(fact)`](tests/memory/test_memory_bank.py#L52-L53)
+Key public surface area includes:
+- [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32)
+- [`_auth_headers(bearer_token, api_key)`](scripts/demo/cloud_smoke_test.py#L38)
+- [`probe_gateway(gateway_url, message, bearer_token, api_key, timeout_s)`](scripts/demo/cloud_smoke_test.py#L47)
+- [`_extract_response_text(response)`](scripts/demo/cloud_smoke_test.py#L105)
+- [`probe_sdk(project_id, location, reasoning_engine_resource_name, user_id, message, client_factory)`](scripts/demo/cloud_smoke_test.py#L118)
+- [`_detect_mode(requested_mode, gateway_url)`](scripts/demo/cloud_smoke_test.py#L158)
+- [`parse_args(argv)`](scripts/demo/cloud_smoke_test.py#L164)
+- [`main(argv)`](scripts/demo/cloud_smoke_test.py#L183)
 
 ### Key Classes
+#### [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32)
+A lightweight dataclass used to normalize the output of both probe modes.
+- **Constructor**: generated dataclass initializer with fields inferred from usage in `probe_gateway` and `probe_sdk`.
+- **Main role**: holds success/failure state and a message string suitable for printing or downstream assertions.
 
-#### `TestGenerateMemories`
-
-Tests [`HermesMemoryBank.generate_memories`](memory/memory_bank.py#L105-L141):
-- success path calls the SDK `generate` operation,
-- agent names are propagated into event metadata,
-- exceptions are swallowed,
-- the Vertex client is lazily initialized.
-
-#### `TestFetchMemories`
-
-Covers [`HermesMemoryBank.fetch_memories`](memory/memory_bank.py#L331-L367):
-- returns fact strings,
-- returns `[]` on error,
-- passes `top_k` and scope parameters through,
-- falls back to `str(memory)` when `fact` is missing.
-
-#### `TestListRevisions`
-
-Checks that [`HermesMemoryBank.list_revisions`](memory/memory_bank.py#L369-L379) returns `[]`, matching the unsupported-API behavior.
-
-#### `TestFormatForPrompt`
-
-Validates [`HermesMemoryBank.format_for_prompt`](memory/memory_bank.py#L381-L406):
-- emits a formatted header,
-- returns `""` when there are no memories,
-- returns `""` on fetch failures,
-- respects token-budget constraints.
-
-#### `TestBuildMemoryBank`
-
-Covers [`build_memory_bank()`](memory/memory_bank.py#L411-L427):
-- returns `None` when resource name is missing or empty,
-- returns a `HermesMemoryBank` when configured,
-- returns `None` on exceptions.
-
-#### `TestCreateMemoryBank`
-
-Exercises [`create_memory_bank(project, location, display_name)`](memory/memory_bank.py#L432-L498):
-- creates a new engine when needed,
-- reuses existing engines when display names match,
-- skips non-matching engines in listings,
-- respects custom display names,
-- falls back to create when listing raises.
-
-#### `TestIngestEvents`
-
-Tests [`HermesMemoryBank.ingest_events`](memory/memory_bank.py#L143-L185):
-- sends batched events to the SDK,
-- normalizes `"agent"` to `"model"`,
-- swallows exceptions.
-
-#### `TestPurgeMemories`
-
-Tests [`HermesMemoryBank.purge_memories`](memory/memory_bank.py#L187-L225):
-- purges with force enabled,
-- honors dry-run behavior,
-- returns zero on exception.
-
-#### `TestDeleteMemory`
-
-Tests [`HermesMemoryBank.delete_memory`](memory/memory_bank.py#L227-L248):
-- calls SDK delete with the expected resource name,
-- returns `False` on failure.
-
-#### `TestCreateMemory`
-
-Tests [`HermesMemoryBank.create_memory`](memory/memory_bank.py#L250-L283):
-- returns the created resource name,
-- returns `None` on failure.
-
-#### `TestUpdateMemory`
-
-Tests [`HermesMemoryBank.update_memory`](memory/memory_bank.py#L285-L313):
-- invokes SDK update,
-- returns `False` on failure.
-
-#### `TestRetrieveProfiles`
-
-Tests [`HermesMemoryBank.retrieve_profiles`](memory/memory_bank.py#L315-L329):
-- always returns `[]` because the feature is unsupported in the SDK version targeted by this module.
+Because the analysis does not include field names directly, the documentation is constrained to what is observable: both `probe_gateway` and `probe_sdk` construct `SmokeResult` instances to represent the probe outcome.
 
 ### Key Functions
+#### [`_auth_headers(bearer_token, api_key)`](scripts/demo/cloud_smoke_test.py#L38)
+Builds HTTP headers for gateway authentication, combining bearer and API-key based credentials.
 
-- [`_make_mock_client()`](tests/memory/test_memory_bank.py#L32-L39) — Builds a mock Vertex client and its mock memories collection.
-- [`_make_engine(resource_name, display_name)`](tests/memory/test_memory_bank.py#L42-L49) — Constructs a fake AgentEngine structure with `api_resource` metadata.
-- [`_make_memory(fact)`](tests/memory/test_memory_bank.py#L52-L53) — Returns a fake memory object with a `fact` field.
+#### [`probe_gateway(gateway_url, message, bearer_token, api_key, timeout_s)`](scripts/demo/cloud_smoke_test.py#L47)
+Sends a request to the configured gateway endpoint using `httpx.Client`, then parses the streamed or structured response into a `SmokeResult`. The function’s call graph shows it handles:
+- header creation via `_auth_headers`
+- HTTP POST dispatch
+- response body parsing
+- SSE-style `"data:"` handling
+- JSON decoding via `json.loads`
+
+#### [`_extract_response_text(response)`](scripts/demo/cloud_smoke_test.py#L105)
+Normalizes response objects into text. Tests indicate it supports at least multiple response shapes, which suggests defensive handling of SDK return types.
+
+#### [`probe_sdk(project_id, location, reasoning_engine_resource_name, user_id, message, client_factory)`](scripts/demo/cloud_smoke_test.py#L118)
+Exercises the Vertex AI path by initializing Vertex AI, retrieving a reasoning engine, and issuing a query. It returns `SmokeResult` and delegates text normalization to `_extract_response_text`.
+
+#### [`_detect_mode(requested_mode, gateway_url)`](scripts/demo/cloud_smoke_test.py#L158)
+Resolves the effective execution mode from user input and gateway URL availability.
+
+#### [`parse_args(argv)`](scripts/demo/cloud_smoke_test.py#L164)
+Defines the CLI interface using `argparse.ArgumentParser` and populates run parameters.
+
+#### [`main(argv)`](scripts/demo/cloud_smoke_test.py#L183)
+Top-level orchestration entry point:
+1. parse CLI arguments
+2. resolve mode
+3. call `probe_gateway` or `probe_sdk`
+4. print results
 
 ### Interactions
+This module imports from:
+- Python stdlib: `argparse`, `json`, `logging`, `os`, `sys`, `dataclasses`, `typing`
+- Third-party: `httpx`, `vertexai`
 
-This module imports:
-- `memory.memory_bank` for the production code under test,
-- `config` for monkeypatched settings,
-- `pytest`, `unittest.mock`, and `types` for fixture building and patching.
-
-The test module is heavily coupled to the implementation via monkeypatching, but that coupling is intentional and narrowly scoped to observable behavior.
+It is tested by:
+- [`tests.scripts.test_cloud_smoke_test`](tests/scripts/test_cloud_smoke_test.py#L1)
 
 ### Class Diagram
-
 ```mermaid
 classDiagram
-class TestGenerateMemories
-class TestFetchMemories
-class TestListRevisions
-class TestFormatForPrompt
-class TestBuildMemoryBank
-class TestCreateMemoryBank
-class TestIngestEvents
-class TestPurgeMemories
-class TestDeleteMemory
-class TestCreateMemory
-class TestUpdateMemory
-class TestRetrieveProfiles
+    class SmokeResult {
+    }
 ```
 
-> **Sources:** `tests/memory/test_memory_bank.py` · L32–L495 · [`_make_mock_client`](tests/memory/test_memory_bank.py#L32) · [`_make_engine`](tests/memory/test_memory_bank.py#L42) · [`_make_memory`](tests/memory/test_memory_bank.py#L52) · [`TestCreateMemoryBank`](tests/memory/test_memory_bank.py#L273) · [`TestFormatForPrompt`](tests/memory/test_memory_bank.py#L173)
+> **Sources:** `scripts/demo/cloud_smoke_test.py` · L1–L212 · [`SmokeResult`](scripts/demo/cloud_smoke_test.py#L32) · [`_auth_headers`](scripts/demo/cloud_smoke_test.py#L38) · [`probe_gateway`](scripts/demo/cloud_smoke_test.py#L47) · [`_extract_response_text`](scripts/demo/cloud_smoke_test.py#L105) · [`probe_sdk`](scripts/demo/cloud_smoke_test.py#L118) · [`_detect_mode`](scripts/demo/cloud_smoke_test.py#L158) · [`parse_args`](scripts/demo/cloud_smoke_test.py#L164) · [`main`](scripts/demo/cloud_smoke_test.py#L183)
+
+---
+
+## agents.aggregator
+### Purpose
+This module builds the aggregator agent used to consolidate parallel specialist outputs into a single response. The inline documentation in the analysis explicitly states that [`build_aggregator_agent`](agents/aggregator.py#L70) “build[s] the AggregatorAgent that consolidates parallel outputs.”
+
+### Public API
+- [`build_aggregator_agent(settings)`](agents/aggregator.py#L70)
+
+### Key Classes
+No class symbols were extracted from the module itself. The constructed object is an `LlmAgent` from `google.adk.agents`, not a locally defined class.
+
+### Key Functions
+#### [`build_aggregator_agent(settings)`](agents/aggregator.py#L70)
+Creates an [`LlmAgent`](agents/aggregator.py#L70) configured to act as the aggregator. The relationship data shows it calls:
+- `LlmAgent`
+- `get_model`
+
+This indicates the module is a factory wrapper around the underlying agent SDK and model provider abstraction.
+
+### Interactions
+Imports from:
+- [`config`](config.py#L1) for application settings
+- `models.provider` for `get_model`
+- `google.adk.agents` for `LlmAgent`
+
+Imported by:
+- [`agents.task_agent`](agents/task_agent.py#L1)
+- [`tests.agents.test_aggregator`](tests/agents/test_aggregator.py#L1)
+
+### Class Diagram
+The module has no local class hierarchy. The created runtime object is an SDK class:
+```mermaid
+classDiagram
+    class LlmAgent
+```
+
+> **Sources:** `agents/aggregator.py` · L1–L81 · [`build_aggregator_agent`](agents/aggregator.py#L70)
+
+---
+
+## agents.task_agent
+### Purpose
+This module assembles the task-oriented orchestration layer. It composes specialist agents, a parallel dispatcher, and an aggregator into deploy-time and request-time pipelines. The extracted docstring on [`build_task_agent`](agents/task_agent.py#L115) is especially informative: it describes both a “Parallel flow” and a “Sequential flow,” while [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191) performs true JIT synthesis at request time.
+
+### Public API
+- [`build_task_agent(settings, specialist_agents)`](agents/task_agent.py#L115)
+- [`build_dynamic_parallel_dispatcher(settings, task)`](agents/task_agent.py#L191)
+
+### Key Classes
+No local classes are defined in the analyzed module, but it constructs several agent objects from `google.adk.agents`:
+- `ParallelAgent`
+- `SequentialAgent`
+- `LlmAgent`
+
+The module also references an `AgentSynthesizer` from `agents.synthesizer`, but that symbol is only visible in relationship data.
+
+### Key Functions
+#### [`build_task_agent(settings, specialist_agents)`](agents/task_agent.py#L115)
+Builds the static task orchestration pipeline. The call relationships show it wires together:
+- `ParallelAgent`
+- `SequentialAgent`
+- `build_aggregator_agent`
+- specialist builders such as `build_analytics_agent`, `build_hr_agent`, `build_it_helpdesk_agent`, and `build_developer_agent`
+- `build_skill_learning_callback`
+
+The docstring explains that it creates:
+1. a `SequentialPipeline`
+2. a `ParallelDispatcher`
+3. an `AggregatorAgent`
+4. sequential fallback specialists
+
+#### [`build_dynamic_parallel_dispatcher(settings, task)`](agents/task_agent.py#L191)
+Performs request-time synthesis of a task-specific parallel dispatch pipeline. If the synthesizer produces no specialist agents, the function returns `None`; otherwise it returns a `SequentialAgent`/pipeline-like structure and sequential agent list. The relationship data shows interactions with:
+- `AgentSynthesizer`
+- `synthesise`
+- `ParallelAgent`
+- `SequentialAgent`
+- `build_aggregator_agent`
+
+### Interactions
+Imports from:
+- [`config`](config.py#L1)
+- `memory.skill_learning`
+- `models.provider`
+- [`agents.aggregator`](agents/aggregator.py#L1)
+- `agents.analytics`
+- `agents.developer`
+- `agents.hr`
+- `agents.it_helpdesk`
+- `agents.synthesizer`
+- `google.adk.agents`
+- `logging`
+
+Imported by:
+- `tests.agents.test_aggregator`
+
+### Class Diagram
+No local class hierarchy exists, but the orchestration depends on a few SDK class types:
+```mermaid
+classDiagram
+    class ParallelAgent
+    class SequentialAgent
+    class LlmAgent
+```
+
+> **Sources:** `agents/task_agent.py` · L1–L237 · [`build_task_agent`](agents/task_agent.py#L115) · [`build_dynamic_parallel_dispatcher`](agents/task_agent.py#L191)
+
+---
+
+## hermes_app
+### Purpose
+The `hermes_app` package is a namespace for the application entrypoint wiring. In the analyzed files, it contains only package initialization and a module named [`hermes_app.agent`](hermes_app/agent.py#L1), which appears to be the actual bootstrap integration point.
+
+### Public API
+No explicit public API is visible in `hermes_app/__init__.py`.
+
+### Key Classes
+None observed.
+
+### Key Functions
+None observed.
+
+### Interactions
+- Hosts the application bootstrap module [`hermes_app.agent`](hermes_app/agent.py#L1).
+- Included in the project structure alongside the top-level [`agent`](agent.py#L1) module.
+
+### Class Diagram
+```mermaid
+classDiagram
+    class hermes_app {
+    }
+```
+
+> **Sources:** `hermes_app/__init__.py` · L1–L1 · [`hermes_app.__init__`](hermes_app/__init__.py#L1)
+
+---
+
+## hermes_app.agent
+### Purpose
+This module appears to be the application bootstrap entrypoint for the packaged app. The relationship graph shows it imports `config` and `agents.orchestrator`, as well as `dotenv`, `os`, and `sys`, which strongly suggests environment initialization followed by orchestrator startup.
+
+### Public API
+No functions or classes were extracted from this file in the available analysis, so its concrete callable surface cannot be documented here without speculation.
+
+### Key Classes
+None observed.
+
+### Key Functions
+None observed.
+
+### Interactions
+Imports:
+- `sys`
+- `os`
+- `dotenv`
+- [`config`](config.py#L1)
+- `agents.orchestrator`
+
+Imported by:
+- No internal imported-by relationships were captured in the analysis.
+
+### Class Diagram
+No local class hierarchy detected.
+
+> **Sources:** `hermes_app/agent.py` · L1–L1 · [`hermes_app.agent`](hermes_app/agent.py#L1)
+
+---
+
+## agent
+### Purpose
+The top-level `agent.py` module is another bootstrap/entrypoint-style module. It mirrors the bootstrap pattern seen in `hermes_app.agent`, importing environment utilities, configuration, and `agents.orchestrator`. This suggests it is a convenience launcher, likely for local or legacy invocation.
+
+### Public API
+No extracted callable symbols were present in the analysis.
+
+### Key Classes
+None observed.
+
+### Key Functions
+None observed.
+
+### Interactions
+Imports:
+- `os`
+- `dotenv`
+- [`config`](config.py#L1)
+- `agents.orchestrator`
+
+Imported by:
+- No internal imported-by relationships were captured.
+
+### Class Diagram
+No local class hierarchy detected.
+
+> **Sources:** `agent.py` · L1–L1 · [`agent`](agent.py#L1)
+
+---
+
+## config
+### Purpose
+This module centralizes application configuration and environment handling. It defines the `Settings` model, helper methods for normalizing CORS origins, exporting provider credentials for LiteLLM, and validating region consistency for RAG corpora. The module is a foundational dependency across the repository.
+
+### Public API
+- [`Settings`](config.py#L7)
+- [`Settings.cors_origins_list(self)`](config.py#L143)
+- [`Settings.inject_litellm_env(self)`](config.py#L146)
+- [`Settings.validate_rag_regions(self)`](config.py#L166)
+- [`get_settings()`](config.py#L200)
+
+### Key Classes
+#### [`Settings`](config.py#L7)
+A `pydantic_settings.BaseSettings` subclass used to load and validate runtime configuration.
+- **Constructor**: inherited from `BaseSettings`
+- **Main methods**:
+  - [`cors_origins_list`](config.py#L143): parses comma-separated CORS origins into a list
+  - [`inject_litellm_env`](config.py#L146): exports provider API keys into environment variables for LiteLLM
+  - [`validate_rag_regions`](config.py#L166): verifies configured RAG corpus resources match the selected GCP region
+
+The class is central to the application startup story and is imported by agent builders and bootstrap modules.
+
+### Key Functions
+#### [`get_settings()`](config.py#L200)
+Factory/helper returning a configured `Settings` instance.
+
+### Interactions
+Imports:
+- `functools`
+- `pydantic_settings`
+- `os`
+- `re`
+
+Imported by:
+- [`agents.aggregator`](agents/aggregator.py#L1)
+- [`agents.task_agent`](agents/task_agent.py#L1)
+- [`hermes_app.agent`](hermes_app/agent.py#L1)
+- [`agent`](agent.py#L1)
+- `tests.agents.test_aggregator`
+
+Inheritance:
+- [`Settings`](config.py#L7) inherits from `BaseSettings`
+
+### Class Diagram
+```mermaid
+classDiagram
+    class BaseSettings
+    class Settings {
+        +cors_origins_list(self)
+        +inject_litellm_env(self)
+        +validate_rag_regions(self)
+    }
+    BaseSettings <|-- Settings
+```
+
+> **Sources:** `config.py` · L1–L201 · [`Settings`](config.py#L7) · [`Settings.cors_origins_list`](config.py#L143) · [`Settings.inject_litellm_env`](config.py#L146) · [`Settings.validate_rag_regions`](config.py#L166) · [`get_settings`](config.py#L200)
+
+---
+
+## tests.conftest
+### Purpose
+This module provides the test harness infrastructure. It supplies lightweight fake agent classes and utility registration functions so tests can run without pulling in the full external dependency stack. It also stubs response classes and rate-limiting helpers.
+
+### Public API
+The analysis extracted several test fixtures/helpers:
+- [`_make_module(name)`](tests/conftest.py#L22)
+- [`_FakeLlmAgent`](tests/conftest.py#L30)
+- [`_FakeLoopAgent`](tests/conftest.py#L39)
+- [`_FakeParallelAgent`](tests/conftest.py#L44)
+- [`_FakeSequentialAgent`](tests/conftest.py#L52)
+- [`_noop_limit(_rate)`](tests/conftest.py#L168)
+- [`_FakeEventSourceResponse`](tests/conftest.py#L186)
+- [`_register_all()`](tests/conftest.py#L222)
+
+### Key Classes
+#### [`_FakeLlmAgent`](tests/conftest.py#L30)
+A lightweight stand-in for `google.adk.agents.LlmAgent`.
+- Constructor creates list-based child/tool storage used by tests.
+
+#### [`_FakeLoopAgent`](tests/conftest.py#L39)
+A stub agent class used in test environments.
+
+#### [`_FakeParallelAgent`](tests/conftest.py#L44)
+A stand-in for `google.adk.agents.ParallelAgent`.
+- Constructor stores child agents in a list.
+
+#### [`_FakeSequentialAgent`](tests/conftest.py#L52)
+A stand-in for `google.adk.agents.SequentialAgent`.
+- Constructor stores child agents in a list.
+
+#### [`_FakeEventSourceResponse`](tests/conftest.py#L186)
+A minimal stub so FastAPI accepts `EventSourceResponse` as a response type.
+- Inherits from `_StarletteResponse`
+
+### Key Functions
+#### [`_make_module(name)`](tests/conftest.py#L22)
+Builds a synthetic module object and populates its attributes.
+
+#### [`_noop_limit(_rate)`](tests/conftest.py#L168)
+No-op replacement for rate limiting.
+
+#### [`_register_all()`](tests/conftest.py#L222)
+Registers the full test double package graph.
+
+### Interactions
+Imports:
+- `os`
+- `sys`
+- `types`
+- `unittest.mock`
+- `functools`
+- `starlette.responses`
+
+Imported by:
+- [`tests.agents.test_aggregator`](tests/agents/test_aggregator.py#L1)
+
+### Class Diagram
+```mermaid
+classDiagram
+    class _StarletteResponse
+    class _FakeEventSourceResponse {
+        +__init__(content)
+    }
+    _StarletteResponse <|-- _FakeEventSourceResponse
+```
+
+> **Sources:** `tests/conftest.py` · L1–L285 · [`_make_module`](tests/conftest.py#L22) · [`_FakeLlmAgent`](tests/conftest.py#L30) · [`_FakeParallelAgent`](tests/conftest.py#L44) · [`_FakeSequentialAgent`](tests/conftest.py#L52) · [`_noop_limit`](tests/conftest.py#L168) · [`_FakeEventSourceResponse`](tests/conftest.py#L186) · [`_register_all`](tests/conftest.py#L222)
+
+---
+
+## tests.agents.test_aggregator
+### Purpose
+This module validates the agent-construction behavior in `agents.aggregator` and `agents.task_agent`. It focuses on structural assertions rather than end-to-end execution, using the test doubles defined in [`tests.conftest`](tests/conftest.py#L1).
+
+### Public API
+Test cases are the main API surface:
+- [`TestBuildAggregatorAgent`](tests/agents/test_aggregator.py#L27)
+- [`TestBuildTaskAgentSequentialPipeline`](tests/agents/test_aggregator.py#L45)
+- [`TestBuildDynamicParallelDispatcher`](tests/agents/test_aggregator.py#L86)
+
+### Key Classes
+#### [`TestBuildAggregatorAgent`](tests/agents/test_aggregator.py#L27)
+Verifies that [`build_aggregator_agent`](agents/aggregator.py#L70) returns an LLM agent, has a description, and has no tools.
+
+#### [`TestBuildTaskAgentSequentialPipeline`](tests/agents/test_aggregator.py#L45)
+Verifies the static task pipeline shape, including:
+- first sub-agent is a sequential pipeline
+- pipeline has two children
+- first child is a parallel dispatcher
+- second child is an aggregator
+- four specialist agents are present
+- sequential fallback includes specialist agents
+
+#### [`TestBuildDynamicParallelDispatcher`](tests/agents/test_aggregator.py#L86)
+Verifies the dynamic synthesis path:
+- returns `None` when no agents are synthesized
+- returns a sequential pipeline when agents are found
+- ends with an aggregator
+
+### Key Functions
+The individual test methods are the functional surface, for example:
+- [`test_returns_llm_agent`](tests/agents/test_aggregator.py#L28)
+- [`test_has_description`](tests/agents/test_aggregator.py#L32)
+- [`test_no_tools`](tests/agents/test_aggregator.py#L36)
+- [`test_first_sub_agent_is_sequential_pipeline`](tests/agents/test_aggregator.py#L46)
+- [`test_sequential_pipeline_has_two_children`](tests/agents/test_aggregator.py#L51)
+- [`test_pipeline_first_child_is_parallel_dispatcher`](tests/agents/test_aggregator.py#L56)
+- [`test_pipeline_second_child_is_aggregator`](tests/agents/test_aggregator.py#L62)
+- [`test_parallel_dispatcher_has_four_specialists`](tests/agents/test_aggregator.py#L68)
+- [`test_specialist_agents_appended_for_sequential_fallback`](tests/agents/test_aggregator.py#L74)
+- [`test_returns_none_when_no_agents_synthesised`](tests/agents/test_aggregator.py#L87)
+- [`test_returns_sequential_pipeline_when_agents_found`](tests/agents/test_aggregator.py#L99)
+- [`test_dynamic_pipeline_ends_with_aggregator`](tests/agents/test_aggregator.py#L114)
+
+### Interactions
+Imports:
+- `pytest`
+- [`agents.aggregator`](agents/aggregator.py#L1)
+- [`agents.task_agent`](agents/task_agent.py#L1)
+- [`config`](config.py#L1)
+- [`tests.conftest`](tests/conftest.py#L1)
+
+### Class Diagram
+```mermaid
+classDiagram
+    class TestBuildAggregatorAgent
+    class TestBuildTaskAgentSequentialPipeline
+    class TestBuildDynamicParallelDispatcher
+```
+
+> **Sources:** `tests/agents/test_aggregator.py` · L1–L127 · [`TestBuildAggregatorAgent`](tests/agents/test_aggregator.py#L27) · [`TestBuildTaskAgentSequentialPipeline`](tests/agents/test_aggregator.py#L45) · [`TestBuildDynamicParallelDispatcher`](tests/agents/test_aggregator.py#L86)
+
+---
+
+## tests.scripts.test_cloud_smoke_test
+### Purpose
+This module tests the smoke-test script’s request and parsing behaviors, covering both the gateway path and the SDK path. It ensures that response extraction, failure handling, and main-mode dispatch work as intended.
+
+### Public API
+Primary test functions:
+- [`test_probe_gateway_success_parses_sse_done()`](tests/scripts/test_cloud_smoke_test.py#L9)
+- [`test_probe_gateway_fails_on_http_error()`](tests/scripts/test_cloud_smoke_test.py#L35)
+- [`test_probe_sdk_success_uses_existing_engine_by_name()`](tests/scripts/test_cloud_smoke_test.py#L57)
+- [`test_main_gateway_missing_url_fails()`](tests/scripts/test_cloud_smoke_test.py#L83)
+- [`test_extract_response_text_formats()`](tests/scripts/test_cloud_smoke_test.py#L88)
+- [`test_main_sdk_mode_success()`](tests/scripts/test_cloud_smoke_test.py#L95)
+
+### Key Classes
+No local production classes; tests use `MagicMock`, `SimpleNamespace`, and similar helpers.
+
+### Key Functions
+Each test function targets one observable behavior:
+- Gateway SSE parsing and success handling
+- HTTP error handling
+- SDK client interaction
+- argument/mode validation
+- response text normalization
+- main function success flow
+
+### Interactions
+Imports:
+- `types`
+- `unittest.mock`
+- [`scripts.demo`](scripts/demo/__init__.py#L1)
+
+### Class Diagram
+```mermaid
+classDiagram
+    class test_probe_gateway_success_parses_sse_done
+    class test_probe_gateway_fails_on_http_error
+    class test_probe_sdk_success_uses_existing_engine_by_name
+    class test_main_gateway_missing_url_fails
+    class test_extract_response_text_formats
+    class test_main_sdk_mode_success
+```
+
+> **Sources:** `tests/scripts/test_cloud_smoke_test.py` · L1–L106 · [`test_probe_gateway_success_parses_sse_done`](tests/scripts/test_cloud_smoke_test.py#L9) · [`test_probe_gateway_fails_on_http_error`](tests/scripts/test_cloud_smoke_test.py#L35) · [`test_probe_sdk_success_uses_existing_engine_by_name`](tests/scripts/test_cloud_smoke_test.py#L57) · [`test_main_gateway_missing_url_fails`](tests/scripts/test_cloud_smoke_test.py#L83) · [`test_extract_response_text_formats`](tests/scripts/test_cloud_smoke_test.py#L88) · [`test_main_sdk_mode_success`](tests/scripts/test_cloud_smoke_test.py#L95)
