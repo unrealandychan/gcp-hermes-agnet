@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sys
 from dataclasses import dataclass
@@ -23,6 +24,8 @@ import vertexai
 from vertexai import agent_engines
 
 RESPONSE_PREVIEW_MAX_LENGTH = 240
+ERROR_PREVIEW_MAX_LENGTH = 300
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -60,7 +63,7 @@ def probe_gateway(
         return SmokeResult(False, "gateway", f"request failed: {exc}")
 
     if resp.status_code >= 400:
-        body_preview = resp.text[:300]
+        body_preview = resp.text[:ERROR_PREVIEW_MAX_LENGTH]
         return SmokeResult(
             False,
             "gateway",
@@ -91,7 +94,7 @@ def probe_gateway(
             had_done = True
 
     if had_error:
-        return SmokeResult(False, "gateway", f"SSE error event: {last_text[:300]}")
+        return SmokeResult(False, "gateway", f"SSE error event: {last_text[:ERROR_PREVIEW_MAX_LENGTH]}")
     if not had_done:
         return SmokeResult(False, "gateway", "SSE stream did not complete (missing done event)")
 
@@ -147,6 +150,9 @@ def probe_sdk(
         return SmokeResult(False, "sdk", f"invalid configuration: {exc}")
     except RuntimeError as exc:
         return SmokeResult(False, "sdk", f"sdk runtime error: {exc}")
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Unexpected SDK smoke test failure.")
+        return SmokeResult(False, "sdk", f"sdk probe failed unexpectedly: {exc}")
 
 
 def _detect_mode(requested_mode: str, gateway_url: str) -> str:
