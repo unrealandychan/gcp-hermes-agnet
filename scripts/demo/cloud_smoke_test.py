@@ -34,8 +34,7 @@ def _auth_headers(bearer_token: str, api_key: str) -> dict[str, str]:
     headers: dict[str, str] = {"Content-Type": "application/json"}
     if bearer_token:
         headers["Authorization"] = f"Bearer {bearer_token}"
-    elif api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
+    if api_key:
         headers["X-API-Key"] = api_key
     return headers
 
@@ -53,7 +52,9 @@ def probe_gateway(
     try:
         with httpx.Client(timeout=timeout_s) as client:
             resp = client.post(url, headers=headers, json={"message": message})
-    except Exception as exc:  # noqa: BLE001
+    except httpx.TimeoutException as exc:
+        return SmokeResult(False, "gateway", f"request timeout: {exc}")
+    except httpx.HTTPError as exc:
         return SmokeResult(False, "gateway", f"request failed: {exc}")
 
     if resp.status_code >= 400:
@@ -131,6 +132,10 @@ def probe_sdk(
         response = remote_agent.query(user_id=user_id, message=message)
         preview = _extract_text(response).strip().replace("\n", " ")[:240] or "<empty>"
         return SmokeResult(True, "sdk", f"sdk query ok: {preview}")
+    except ValueError as exc:
+        return SmokeResult(False, "sdk", f"invalid configuration: {exc}")
+    except RuntimeError as exc:
+        return SmokeResult(False, "sdk", f"sdk runtime error: {exc}")
     except Exception as exc:  # noqa: BLE001
         return SmokeResult(False, "sdk", f"sdk probe failed: {exc}")
 
