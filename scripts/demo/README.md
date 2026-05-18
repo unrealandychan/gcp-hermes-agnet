@@ -91,6 +91,35 @@ By default tests against `http://localhost:8080`. Override with:
 GATEWAY_URL=https://hermes-gateway-xxxxx.run.app python scripts/demo/e2e_test.py
 ```
 
+### 5. Cloud Smoke Test (read-only)
+
+Quick pass/fail probe to verify deployed cloud runtime is reachable from local.
+This script is read-only: it only performs chat/query calls and never creates or updates resources.
+
+```bash
+# Auto mode:
+# - if GATEWAY_URL is set -> gateway mode
+# - otherwise -> sdk mode
+python scripts/demo/cloud_smoke_test.py
+```
+
+Gateway mode (no GCP credentials required if your gateway accepts your provided token/api key):
+
+```bash
+GATEWAY_URL=https://your-gateway-url.run.app \
+GOOGLE_ID_TOKEN="$(gcloud auth print-identity-token)" \
+python scripts/demo/cloud_smoke_test.py --mode gateway
+```
+
+SDK mode (requires ADC/GCP credentials + existing REASONING_ENGINE_RESOURCE_NAME):
+
+```bash
+GCP_PROJECT_ID=your-project \
+GCP_LOCATION=us-central1 \
+REASONING_ENGINE_RESOURCE_NAME=projects/your-project/locations/us-central1/reasoningEngines/1234567890 \
+python scripts/demo/cloud_smoke_test.py --mode sdk
+```
+
 ---
 
 ## Demo Data Details
