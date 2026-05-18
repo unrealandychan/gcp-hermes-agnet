@@ -247,6 +247,33 @@ curl -X POST http://localhost:8080/chat \
   -d '{"message": "Hello! What can you help me with?"}'
 ```
 
+### Check cloud is alive from local (read-only)
+
+Use the smoke test script to quickly verify a deployed runtime is reachable.
+It only performs probe requests (no create/update/deploy actions).
+
+```bash
+# Auto mode picks gateway when GATEWAY_URL is set, otherwise sdk mode.
+python scripts/demo/cloud_smoke_test.py
+```
+
+Gateway mode:
+
+```bash
+GATEWAY_URL=https://your-gateway-url.run.app \
+GOOGLE_ID_TOKEN="$(gcloud auth print-identity-token)" \
+python scripts/demo/cloud_smoke_test.py --mode gateway
+```
+
+SDK mode (existing Reasoning Engine resource):
+
+```bash
+GCP_PROJECT_ID=your-project \
+GCP_LOCATION=us-central1 \
+REASONING_ENGINE_RESOURCE_NAME=projects/your-project/locations/us-central1/reasoningEngines/1234567890 \
+python scripts/demo/cloud_smoke_test.py --mode sdk
+```
+
 ---
 
 ### Web UI (optional)
