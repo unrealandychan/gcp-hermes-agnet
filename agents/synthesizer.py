@@ -27,6 +27,7 @@ Usage
 """
 from __future__ import annotations
 
+import hashlib
 import logging
 import re
 from pathlib import Path
@@ -50,6 +51,30 @@ _MAX_AGENTS = 6
 _MIN_SCORE = 1
 
 
+def _unique_suffix(task: str, seq: int = 0) -> str:
+    """
+    Return a short deterministic suffix derived from *task* + sequence number.
+
+    Format: ``_<4-char-hex>_<seq>``  e.g.  ``_a3f1_0``
+
+    Using a hash of the task keeps names stable across restarts (same task →
+    same suffix), while the sequence number distinguishes parallel copies
+    synthesised within a single task run (ADK dual-parent rule).
+    """
+    digest = hashlib.sha1(task.encode()).hexdigest()[:4]  # noqa: S324 – not security
+    return f"_{digest}_{seq}"
+
+
+def unique_agent_name(base_name: str, task: str, seq: int = 0) -> str:
+    """
+    Return a globally unique agent name for *base_name* within *task*.
+
+    >>> unique_agent_name("AnalyticsAgent", "analyse revenue", seq=0)
+    'AnalyticsAgent_3c2a_0'
+    """
+    return base_name + _unique_suffix(task, seq)
+
+
 class AgentSynthesizer:
     """
     Synthesises a task-specific agent set from registry templates + learned skills.
@@ -65,9 +90,15 @@ class AgentSynthesizer:
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def synthesise(self, task: str) -> list[LlmAgent]:
+    def synthesise(self, task: str, seq: int = 0) -> list[LlmAgent]:
         """
         Return a deduplicated list of LlmAgents best suited for `task`.
+
+        Args:
+            task: Natural-language task description.
+            seq:  Sequence counter — increment when building a second copy of
+                  the same task's agents (ADK dual-parent rule).  Agents from
+                  seq=0 and seq=1 have distinct names even for the same task.
 
         Steps:
           1. Score registry templates against task keywords.
@@ -75,6 +106,8 @@ class AgentSynthesizer:
           3. Hydrate skills into micro-agents.
           4. Merge, deduplicate, cap at _MAX_AGENTS.
         """
+        self._current_task = task  # stored so sub-methods can access it
+        self._current_seq = seq
         task_tokens = _tokenise(task)
 
         # Step 1 — Registry candidates
@@ -145,8 +178,12 @@ class AgentSynthesizer:
                 if t in self._tool_map
             ]
             model_name = tmpl.get("model") or self._settings.agent_model_default
+            base_name = tmpl["name"]
+            task = getattr(self, "_current_task", "")
+            seq = getattr(self, "_current_seq", 0)
+            agent_name = unique_agent_name(base_name, task, seq) if task else base_name
             return LlmAgent(
-                name=tmpl["name"],
+                name=agent_name,
                 model=get_model(model_name),
                 description=tmpl.get("description", ""),
                 instruction=tmpl.get("instruction", "You are a helpful assistant."),
@@ -181,8 +218,11 @@ class AgentSynthesizer:
         static registry agents:  e.g.  "Skill_analytics_bq_revenue_query"
         """
         try:
-            # Derive a safe agent name from skill_id
-            agent_name = "Skill_" + re.sub(r"[^a-zA-Z0-9_]", "_", skill.skill_id)[:48]
+            # Derive a safe agent name from skill_id, scoped to current task
+            base_name = "Skill_" + re.sub(r"[^a-zA-Z0-9_]", "_", skill.skill_id)[:48]
+            task = getattr(self, "_current_task", "")
+            seq = getattr(self, "_current_seq", 0)
+            agent_name = unique_agent_name(base_name, task, seq) if task else base_name
 
             procedure_text = "\n".join(
                 f"  {i + 1}. {step}"
