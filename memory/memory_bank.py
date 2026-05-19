@@ -133,8 +133,8 @@ class HermesMemoryBank:
                 scope={"user_id": user_id},
                 direct_contents_source={
                     "events": [
-                        Content(role="user", parts=[Part(text=user_text)]),
-                        Content(role="model", parts=[Part(text=agent_text)]),
+                        {"content": Content(role="user", parts=[Part(text=user_text)])},
+                        {"content": Content(role="model", parts=[Part(text=agent_text)])},
                     ]
                 },
             )
@@ -175,7 +175,7 @@ class HermesMemoryBank:
                 if role == "agent":
                     role = "model"
                 text = ev.get("text", "")
-                sdk_events.append(Content(role=role, parts=[Part(text=text)]))
+                sdk_events.append({"content": Content(role=role, parts=[Part(text=text)])})
 
             client.agent_engines.memories.ingest_events(
                 name=self._resource_name,

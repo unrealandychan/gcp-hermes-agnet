@@ -71,9 +71,9 @@ class TestGenerateMemories:
         assert call_kwargs["scope"] == {"user_id": "u1"}
         assert call_kwargs["name"] == "projects/p/reasoningEngines/123"
         events = call_kwargs["direct_contents_source"]["events"]
-        # Events are now Content objects (not dicts) — access via .role attribute
-        assert any(e.role == "user" for e in events)
-        assert any(e.role == "model" for e in events)
+        # Events are now {"content": Content(...)} dicts — access via ["content"].role
+        assert any(e["content"].role == "user" for e in events)
+        assert any(e["content"].role == "model" for e in events)
 
     async def test_success_with_agent_name_in_events(self):
         mock_client, mock_memories = _make_mock_client()
@@ -87,9 +87,9 @@ class TestGenerateMemories:
             )
         call_kwargs = mock_memories.generate.call_args[1]
         events = call_kwargs["direct_contents_source"]["events"]
-        # Events are now Content objects — use .role and .parts[0].text
-        model_event = next(e for e in events if e.role == "model")
-        assert "Hi there" in model_event.parts[0].text
+        # Events are now {"content": Content(...)} dicts — use ["content"].role/.parts
+        model_event = next(e for e in events if e["content"].role == "model")
+        assert "Hi there" in model_event["content"].parts[0].text
 
     async def test_exception_is_swallowed(self):
         mock_client, mock_memories = _make_mock_client()
@@ -352,9 +352,9 @@ class TestIngestEvents:
         assert call_kwargs["scope"] == {"user_id": "u1"}
         events = call_kwargs["direct_contents_source"]["events"]
         assert len(events) == 2
-        # Events are now Content objects — use .role attribute
+        # Events are now {"content": Content(...)} dicts
         # 'agent' role is normalised to 'model'
-        assert events[1].role == "model"
+        assert events[1]["content"].role == "model"
 
     async def test_normalises_agent_role_to_model(self):
         mock_client, mock_memories = _make_mock_client()
@@ -365,8 +365,8 @@ class TestIngestEvents:
                 events=[{"role": "agent", "text": "hello"}],
             )
         events = mock_memories.ingest_events.call_args[1]["direct_contents_source"]["events"]
-        # Events are now Content objects — use .role attribute
-        assert events[0].role == "model"
+        # Events are now {"content": Content(...)} dicts
+        assert events[0]["content"].role == "model"
 
     async def test_exception_is_swallowed(self):
         mock_client, mock_memories = _make_mock_client()
