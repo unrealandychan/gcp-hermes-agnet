@@ -10,6 +10,12 @@ Provides:
   get_tracer()         — get a tracer for manual agent-reasoning spans
   agent_span()         — context manager: wrap one agent turn in a span
 
+Environment-aware logging (mirrors agents-cli telemetry.py pattern):
+  - LOCAL dev:   spans emitted, but prompt/response content NOT logged (privacy)
+  - DEPLOYED:    spans + metadata only (NO_CONTENT mode) — content omitted
+  - ENABLE_CLOUD_TRACE=true  — enable tracing (default: true)
+  - TRACE_LOG_CONTENT=false  — never log prompt/response text in spans (default: false)
+
 Traces appear in:
   https://console.cloud.google.com/traces?project=<GCP_PROJECT_ID>
 
@@ -19,12 +25,14 @@ Installation (add to requirements.txt — already included):
   opentelemetry-instrumentation-fastapi
 
 Configuration (.env):
-  ENABLE_CLOUD_TRACE=true   # set false to disable (default: true when deployed)
+  ENABLE_CLOUD_TRACE=true    # set false to disable (default: true when deployed)
+  TRACE_LOG_CONTENT=false    # set true ONLY in local dev to log prompt text
 """
 from __future__ import annotations
 
 import contextlib
 import logging
+import os
 from collections.abc import Generator
 from typing import Any
 
@@ -32,6 +40,10 @@ logger = logging.getLogger(__name__)
 
 # Lazy-imported; None when opentelemetry packages are not installed.
 _tracer: Any = None
+
+# NO_CONTENT mode: when True, prompt/response text is never added to spans.
+# Mirrors agents-cli telemetry.py behaviour for deployed environments.
+_NO_CONTENT_MODE: bool = not (os.getenv("TRACE_LOG_CONTENT", "false").lower() == "true")
 
 
 def setup_tracing(project_id: str, service_name: str = "hermes-gateway") -> None:
@@ -87,13 +99,19 @@ def agent_span(
     agent_name: str,
     user_id: str = "",
     session_id: str = "",
+    prompt: str = "",
+    response: str = "",
 ) -> Generator[Any, None, None]:
     """
     Context manager that wraps one agent turn in a Cloud Trace span.
 
+    Follows NO_CONTENT mode by default (agents-cli telemetry.py pattern):
+    prompt and response text are only added to spans when TRACE_LOG_CONTENT=true.
+    All other metadata (agent name, user_id, session_id) is always logged.
+
     Usage:
-        with agent_span("HRAgent", user_id=uid, session_id=sid) as span:
-            # run agent turn
+        with agent_span("HRAgent", user_id=uid, session_id=sid,
+                        prompt=message, response=text) as span:
             span.set_attribute("hermes.message_len", len(message))
 
     Falls back to a no-op context manager when tracing is not configured.
@@ -109,6 +127,12 @@ def agent_span(
                     span.set_attribute("hermes.user_id", user_id)
                 if session_id:
                     span.set_attribute("hermes.session_id", session_id)
+                # NO_CONTENT mode: only log text when explicitly enabled
+                if not _NO_CONTENT_MODE:
+                    if prompt:
+                        span.set_attribute("hermes.prompt", prompt[:512])
+                    if response:
+                        span.set_attribute("hermes.response", response[:512])
         except ImportError:
             pass
         yield span

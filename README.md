@@ -13,6 +13,9 @@ A production-grade, self-learning multi-agent system built on Google's Agent Dev
 See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for the full changelog.
 
 **Latest additions:**
+- 📊 **BQ Agent Analytics** — `gateway/bq_analytics.py`; fire-and-forget BigQuery logging; completions_view SQL for cross-session token dashboards; opt-in via `BQ_ANALYTICS_DATASET` env var
+- 🔭 **OTel NO_CONTENT mode** — `gateway/observability.py` NO_CONTENT mode (agents-cli telemetry.py pattern); prompt/response only in spans when `TRACE_LOG_CONTENT=true`; `agent_span()` now accepts `prompt=`/`response=` params
+- 🔁 **Eval Optimize** — `eval/optimize.py`; iterative instruction-tuning loop; LLM-as-judge signal; `--dry-run` offline mode; CLI + programmatic API
 - 📊 **Eval framework** — full evalsets for all 5 agents + `eval_config.json`; 3-metric composite scoring (keyword + tool trajectory + rubric); `python eval/run_eval.py --all --dry-run` for offline CI eval; `agents-cli eval run` for LLM-as-judge in production
 - 🔀 **AggregatorAgent** — parallel specialist outputs are now consolidated into ONE cohesive reply via `SequentialPipeline` (ParallelDispatcher → AggregatorAgent)
 - 🖥️ **ADK Web UI** — run `adk web .` from project root for a full browser-based debug UI with session management and trace viewer (no custom gateway needed for local dev)

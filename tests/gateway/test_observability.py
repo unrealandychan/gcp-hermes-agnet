@@ -180,3 +180,36 @@ class TestAgentSpan:
 
         assert recorded["name"] == "agent/HRAgent"
         mod._tracer = None  # cleanup
+
+
+# ── NO_CONTENT mode ────────────────────────────────────────────────────────────
+
+class TestNoContentMode:
+    def test_no_content_mode_enabled_by_default(self):
+        """Prompt/response NOT added to spans unless TRACE_LOG_CONTENT=true."""
+        import os
+        import importlib
+        os.environ.pop("TRACE_LOG_CONTENT", None)
+        import gateway.observability as mod
+        importlib.reload(mod)
+        assert mod._NO_CONTENT_MODE is True
+        mod._tracer = None  # cleanup
+
+    def test_no_content_mode_disabled_when_env_set(self):
+        import os
+        import importlib
+        os.environ["TRACE_LOG_CONTENT"] = "true"
+        import gateway.observability as mod
+        importlib.reload(mod)
+        assert mod._NO_CONTENT_MODE is False
+        os.environ.pop("TRACE_LOG_CONTENT", None)
+        importlib.reload(mod)  # restore
+
+    def test_agent_span_accepts_prompt_and_response_params(self):
+        """agent_span() should accept prompt/response without raising."""
+        import gateway.observability as mod
+        mod._tracer = None
+        from gateway.observability import agent_span
+        with agent_span("HRAgent", user_id="u1", session_id="s1",
+                        prompt="What is PTO?", response="PTO is paid time off.") as span:
+            span.set_attribute("hermes.test", True)

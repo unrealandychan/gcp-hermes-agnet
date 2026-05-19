@@ -43,6 +43,7 @@ from connectors.telegram import router as telegram_router
 from gateway.auth import CurrentUser
 from gateway import tasks as task_store
 from gateway.observability import agent_span, instrument_fastapi, setup_tracing
+from gateway.bq_analytics import BQAnalytics, build_bq_analytics
 from tools.model_armor import screen_prompt
 from governance.policy_engine import PolicyEngine, build_policy_engine
 from memory.memory_bank import HermesMemoryBank, build_memory_bank
@@ -58,6 +59,7 @@ limiter = Limiter(key_func=get_remote_address)
 _runner: Runner | None = None
 _policy_engine: PolicyEngine | None = None
 _memory_bank: HermesMemoryBank | None = None
+_bq_analytics: BQAnalytics | None = None
 
 
 @asynccontextmanager
@@ -108,6 +110,16 @@ async def lifespan(app: FastAPI):
         logger.info("HermesMemoryBank initialized.")
     else:
         logger.info("MEMORY_BANK_RESOURCE_NAME not set — long-term memory disabled.")
+    global _bq_analytics  # noqa: PLW0603
+    _bq_analytics = build_bq_analytics()
+    if _bq_analytics:
+        await _bq_analytics.ensure_table()
+        logger.info(
+            "BQAnalytics enabled — dataset=%s table=%s",
+            settings.bq_analytics_dataset, settings.bq_analytics_table,
+        )
+    else:
+        logger.info("BQ_ANALYTICS_DATASET not set — BigQuery analytics disabled.")
     yield
     logger.info("Hermes gateway shutting down.")
 
@@ -218,7 +230,9 @@ async def _stream_agent(
     message: str,
 ) -> AsyncGenerator[str, None]:
     """Yield SSE-formatted JSON strings for each agent event."""
+    import time  # noqa: PLC0415
     user_content = Content(role="user", parts=[Part(text=message)])
+    _start = time.monotonic()
     with agent_span("Orchestrator", user_id=user_id, session_id=session_id) as span:
         span.set_attribute("hermes.message_len", len(message))
         try:
@@ -243,6 +257,17 @@ async def _stream_agent(
                                 resp_policy.violated_policy_id, user_id,
                             )
                     yield _sse(ChatEvent(type="text", content=text, session_id=session_id))
+                    # ── BQ Analytics: log turn (fire-and-forget) ──────────────
+                    if _bq_analytics:
+                        _elapsed_ms = (time.monotonic() - _start) * 1000
+                        asyncio.create_task(_bq_analytics.log_turn(
+                            user_id=user_id,
+                            session_id=session_id,
+                            agent_name="Orchestrator",
+                            prompt=message,
+                            response=text,
+                            latency_ms=_elapsed_ms,
+                        ))
 
             yield _sse(ChatEvent(type="done", session_id=session_id))
 

@@ -138,6 +138,15 @@ class Settings(BaseSettings):
     # ── Agent Observability ───────────────────────────────────────────────────
     # Set false to disable Cloud Trace (useful for local dev without GCP creds).
     enable_cloud_trace: bool = True
+    # Set true ONLY in local dev to log prompt/response text in trace spans.
+    # Default false = NO_CONTENT mode (matches agents-cli telemetry.py pattern).
+    trace_log_content: bool = False
+
+    # ── BigQuery Agent Analytics ──────────────────────────────────────────────
+    # Set to a dataset name to enable BQ analytics logging (e.g. "hermes_analytics").
+    # Leave empty to disable (default — no BQ writes in local dev).
+    bq_analytics_dataset: str = ""
+    bq_analytics_table: str = "agent_turns"
 
     # ── Agent Lifecycle Limits ────────────────────────────────────────────────
     # Maximum concurrently *running* synthesised agents per session.

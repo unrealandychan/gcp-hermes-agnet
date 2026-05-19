@@ -5,6 +5,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Feature] — BigQuery Analytics, OTel NO_CONTENT, Eval Optimize (#24, #25, #26)
+
+### Added
+- **`gateway/bq_analytics.py`** — fire-and-forget BQ turn logging; auto-create table; completions_view SQL for token dashboards; wired into `_stream_agent` in gateway
+- **`gateway/observability.py`** — NO_CONTENT mode (default): prompt/response never in trace spans; `TRACE_LOG_CONTENT=true` enables text in local dev; `agent_span()` accepts `prompt=`/`response=` params
+- **`eval/optimize.py`** — `InstructionOptimizer` iterative instruction-tuning; LLM-as-judge signal + `--dry-run` offline mode; writes best instruction to `agents.yaml` with `--write`
+- **`config.py`**: `bq_analytics_dataset`, `bq_analytics_table`, `trace_log_content` settings
+
+### Tests (+33)
+- `tests/gateway/test_bq_analytics.py` — 18 tests (TurnRecord, log_turn, ensure_table, build_bq_analytics)
+- `tests/eval/test_optimize.py` — 12 tests (dry-run candidates, scoring, CLI)
+- `tests/gateway/test_observability.py` — 3 NO_CONTENT mode tests
+
+---
+
 ## [Feature] — ADK Eval Framework + agents-cli Integration (Issue #23)
 
 ### Problem
