@@ -1,0 +1,74 @@
+[
+  {
+    "query": "Review my Python function for performance issues.",
+    "expected_keywords": [
+      "performance",
+      "optimize",
+      "complexity",
+      "function"
+    ],
+    "agent": "developer",
+    "tool_trajectory": [
+      "search_knowledge_base",
+      "read_gcs_file"
+    ],
+    "rubric": "Response should identify at least one concrete optimization opportunity with code-level detail."
+  },
+  {
+    "query": "How do I implement retry logic with exponential backoff in Python?",
+    "expected_keywords": [
+      "retry",
+      "backoff",
+      "exponential",
+      "exception"
+    ],
+    "agent": "developer",
+    "tool_trajectory": [
+      "search_knowledge_base"
+    ],
+    "rubric": "Response must include working code example with configurable retry count and delay."
+  },
+  {
+    "query": "What's the best way to structure a FastAPI project with multiple routers?",
+    "expected_keywords": [
+      "router",
+      "fastapi",
+      "structure",
+      "module"
+    ],
+    "agent": "developer",
+    "tool_trajectory": [
+      "search_knowledge_base"
+    ],
+    "rubric": "Response must explain router separation and include a concrete directory structure."
+  },
+  {
+    "query": "Debug this error: AttributeError 'NoneType' object has no attribute 'split'",
+    "expected_keywords": [
+      "none",
+      "null",
+      "check",
+      "attribute"
+    ],
+    "agent": "developer",
+    "tool_trajectory": [
+      "search_knowledge_base"
+    ],
+    "rubric": "Response must explain root cause and provide a defensive fix."
+  },
+  {
+    "query": "Generate a unit test for a function that calls an external API.",
+    "expected_keywords": [
+      "mock",
+      "test",
+      "api",
+      "assert"
+    ],
+    "agent": "developer",
+    "tool_trajectory": [
+      "search_knowledge_base",
+      "read_gcs_file"
+    ],
+    "rubric": "Response must include a test using mocking, with clear arrange/act/assert structure."
+  }
+]

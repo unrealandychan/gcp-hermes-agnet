@@ -1,0 +1,59 @@
+{
+  "version": "1.0",
+  "description": "Hermes Agent Platform — evaluation configuration for agents-cli eval run",
+  "pass_threshold": 0.8,
+  "metrics": {
+    "tool_trajectory_avg_score": {
+      "description": "Average score for correct tool selection and call sequence",
+      "weight": 0.4,
+      "enabled": true
+    },
+    "rubric_based_final_response_quality_v1": {
+      "description": "LLM-as-judge rubric scoring of final response quality",
+      "weight": 0.4,
+      "enabled": true
+    },
+    "hallucinations_v1": {
+      "description": "Detect factual claims not grounded in context or tools",
+      "weight": 0.2,
+      "enabled": true
+    }
+  },
+  "evalsets": [
+    {
+      "path": "eval/evalsets/analytics.evalset.json",
+      "agent": "AnalyticsAgent",
+      "description": "Analytics agent — BigQuery, reporting, KPI queries"
+    },
+    {
+      "path": "eval/evalsets/hr.evalset.json",
+      "agent": "HRAgent",
+      "description": "HR agent — leave, benefits, payroll"
+    },
+    {
+      "path": "eval/evalsets/it_helpdesk.evalset.json",
+      "agent": "ITHelpdeskAgent",
+      "description": "IT helpdesk — ticket management, provisioning"
+    },
+    {
+      "path": "eval/evalsets/developer.evalset.json",
+      "agent": "DeveloperAgent",
+      "description": "Developer agent — code review, debugging, project structure"
+    },
+    {
+      "path": "eval/evalsets/task_agent.evalset.json",
+      "agent": "TaskAgent",
+      "description": "Task agent — multi-agent orchestration and delegation"
+    }
+  ],
+  "agents_cli": {
+    "command": "agents-cli eval run",
+    "install": "pip install google-agents-cli",
+    "local_fallback": "python eval/run_eval.py --dry-run",
+    "notes": [
+      "agents-cli eval run requires GOOGLE_CLOUD_PROJECT and ADC to be set",
+      "Use --dry-run flag locally to run offline without GCP credentials",
+      "LLM-as-judge metrics require a live Gemini API endpoint"
+    ]
+  }
+}

@@ -13,13 +13,14 @@ A production-grade, self-learning multi-agent system built on Google's Agent Dev
 See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for the full changelog.
 
 **Latest additions:**
+- 📊 **Eval framework** — full evalsets for all 5 agents + `eval_config.json`; 3-metric composite scoring (keyword + tool trajectory + rubric); `python eval/run_eval.py --all --dry-run` for offline CI eval; `agents-cli eval run` for LLM-as-judge in production
 - 🔀 **AggregatorAgent** — parallel specialist outputs are now consolidated into ONE cohesive reply via `SequentialPipeline` (ParallelDispatcher → AggregatorAgent)
 - 🖥️ **ADK Web UI** — run `adk web .` from project root for a full browser-based debug UI with session management and trace viewer (no custom gateway needed for local dev)
 - 🧠 **Memory Bank** — full CRUD via 8 native AgentEngine MemoryBank methods (generate, ingest_events, fetch, purge, create, update, delete)
 - 🛡️ **PolicyEngine** wired into every `/chat` — prompt + response governance (block/redact)
 - 🔀 **Cross-Corpus RAG** — async parallel retrieval across multiple Vertex AI RAG corpora
 - 🗑️ **Teardown wizard** — delete all PoC GCP resources in one command
-- ✅ **222 tests**, all passing — CI on GitHub Actions (Python 3.11 + 3.12)
+- ✅ **304 tests**, all passing — CI on GitHub Actions (Python 3.11 + 3.12)
 - 🧩 `agents.yaml` — add new agents without touching Python
 - 📚 `skills/` — write skills as Markdown files, no code required
 
@@ -707,6 +708,27 @@ pytest tests/gateway/test_observability.py -v
 pytest tests/gateway/test_main_chat.py -v
 pytest tests/agents/test_agent_builds.py -v
 ```
+
+### Run evaluations (offline)
+
+```bash
+# Single agent evalset
+python eval/run_eval.py --evalset eval/evalsets/analytics.evalset.json --dry-run
+
+# All agents from config
+python eval/run_eval.py --config eval/eval_config.json --all --dry-run
+
+# With agents-cli (LLM-as-judge, requires GCP credentials)
+pip install google-agents-cli
+agents-cli eval run --config eval/eval_config.json
+```
+
+Each evalset case has three scoring dimensions:
+- **Keyword** — expected terms in response (groundedness + safety)
+- **Tool trajectory** — correct tool/agent calls (F1 score)
+- **Rubric** — response quality against a written criterion
+
+Composite: `keyword × 0.4 + tool_f1 × 0.3 + rubric × 0.3`. Pass threshold: **0.6** offline, **0.8** with LLM-as-judge.
 
 ### CI
 

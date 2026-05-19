@@ -238,3 +238,75 @@ reki mcp
 Available MCP tools: `ask`, `search_nodes`, `get_context`, `get_relationships`, `get_hub_nodes`, `get_impact`
 
 > Tip: `.mcp.json` in the repo root auto-configures the MCP server for Claude Code.
+
+---
+
+## Evaluation
+
+The platform ships a fully-offline evaluation framework under `eval/`. It mirrors
+the three core metrics from `agents-cli eval run`:
+
+| Metric | Implementation | Description |
+|---|---|---|
+| `keyword_overall` | `eval/metrics.py score_response()` | Groundedness + task completion + safety |
+| `tool_trajectory_avg_score` | `eval/metrics.py score_tool_trajectory()` | Tool selection F1 (precision/recall) |
+| `rubric_based_final_response_quality_v1` | `eval/metrics.py score_rubric()` | Heuristic rubric scoring (LLM-as-judge offline approximation) |
+
+### Evalsets
+
+Each agent has a dedicated evalset under `eval/evalsets/`:
+
+| Evalset | Agent | Cases |
+|---|---|---|
+| `analytics.evalset.json` | AnalyticsAgent | 5 BigQuery / KPI cases |
+| `hr.evalset.json` | HRAgent | 5 HR policy / payroll cases |
+| `it_helpdesk.evalset.json` | ITHelpdeskAgent | IT provisioning / ticket cases |
+| `developer.evalset.json` | DeveloperAgent | 5 code review / debug cases |
+| `task_agent.evalset.json` | TaskAgent | 5 multi-agent orchestration cases |
+
+Evalset format:
+```json
+{
+  "query": "What were the top products last quarter?",
+  "expected_keywords": ["revenue", "product", "quarter"],
+  "tool_trajectory": ["search_knowledge_base"],
+  "rubric": "Response must identify specific products with supporting data.",
+  "agent": "analytics"
+}
+```
+
+### Running evaluations
+
+**Offline dry-run (no GCP credentials needed):**
+```bash
+# Single evalset
+python eval/run_eval.py --evalset eval/evalsets/analytics.evalset.json --dry-run
+
+# All evalsets from config
+python eval/run_eval.py --config eval/eval_config.json --all --dry-run
+
+# Save results to JSON
+python eval/run_eval.py --config eval/eval_config.json --all --dry-run --output results.json
+```
+
+**With agents-cli (LLM-as-judge, requires GCP credentials):**
+```bash
+pip install google-agents-cli
+agents-cli eval run --config eval/eval_config.json
+```
+
+### Eval-fix loop
+
+When eval scores drop below threshold:
+1. Run `python eval/run_eval.py --config eval/eval_config.json --all --dry-run` to identify failing cases.
+2. Check the failing agent's instruction in `agents/` or `agents.yaml`.
+3. Add edge cases to the relevant `eval/evalsets/*.evalset.json`.
+4. Fix the instruction / tool wiring.
+5. Re-run to confirm PASS.
+
+### Pass threshold
+
+Default: **0.6 offline** (composite keyword + tool + rubric score).
+For production with agents-cli LLM-as-judge: **0.8** (see `eval/eval_config.json`).
+
+Composite scoring: `keyword_overall × 0.4 + tool_f1 × 0.3 + rubric_score × 0.3`

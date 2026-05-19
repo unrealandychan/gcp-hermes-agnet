@@ -1,0 +1,77 @@
+[
+  {
+    "query": "Onboard a new engineer: set up access, add to HR system, create Jira account.",
+    "expected_keywords": [
+      "access",
+      "hr",
+      "jira",
+      "engineer",
+      "setup"
+    ],
+    "agent": "task_agent",
+    "tool_trajectory": [
+      "transfer_to_agent:HRAgent",
+      "transfer_to_agent:ITHelpdeskAgent"
+    ],
+    "rubric": "Response must delegate to both HR and IT sub-agents and confirm all three tasks are addressed."
+  },
+  {
+    "query": "Generate a Q3 performance report and email it to the leadership team.",
+    "expected_keywords": [
+      "report",
+      "performance",
+      "email",
+      "leadership",
+      "q3"
+    ],
+    "agent": "task_agent",
+    "tool_trajectory": [
+      "transfer_to_agent:AnalyticsAgent"
+    ],
+    "rubric": "Response must produce a structured report and confirm email action."
+  },
+  {
+    "query": "Find all open IT tickets older than 7 days and escalate them.",
+    "expected_keywords": [
+      "tickets",
+      "escalate",
+      "open",
+      "days"
+    ],
+    "agent": "task_agent",
+    "tool_trajectory": [
+      "transfer_to_agent:ITHelpdeskAgent"
+    ],
+    "rubric": "Response must identify the tickets and describe the escalation action taken."
+  },
+  {
+    "query": "Set up a new project: create GCS bucket, Firestore collection, and add team members.",
+    "expected_keywords": [
+      "bucket",
+      "firestore",
+      "project",
+      "team"
+    ],
+    "agent": "task_agent",
+    "tool_trajectory": [
+      "transfer_to_agent:DeveloperAgent",
+      "transfer_to_agent:ITHelpdeskAgent"
+    ],
+    "rubric": "Response must address all three infrastructure tasks and confirm completion."
+  },
+  {
+    "query": "Check if we are within budget for cloud costs this month and alert if over 80%.",
+    "expected_keywords": [
+      "budget",
+      "cost",
+      "cloud",
+      "alert",
+      "percent"
+    ],
+    "agent": "task_agent",
+    "tool_trajectory": [
+      "transfer_to_agent:AnalyticsAgent"
+    ],
+    "rubric": "Response must query cost data and produce a clear budget status with threshold comparison."
+  }
+]

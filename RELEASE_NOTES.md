@@ -5,6 +5,81 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Feature] — ADK Eval Framework + agents-cli Integration (Issue #23)
+
+### Problem
+The test suite was fully offline unit tests — no evaluation of actual agent
+response quality, tool selection correctness, or instruction adherence.
+There was no structured way to detect regressions in agent behaviour
+between code changes.
+
+### Changes
+
+#### eval/metrics.py — Extended
+- Added `score_tool_trajectory(expected, actual) → ToolTrajectoryScore` —
+  set-based precision/recall/F1 for tool call correctness. Mirrors
+  `tool_trajectory_avg_score` from `agents-cli eval run`.
+- Added `score_rubric(response, rubric) → RubricScore` — offline heuristic
+  scoring against a written quality criterion. Approximates
+  `rubric_based_final_response_quality_v1` for CI without GCP credentials.
+- Both functions are fully offline and deterministic.
+
+#### eval/run_eval.py — Extended
+- Added `--config eval/eval_config.json --all` mode to run every evalset in
+  one command.
+- Composite scoring: `keyword × 0.4 + tool_f1 × 0.3 + rubric × 0.3`.
+- Output table now shows keyword / tool / rubric / overall columns.
+- `--output <path>` writes all results to JSON for CI artifact storage.
+- `--threshold` flag overrides the default pass threshold.
+
+#### eval/eval_config.json — New file
+- Central eval configuration: 5 evalset entries, metric weights,
+  pass threshold (0.8 production / 0.6 offline), agents-cli CLI reference.
+
+#### eval/evalsets/developer.evalset.json — New file
+- 5 cases: code review, retry logic, FastAPI structure, AttributeError debug,
+  unit test generation. Each case has `tool_trajectory` and `rubric` fields.
+
+#### eval/evalsets/task_agent.evalset.json — New file
+- 5 cases: multi-agent onboarding, report + email, ticket escalation,
+  project setup, budget alert. Tests multi-agent delegation patterns.
+
+#### eval/evalsets/*.evalset.json — Enriched
+- All existing evalsets (analytics, hr, it_helpdesk) updated with optional
+  `tool_trajectory` and `rubric` fields for richer evaluation.
+
+#### tests/eval/test_eval_metrics.py — Extended (31 tests, +21 new)
+- `score_tool_trajectory`: 7 tests — perfect match, partial, no match,
+  empty expected, agent transfer (`transfer_to_agent:HRAgent`).
+- `score_rubric`: 5 tests — pass, short fail, toxic fail, score bounds, empty rubric.
+- `run_eval.py` CLI: developer/task_agent evalsets, `--all --config` mode,
+  no-args exit code.
+
+#### AGENTS.md
+- Added **Evaluation** section: metric table, evalset catalogue, evalset format,
+  run commands (offline + agents-cli), eval-fix loop, threshold explanation.
+
+#### README.md
+- `What's New` updated: eval framework bullet, test count 222 → 304.
+- `Testing` section: new **Run evaluations (offline)** subsection with
+  commands and composite scoring explanation.
+
+### Test count
+**304 tests** — up from 288. All passing.
+
+### How to use
+
+```bash
+# Offline CI — no credentials needed
+python eval/run_eval.py --config eval/eval_config.json --all --dry-run
+
+# Production eval — LLM-as-judge via agents-cli
+pip install google-agents-cli
+agents-cli eval run --config eval/eval_config.json
+```
+
+---
+
 ## [Feature] — AggregatorAgent + ADK Web UI Local Debug
 
 ### Problem

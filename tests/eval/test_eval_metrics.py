@@ -1,4 +1,10 @@
-"""Unit tests for eval metrics — fully offline."""
+"""Unit tests for eval metrics — fully offline.
+
+Covers:
+  - score_response() — keyword groundedness, task completion, safety
+  - score_tool_trajectory() — precision, recall, F1
+  - score_rubric() — offline rubric heuristics
+"""
 from __future__ import annotations
 
 import subprocess
@@ -11,8 +17,14 @@ import pytest
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from eval.metrics import score_response
-from eval.online_monitor import build_online_monitor
+from eval.metrics import (
+    EvalMetrics,
+    RubricScore,
+    ToolTrajectoryScore,
+    score_response,
+    score_rubric,
+    score_tool_trajectory,
+)
 from unittest.mock import patch, MagicMock
 
 
@@ -73,12 +85,103 @@ def test_empty_keywords_gives_full_groundedness():
     assert metrics.groundedness == pytest.approx(1.0)
 
 
+# ── score_tool_trajectory tests ──────────────────────────────────────────────
+
+def test_tool_trajectory_perfect_match():
+    score = score_tool_trajectory(["bigquery", "search_knowledge_base"], ["bigquery", "search_knowledge_base"])
+    assert score.precision == pytest.approx(1.0)
+    assert score.recall == pytest.approx(1.0)
+    assert score.f1 == pytest.approx(1.0)
+
+
+def test_tool_trajectory_partial_match():
+    score = score_tool_trajectory(["bigquery", "search_knowledge_base", "storage"], ["bigquery"])
+    assert score.recall == pytest.approx(1 / 3)
+    assert score.precision == pytest.approx(1.0)
+    assert score.f1 < 1.0
+
+
+def test_tool_trajectory_no_match():
+    score = score_tool_trajectory(["bigquery"], ["slack_send"])
+    assert score.f1 == pytest.approx(0.0)
+    assert score.precision == pytest.approx(0.0)
+    assert score.recall == pytest.approx(0.0)
+
+
+def test_tool_trajectory_empty_expected():
+    """No expected tools = perfect score (any tools allowed)."""
+    score = score_tool_trajectory([], ["bigquery", "storage"])
+    assert score.f1 == pytest.approx(1.0)
+
+
+def test_tool_trajectory_both_empty():
+    score = score_tool_trajectory([], [])
+    assert score.f1 == pytest.approx(1.0)
+
+
+def test_tool_trajectory_agent_transfer():
+    expected = ["transfer_to_agent:HRAgent", "transfer_to_agent:ITHelpdeskAgent"]
+    actual = ["transfer_to_agent:HRAgent", "transfer_to_agent:ITHelpdeskAgent"]
+    score = score_tool_trajectory(expected, actual)
+    assert score.f1 == pytest.approx(1.0)
+
+
+def test_tool_trajectory_partial_agent_transfer():
+    expected = ["transfer_to_agent:HRAgent", "transfer_to_agent:ITHelpdeskAgent"]
+    actual = ["transfer_to_agent:HRAgent"]
+    score = score_tool_trajectory(expected, actual)
+    assert score.recall == pytest.approx(0.5)
+
+
+# ── score_rubric tests ────────────────────────────────────────────────────────
+
+def test_rubric_passes_with_good_response():
+    rubric = "Response must include working code example with retry and exception handling."
+    response = (
+        "Here is a working code example with retry logic and exception handling. "
+        "The implementation uses exponential backoff for robustness. "
+        "See below for the complete solution with detailed inline comments."
+    )
+    result = score_rubric(response, rubric, pass_threshold=0.5)
+    assert result.passed is True
+
+
+def test_rubric_fails_short_response():
+    rubric = "Response must include code example with retry and exception handling."
+    result = score_rubric("Short.", rubric, pass_threshold=0.8)
+    assert result.passed is False
+    assert "short" in result.reason
+
+
+def test_rubric_fails_toxic_response():
+    rubric = "Response must explain the process clearly."
+    result = score_rubric("I hate this and want to harm the system.", rubric, pass_threshold=0.3)
+    assert result.passed is False
+    assert "safety" in result.reason
+
+
+def test_rubric_score_is_float_between_0_and_1():
+    result = score_rubric("Some response text", "Some rubric criteria for evaluation here.")
+    assert 0.0 <= result.score <= 1.0
+
+
+def test_rubric_empty_rubric():
+    """Empty rubric — only length and safety checks apply."""
+    result = score_rubric(
+        "A fairly long response that should pass the length check easily and covers the basics.",
+        rubric="",
+    )
+    assert isinstance(result, RubricScore)
+    assert 0.0 <= result.score <= 1.0
+
+
 # ── online_monitor tests ──────────────────────────────────────────────────────
 
 def test_build_online_monitor_returns_none_when_no_project():
     mock_settings = MagicMock()
     mock_settings.gcp_project_id = ""
     with patch("eval.online_monitor.get_settings", return_value=mock_settings):
+        from eval.online_monitor import build_online_monitor
         result = build_online_monitor()
     assert result is None
 
@@ -87,6 +190,7 @@ def test_build_online_monitor_returns_config_when_project_set():
     mock_settings = MagicMock()
     mock_settings.gcp_project_id = "my-test-project"
     with patch("eval.online_monitor.get_settings", return_value=mock_settings):
+        from eval.online_monitor import build_online_monitor
         result = build_online_monitor()
     assert result is not None
     assert result.project_id == "my-test-project"
@@ -94,7 +198,7 @@ def test_build_online_monitor_returns_config_when_project_set():
     assert result.table_id == "quality_scores"
 
 
-# ── run_eval.py CLI test ──────────────────────────────────────────────────────
+# ── run_eval.py CLI tests ─────────────────────────────────────────────────────
 
 def test_run_eval_dry_run_exits_zero():
     evalset = PROJECT_ROOT / "eval" / "evalsets" / "analytics.evalset.json"
@@ -104,7 +208,7 @@ def test_run_eval_dry_run_exits_zero():
         capture_output=True,
         text=True,
     )
-    assert result.returncode == 0, f"Expected exit 0, got {result.returncode}\n{result.stdout}\n{result.stderr}"
+    assert result.returncode == 0, f"Expected exit 0\n{result.stdout}\n{result.stderr}"
 
 
 def test_run_eval_dry_run_prints_pass():
@@ -118,10 +222,53 @@ def test_run_eval_dry_run_prints_pass():
     assert "PASS" in result.stdout
 
 
+def test_run_eval_developer_evalset():
+    evalset = PROJECT_ROOT / "eval" / "evalsets" / "developer.evalset.json"
+    result = subprocess.run(
+        [sys.executable, str(PROJECT_ROOT / "eval" / "run_eval.py"),
+         "--evalset", str(evalset), "--dry-run"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"developer evalset failed\n{result.stdout}\n{result.stderr}"
+
+
+def test_run_eval_task_agent_evalset():
+    evalset = PROJECT_ROOT / "eval" / "evalsets" / "task_agent.evalset.json"
+    result = subprocess.run(
+        [sys.executable, str(PROJECT_ROOT / "eval" / "run_eval.py"),
+         "--evalset", str(evalset), "--dry-run"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"task_agent evalset failed\n{result.stdout}\n{result.stderr}"
+
+
+def test_run_eval_all_from_config():
+    config = PROJECT_ROOT / "eval" / "eval_config.json"
+    result = subprocess.run(
+        [sys.executable, str(PROJECT_ROOT / "eval" / "run_eval.py"),
+         "--config", str(config), "--all", "--dry-run"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"all evalsets failed\n{result.stdout}\n{result.stderr}"
+    assert "GRAND TOTAL" in result.stdout
+
+
 def test_run_eval_missing_evalset_exits_nonzero():
     result = subprocess.run(
         [sys.executable, str(PROJECT_ROOT / "eval" / "run_eval.py"),
          "--evalset", "/nonexistent/path.json", "--dry-run"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+
+
+def test_run_eval_no_args_exits_nonzero():
+    result = subprocess.run(
+        [sys.executable, str(PROJECT_ROOT / "eval" / "run_eval.py")],
         capture_output=True,
         text=True,
     )
