@@ -207,15 +207,16 @@ def build_dynamic_parallel_dispatcher(
     from agents.synthesizer import AgentSynthesizer
 
     synthesizer = AgentSynthesizer(settings)
-    agents = synthesizer.synthesise(task)
+    agents = synthesizer.synthesise(task, seq=0)
 
     if not agents:
         logger.warning("Synthesis returned no agents for task=%r", task[:80])
         return None, []
 
     # Build fresh copies for parallel — each agent can only have one parent
+    # Use seq=1 so names are distinct from the seq=0 sequential agents
     from agents.synthesizer import AgentSynthesizer as _S
-    parallel_agents = _S(settings).synthesise(task)
+    parallel_agents = _S(settings).synthesise(task, seq=1)
 
     dispatcher = ParallelAgent(
         name="DynamicParallelDispatcher",
