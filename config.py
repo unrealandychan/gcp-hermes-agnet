@@ -139,6 +139,12 @@ class Settings(BaseSettings):
     # Set false to disable Cloud Trace (useful for local dev without GCP creds).
     enable_cloud_trace: bool = True
 
+    # ── Agent Lifecycle Limits ────────────────────────────────────────────────
+    # Maximum concurrently *running* synthesised agents per session.
+    max_agents_per_session: int = 20
+    # Maximum nesting depth for sub-agent delegation chains (root = depth 0).
+    max_delegation_depth: int = 5
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

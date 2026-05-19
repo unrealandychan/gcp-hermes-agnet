@@ -422,6 +422,39 @@ async def cancel_task(
     task_store.cancel_task(task_id)
 
 
+@app.get("/tasks/{task_id}/agents")
+async def get_task_agents(
+    task_id: str = Path(..., min_length=36, max_length=36),
+    user: CurrentUser = ...,
+) -> dict:
+    """
+    Return the runtime agent tree for a long-running task (#15).
+
+    Each entry in ``agents`` represents one synthesised agent and includes:
+      - name           agent name (unique within the task)
+      - parent         parent agent name, or null for root
+      - task_body      the sub-task text sent to this agent
+      - status         running | done | failed
+      - started_at     ISO-8601 UTC timestamp
+      - completed_at   ISO-8601 UTC timestamp (empty while running)
+      - error          error message if failed (empty otherwise)
+      - children       list of child agent names
+    """
+    record = task_store.get_task(task_id)
+    if record is None:
+        record = await task_store.load_task_from_gcs(task_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="Task not found.")
+
+    caller_id: str = user.get("sub", "")
+    if record["user_id"] != caller_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied.")
+
+    from agents.agent_lifecycle import get_tracker  # noqa: PLC0415
+    tracker = get_tracker(task_id)
+    return {"task_id": task_id, "agents": tracker.get_tree()}
+
+
 @app.get("/tasks")
 async def list_my_tasks(user: CurrentUser) -> dict:
     """List all tasks submitted by the authenticated user (most recent first)."""
