@@ -33,6 +33,8 @@ import asyncio
 import logging
 from typing import Any
 
+from google.genai.types import Content, Part
+
 logger = logging.getLogger(__name__)
 
 
@@ -123,13 +125,16 @@ class HermesMemoryBank:
         """
         def _blocking() -> None:
             client = self._ensure_client()
+            # Use Content/Part objects — the Vertex AI SDK uses strict Pydantic models
+            # that reject plain dicts with extra_forbidden. Passing Content objects
+            # satisfies the schema and avoids "Extra inputs are not permitted" errors.
             client.agent_engines.memories.generate(
                 name=self._resource_name,
                 scope={"user_id": user_id},
                 direct_contents_source={
                     "events": [
-                        {"role": "user", "parts": [{"text": user_text}]},
-                        {"role": "model", "parts": [{"text": agent_text}]},
+                        Content(role="user", parts=[Part(text=user_text)]),
+                        Content(role="model", parts=[Part(text=agent_text)]),
                     ]
                 },
             )
@@ -163,14 +168,14 @@ class HermesMemoryBank:
         """
         def _blocking() -> None:
             client = self._ensure_client()
-            # Normalise 'agent' → 'model' for Vertex AI content format
+            # Use Content/Part objects — plain dicts trigger extra_forbidden in strict SDK models
             sdk_events = []
             for ev in events:
                 role = ev.get("role", "user")
                 if role == "agent":
                     role = "model"
                 text = ev.get("text", "")
-                sdk_events.append({"role": role, "parts": [{"text": text}]})
+                sdk_events.append(Content(role=role, parts=[Part(text=text)]))
 
             client.agent_engines.memories.ingest_events(
                 name=self._resource_name,

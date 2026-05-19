@@ -14,6 +14,7 @@ import re
 
 from google.adk.agents import LlmAgent
 from google.adk.runners import InMemoryRunner
+from google.genai.types import Content, Part
 
 from config import get_settings
 from memory.skill_models import Skill
@@ -90,10 +91,12 @@ async def extract_skill(
         app_name="skill_extractor", user_id="system"
     )
     response_text = ""
+    # ADK runner.run_async requires a Content object, not a plain string.
+    user_content = Content(role="user", parts=[Part(text=prompt)])
     async for event in runner.run_async(
         user_id="system",
         session_id=session.id,
-        new_message=prompt,
+        new_message=user_content,
     ):
         if event.is_final_response() and event.content:
             for part in event.content.parts:

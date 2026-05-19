@@ -96,7 +96,18 @@ _adk_sessions = _make_module("google.adk.sessions", VertexAiSessionService=Magic
 _adk_memory = _make_module("google.adk.memory")
 
 # ── google.genai ───────────────────────────────────────────────────────────────
-_genai_types = _make_module("google.genai.types", Content=MagicMock(), Part=MagicMock())
+# Content and Part need to behave like real dataclasses so tests can assert
+# on .role and .parts[0].text after construction.
+class _FakeContent:
+    def __init__(self, *, role: str = "", parts=None, **_):
+        self.role = role
+        self.parts = parts or []
+
+class _FakePart:
+    def __init__(self, *, text: str = "", **_):
+        self.text = text
+
+_genai_types = _make_module("google.genai.types", Content=_FakeContent, Part=_FakePart)
 
 # ── vertexai ──────────────────────────────────────────────────────────────────
 _vertexai_placeholder = None  # replaced below after Client mock is set up
