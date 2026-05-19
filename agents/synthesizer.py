@@ -220,9 +220,9 @@ class AgentSynthesizer:
         try:
             # Derive a safe agent name from skill_id, scoped to current task
             base_name = "Skill_" + re.sub(r"[^a-zA-Z0-9_]", "_", skill.skill_id)[:48]
-            task = getattr(self, "_current_task", "")
+            task = getattr(self, "_current_task", None)
             seq = getattr(self, "_current_seq", 0)
-            agent_name = unique_agent_name(base_name, task, seq) if task else base_name
+            agent_name = unique_agent_name(base_name, task, seq) if task is not None else base_name
 
             procedure_text = "\n".join(
                 f"  {i + 1}. {step}"

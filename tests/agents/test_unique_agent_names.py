@@ -54,3 +54,11 @@ def test_unique_agent_name_differs_for_different_tasks():
         unique_agent_name("HRAgent", "onboard Alice", seq=0)
         != unique_agent_name("HRAgent", "query payroll", seq=0)
     )
+
+
+def test_unique_agent_name_empty_task_still_suffixes_and_varies_by_seq():
+    name0 = unique_agent_name("HRAgent", "", seq=0)
+    name1 = unique_agent_name("HRAgent", "", seq=1)
+    assert name0.startswith("HRAgent_")
+    assert name0 != "HRAgent"
+    assert name0 != name1
