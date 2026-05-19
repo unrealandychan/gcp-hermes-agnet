@@ -90,7 +90,7 @@ class TestBuildDynamicParallelDispatcher:
         monkeypatch.setattr(
             "agents.synthesizer.AgentSynthesizer",
             type("_S", (), {"__init__": lambda s, _: None,
-                             "synthesise": lambda s, t: []})
+                             "synthesise": lambda s, t, seq=0: []})
         )
         pipeline, seq = ta.build_dynamic_parallel_dispatcher(settings, "irrelevant")
         assert pipeline is None
@@ -103,7 +103,7 @@ class TestBuildDynamicParallelDispatcher:
 
         class _FakeSynth:
             def __init__(self, _): pass
-            def synthesise(self, _): return [fake_agent]
+            def synthesise(self, _, seq=0): return [fake_agent]
 
         monkeypatch.setattr("agents.synthesizer.AgentSynthesizer", _FakeSynth)
 
@@ -118,7 +118,7 @@ class TestBuildDynamicParallelDispatcher:
 
         class _FakeSynth:
             def __init__(self, _): pass
-            def synthesise(self, _): return [fake_agent]
+            def synthesise(self, _, seq=0): return [fake_agent]
 
         monkeypatch.setattr("agents.synthesizer.AgentSynthesizer", _FakeSynth)
 
