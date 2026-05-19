@@ -179,9 +179,9 @@ class AgentSynthesizer:
             ]
             model_name = tmpl.get("model") or self._settings.agent_model_default
             base_name = tmpl["name"]
-            task = getattr(self, "_current_task", "")
+            task = getattr(self, "_current_task", None)
             seq = getattr(self, "_current_seq", 0)
-            agent_name = unique_agent_name(base_name, task, seq) if task else base_name
+            agent_name = unique_agent_name(base_name, task, seq) if task is not None else base_name
             return LlmAgent(
                 name=agent_name,
                 model=get_model(model_name),
