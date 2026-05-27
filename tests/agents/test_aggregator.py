@@ -79,6 +79,12 @@ class TestBuildTaskAgentSequentialPipeline:
         assert len(agent.sub_agents) == 2
         assert agent.sub_agents[1].name == "FakeSpecialist"
 
+    def test_no_specialist_agents_defaults_to_pipeline_only(self, settings):
+        """ADK 2.0: specialist_agents=None should work (defaults to empty)."""
+        agent = build_task_agent(settings)
+        # sub_agents = [SequentialPipeline] only
+        assert agent.sub_agents[0].name == "SequentialPipeline"
+
 
 # ─── build_dynamic_parallel_dispatcher — returns SequentialAgent ─────────────
 

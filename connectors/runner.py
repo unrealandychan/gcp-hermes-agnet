@@ -81,6 +81,7 @@ async def run_agent(
                     if text:
                         response_parts.append(text)
     except Exception:  # noqa: BLE001
+        # ADK 2.0: Never catch BaseException — NodeInterruptedError must propagate
         logger.exception("Agent error for %s user %s", platform, platform_user_id)
         return "⚠️ Something went wrong. Please try again."
 

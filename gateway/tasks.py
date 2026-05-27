@@ -163,11 +163,12 @@ async def _run_task_background(task_id: str) -> None:
 
     user_content = Content(role="user", parts=[Part(text=initial_message)])
 
-    # ── Use TaskAgent (LoopAgent) if available; fall back to Orchestrator ──────
+    # ── Use TaskAgent if available; fall back to Orchestrator ──────────────────
     try:
         from agents.task_agent import build_task_agent  # noqa: PLC0415
         from config import get_settings as _gs  # noqa: PLC0415
         from google.adk.runners import Runner  # noqa: PLC0415
+        # ADK 2.0: build_task_agent now accepts specialist_agents=None (defaults to fresh copies)
         task_runner = Runner(
             agent=build_task_agent(_gs()),
             app_name=_runner.app_name,
@@ -208,7 +209,9 @@ async def _run_task_background(task_id: str) -> None:
     except asyncio.CancelledError:
         record["status"] = "cancelled"
         record["result"] = "".join(result_parts) or None
+        raise  # ADK 2.0: re-raise CancelledError so the framework can handle it
     except Exception as exc:  # noqa: BLE001
+        # ADK 2.0: Never catch BaseException here — NodeInterruptedError must propagate
         logger.exception("Task %s failed.", task_id)
         record["status"] = "failed"
         record["error"] = str(exc)

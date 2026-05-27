@@ -20,6 +20,13 @@ from agents.task_agent import build_task_agent
 from config import Settings
 from models.provider import get_model
 
+# ADK 2.0: RetryConfig — auto-retry on transient LLM failures
+try:
+    from google.adk.agents import RetryConfig
+    _RETRY_CONFIG = RetryConfig(max_attempts=3)
+except ImportError:
+    _RETRY_CONFIG = None
+
 _ORCHESTRATOR_INSTRUCTION = """
 You are Hermes, an enterprise AI assistant. You receive user requests and
 delegate them to the most appropriate specialist agent.
@@ -45,7 +52,7 @@ def build_orchestrator(settings: Settings) -> LlmAgent:
     # Orchestrator only sees TaskAgent — specialists are TaskAgent's children
     # For single-domain requests, Orchestrator delegates to TaskAgent which
     # passes through to the right specialist.
-    return LlmAgent(
+    _orch_kwargs: dict = dict(
         name="Orchestrator",
         model=get_model(settings.agent_model_orchestrator),
         description="Main entry point that routes requests to specialist agents.",
@@ -53,3 +60,6 @@ def build_orchestrator(settings: Settings) -> LlmAgent:
         sub_agents=[task_agent],
         tools=[],
     )
+    if _RETRY_CONFIG is not None:
+        _orch_kwargs["retry_config"] = _RETRY_CONFIG
+    return LlmAgent(**_orch_kwargs)

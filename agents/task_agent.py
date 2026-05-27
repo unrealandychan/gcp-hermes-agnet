@@ -34,6 +34,13 @@ import logging
 
 from google.adk.agents import LlmAgent, ParallelAgent, SequentialAgent
 
+# ADK 2.0: RetryConfig replaces tenacity-based retry patterns
+try:
+    from google.adk.agents import RetryConfig
+    _RETRY_CONFIG = RetryConfig(max_attempts=3)
+except ImportError:
+    _RETRY_CONFIG = None
+
 from config import Settings
 from memory.skill_learning import build_skill_learning_callback
 from models.provider import get_model
@@ -114,12 +121,13 @@ Result: AggregatorAgent delivers one structured MBR briefing.
 
 def build_task_agent(
     settings: Settings,
-    specialist_agents: list,
+    specialist_agents: list | None = None,
 ) -> LlmAgent:
     """
     Build TaskAgent with dynamic agent synthesis.
 
     specialist_agents: the default fallback set (from agents.yaml).
+    Defaults to None; the function builds fresh copies internally.
     At runtime, AgentSynthesizer will produce task-specific agent sets.
 
     For the static build (deploy time), we use specialist_agents as the
@@ -173,9 +181,9 @@ def build_task_agent(
     )
 
     # TaskAgent: SequentialPipeline (parallel path) + originals for sequential fallback
-    task_sub_agents = [sequential_pipeline] + list(specialist_agents)
+    task_sub_agents = [sequential_pipeline] + list(specialist_agents or [])
 
-    return LlmAgent(
+    _agent_kwargs: dict = dict(
         name="TaskAgent",
         model=get_model(settings.agent_model_task_planner),
         description=(
@@ -186,6 +194,10 @@ def build_task_agent(
         sub_agents=task_sub_agents,
         after_agent_callback=build_skill_learning_callback(agent_name="TaskAgent"),
     )
+    # ADK 2.0: attach RetryConfig when available
+    if _RETRY_CONFIG is not None:
+        _agent_kwargs["retry_config"] = _RETRY_CONFIG
+    return LlmAgent(**_agent_kwargs)
 
 
 def build_dynamic_parallel_dispatcher(

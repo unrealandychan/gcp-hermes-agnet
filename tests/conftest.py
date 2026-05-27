@@ -29,11 +29,13 @@ def _make_module(name: str, **attrs) -> types.ModuleType:
 # ── Fake LlmAgent that preserves keyword arguments ─────────────────────────────
 class _FakeLlmAgent:
     """Lightweight stand-in for google.adk.agents.LlmAgent."""
-    def __init__(self, *, name="", description="", tools=None, sub_agents=None, **_kw):
+    def __init__(self, *, name="", description="", tools=None, sub_agents=None,
+                 retry_config=None, **_kw):
         self.name = name
         self.description = description
         self.tools = list(tools or [])
         self.sub_agents = list(sub_agents or [])
+        self.retry_config = retry_config
 
 
 class _FakeLoopAgent:
@@ -71,6 +73,7 @@ _adk_agents = _make_module(
     LoopAgent=_FakeLoopAgent,
     ParallelAgent=_FakeParallelAgent,
     SequentialAgent=_FakeSequentialAgent,
+    RetryConfig=MagicMock(),  # ADK 2.0: RetryConfig stub
 )
 _adk_tools = _make_module(
     "google.adk.tools",

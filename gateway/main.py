@@ -166,6 +166,9 @@ class ChatEvent(BaseModel):
     type: str  # "text" | "done" | "error"
     content: str = ""
     session_id: str = ""
+    # ADK 2.0: new fields on the underlying Event schema — forwarded for observability
+    node_info: dict | None = None   # which graph node produced this event
+    output: str | None = None       # structured node output (if any)
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
@@ -247,6 +250,9 @@ async def _stream_agent(
                         text = "".join(
                             getattr(p, "text", "") for p in event.content.parts
                         )
+                    # ADK 2.0: extract new node_info / output fields if present
+                    node_info = getattr(event, "node_info", None)
+                    node_output = getattr(event, "output", None)
                     # ── Governance: check response ─────────────────────────────
                     if _policy_engine:
                         resp_policy = _policy_engine.check_response("Orchestrator", text)
@@ -256,7 +262,13 @@ async def _stream_agent(
                                 "Response blocked by policy %s for user %s",
                                 resp_policy.violated_policy_id, user_id,
                             )
-                    yield _sse(ChatEvent(type="text", content=text, session_id=session_id))
+                    yield _sse(ChatEvent(
+                        type="text",
+                        content=text,
+                        session_id=session_id,
+                        node_info=dict(node_info) if node_info else None,
+                        output=str(node_output) if node_output is not None else None,
+                    ))
                     # ── BQ Analytics: log turn (fire-and-forget) ──────────────
                     if _bq_analytics:
                         _elapsed_ms = (time.monotonic() - _start) * 1000
@@ -272,6 +284,9 @@ async def _stream_agent(
             yield _sse(ChatEvent(type="done", session_id=session_id))
 
         except Exception as exc:  # noqa: BLE001
+            # ADK 2.0: NodeInterruptedError subclasses BaseException, NOT Exception.
+            # We intentionally do NOT catch BaseException here so that HITL pauses
+            # and framework-level interrupts can propagate correctly.
             logger.exception("Agent stream error.")
             yield _sse(ChatEvent(type="error", content=str(exc), session_id=session_id))
 
