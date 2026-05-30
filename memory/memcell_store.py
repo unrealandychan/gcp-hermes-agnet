@@ -16,10 +16,14 @@ Why Firestore (not a new vector DB)?
     - When BM25 hybrid retrieval becomes a priority, swap to Vertex AI Search
       by implementing the same interface (upsert_memcell / fetch_memcells)
 
-Retrieval strategy (Phase 1 — simplified):
-    fetch_memcells() retrieves the N most recent MemCells and filters expired
-    foresight at read time. Full hybrid retrieval (BM25 + dense + RRF) is the
-    next iteration once Vertex AI Search is wired in.
+Retrieval strategy (Phase 2 — Hybrid):
+    fetch_memcells() supports an optional `query` parameter. When provided:
+      - BM25 via Vertex AI Search indexes MemCell Atomic Facts
+      - Dense via Vertex AI RAG Engine embeds MemCell Episodes
+      - Results are fused via RRF (k=60) — no manual weight tuning required
+    When `query` is None, falls back to Phase 1 recency-based fetch.
+    When Vertex AI services are not configured, gracefully degrades to recency.
+    See: memory/memcell_retrieval.py for implementation details.
 """
 from __future__ import annotations
 
@@ -85,33 +89,60 @@ async def fetch_memcells(
     limit: int = 20,
     memory_type: Optional[str] = None,
     as_of: Optional[date] = None,
+    query: Optional[str] = None,
 ) -> list[MemCell]:
     """
-    Fetch the most recent MemCells for a user.
+    Fetch MemCells for a user.
+
+    When ``query`` is provided, uses hybrid retrieval (BM25 + dense vector + RRF).
+    When ``query`` is None, falls back to recency-based Firestore fetch.
 
     Args:
         user_id:     User to fetch memories for.
         limit:       Max number of cells to return (default 20).
-        memory_type: Optional filter by MemoryType value string.
+        memory_type: Optional filter by MemoryType value string (recency mode only).
         as_of:       Date for foresight validity filtering (default: today).
+        query:       Optional free-text query. When set, activates hybrid retrieval.
 
     Returns:
-        List of MemCell objects with expired foresight still present
-        (callers use .active_foresight() or .to_prompt_text() to filter).
+        List of MemCell objects, ranked by relevance (hybrid) or recency (fallback).
     """
+    # ── Hybrid path ────────────────────────────────────────────────────────────
+    if query:
+        try:
+            from memory.memcell_retrieval import hybrid_retrieve
+            cells = await hybrid_retrieve(user_id=user_id, query=query, top_k=limit)
+            if cells:
+                logger.debug(
+                    "MemCellStore: hybrid_retrieve returned %d cells for user=%s",
+                    len(cells), user_id,
+                )
+                return cells
+            # Both tracks returned nothing → fall through to recency fetch
+            logger.debug(
+                "MemCellStore: hybrid_retrieve returned 0 results — "
+                "falling back to recency fetch for user=%s", user_id,
+            )
+        except Exception:  # noqa: BLE001
+            logger.exception(
+                "MemCellStore: hybrid_retrieve failed for user=%s — "
+                "falling back to recency fetch.", user_id,
+            )
+
+    # ── Recency path (original Phase 1 behaviour) ──────────────────────────────
     try:
         db = _get_firestore_client()
-        query = (
+        fs_query = (
             db.collection(_COLLECTION)
             .document(user_id)
             .collection("cells")
             .order_by("created_at", direction="DESCENDING")
         )
         if memory_type:
-            query = query.where("memory_type", "==", memory_type)
-        query = query.limit(limit)
+            fs_query = fs_query.where("memory_type", "==", memory_type)
+        fs_query = fs_query.limit(limit)
 
-        docs = query.stream()
+        docs = fs_query.stream()
         cells: list[MemCell] = []
         async for doc in docs:
             try:
@@ -120,7 +151,7 @@ async def fetch_memcells(
                 logger.warning("MemCellStore: failed to deserialise doc %s", doc.id)
 
         logger.debug(
-            "MemCellStore: fetched %d cells for user=%s", len(cells), user_id
+            "MemCellStore: recency fetch returned %d cells for user=%s", len(cells), user_id
         )
         return cells
 
@@ -134,9 +165,14 @@ async def format_memcells_for_prompt(
     limit: int = 10,
     as_of: Optional[date] = None,
     max_chars: int = 3000,
+    query: Optional[str] = None,
 ) -> str:
     """
     Fetch MemCells and format them for system prompt injection.
+
+    When ``query`` is provided, uses hybrid retrieval so the injected memories
+    are semantically relevant to the current message (EverOS adaptive injection).
+    When ``query`` is None, uses recency-based fetch (original Phase 1 behaviour).
 
     Expired foresight is silently dropped (passive memory decay — EverOS pattern).
     Returns empty string if no memories are found.
@@ -146,11 +182,12 @@ async def format_memcells_for_prompt(
         limit:     Max cells to include.
         as_of:     Date for foresight validity (default: today).
         max_chars: Character budget cap (to avoid context window overflow).
+        query:     Optional current user message for relevance ranking.
 
     Returns:
         Formatted string ready for system prompt injection.
     """
-    cells = await fetch_memcells(user_id=user_id, limit=limit)
+    cells = await fetch_memcells(user_id=user_id, limit=limit, query=query)
     if not cells:
         return ""
 

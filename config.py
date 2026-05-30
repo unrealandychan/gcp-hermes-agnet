@@ -26,6 +26,17 @@ class Settings(BaseSettings):
     knowledge_corpus_name: str = ""
     skills_corpus_name: str = ""
 
+    # MemCell Hybrid Retrieval (Phase 2 — optional, graceful degradation if unset)
+    # BM25 track: Vertex AI Search data store ID for MemCell Atomic Facts indexing.
+    # Leave blank to disable BM25 track (only dense vector will be used).
+    memcell_search_engine_id: str = ""
+    # Vertex AI Search serving config (default: "default_config")
+    memcell_serving_config: str = "default_config"
+    # Dense track: Vertex AI RAG corpus resource name for MemCell Episode embeddings.
+    # Leave blank to disable dense track (only BM25 will be used).
+    # Must be in same region as gcp_location.
+    memcell_rag_corpus_name: str = ""
+
     # API Gateway
     gateway_port: int = 8080
     cors_origins: str = "http://localhost:3000"
