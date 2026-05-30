@@ -94,7 +94,7 @@ _adk_tools_code = _make_module(
     "google.adk.tools.built_in_code_execution_tool",
     BuiltInCodeExecutionTool=MagicMock(),
 )
-_adk_runners = _make_module("google.adk.runners", Runner=MagicMock())
+_adk_runners = _make_module("google.adk.runners", Runner=MagicMock(), InMemoryRunner=MagicMock())
 _adk_sessions = _make_module("google.adk.sessions", VertexAiSessionService=MagicMock())
 _adk_memory = _make_module("google.adk.memory")
 

@@ -68,6 +68,14 @@ def build_skill_learning_callback(agent_name: str):
                 _learn_in_background(agent_name, user_text, agent_text)
             )
 
+            # ── 3b. Fire-and-forget MemCell extraction (EverOS-inspired) ──────
+            user_id = getattr(callback_context, "user_id", None) or getattr(
+                callback_context.session, "user_id", "anonymous"
+            )
+            asyncio.create_task(
+                _extract_memcell_in_background(agent_name, user_id, user_text, agent_text)
+            )
+
             # ── 4. Fire-and-forget memory persistence ─────────────────────────
             asyncio.create_task(
                 _persist_to_memory_bank(
@@ -153,6 +161,32 @@ async def _learn_in_background(
             logger.info("Learned skill: %s (agent=%s)", skill.skill_id, agent_name)
     except Exception:  # noqa: BLE001
         logger.exception("Background skill extraction failed — no skill saved.")
+
+
+async def _extract_memcell_in_background(
+    agent_name: str, user_id: str, user_text: str, agent_text: str
+) -> None:
+    """Background task: extract and persist a structured MemCell (EverOS-inspired)."""
+    try:
+        from memory.memcell_extractor import extract_memcell
+        from memory.memcell_store import upsert_memcell
+
+        cell = await extract_memcell(
+            agent_name=agent_name,
+            user_id=user_id,
+            user_query=user_text,
+            agent_response=agent_text,
+        )
+        if cell:
+            await upsert_memcell(cell)
+            logger.info(
+                "MemCell saved: %s (agent=%s type=%s)",
+                cell.memcell_id,
+                agent_name,
+                cell.memory_type.value,
+            )
+    except Exception:  # noqa: BLE001
+        logger.exception("Background MemCell extraction failed — no cell saved.")
 
 
 def _extract_text(content: Any) -> str:
